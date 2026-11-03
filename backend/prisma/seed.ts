@@ -102,6 +102,29 @@ async function main() {
   }
   console.log(`✅ Seeded ${packages.length} access packages.`);
 
+  // 4. Seed Default Super Admin
+  const adminEmail = "admin@assessly.com";
+  const existingAdmin = await prisma.user.findUnique({
+    where: { email: adminEmail },
+  });
+
+  if (!existingAdmin) {
+    const bcrypt = await import("bcryptjs");
+    const passwordHash = await bcrypt.default.hash("AdminPassword@123", 12);
+    await prisma.user.create({
+      data: {
+        email: adminEmail,
+        fullName: "System Super Admin",
+        passwordHash,
+        role: "SUPER_ADMIN",
+        status: "ACTIVE",
+      },
+    });
+    console.log(`✅ Seeded Super Admin account: ${adminEmail} (password: AdminPassword@123)`);
+  } else {
+    console.log(`ℹ️  Super Admin account already exists: ${adminEmail}`);
+  }
+
   console.log("🎉 Seeding complete!");
 }
 
