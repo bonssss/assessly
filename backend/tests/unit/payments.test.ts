@@ -129,3 +129,4 @@ describe("Payment State Transitions & Entitlement Activation (BR-09..11)", () =>
     assert.throws(() => reject(), /CONFLICT_ALREADY_PROCESSED/);
   });
 });
+

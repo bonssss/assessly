@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "assessly-api-collection-v1",
     "name": "Assessly API",
-    "description": "Postman collection for the Assessly Online Exam Management & Self-Assessment Platform.",
+    "description": "Postman collection for the Assessly Online Exam Management & Self-Assessment Platform, connected to live Supabase PostgreSQL.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -52,6 +52,7 @@
       "item": [
         {
           "name": "Register Student",
+          "description": "Registers a new student, hashes password, enrolls in selected departments, and initializes the 5-question Free Trial ledger.",
           "event": [
             {
               "listen": "test",
@@ -62,6 +63,7 @@
                   "    if (json.data && json.data.token) {",
                   "        pm.environment.set('authToken', json.data.token);",
                   "        pm.collectionVariables.set('authToken', json.data.token);",
+                  "        console.log('authToken automatically stored in environment');",
                   "    }",
                   "}"
                 ],
@@ -79,7 +81,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"fullName\": \"Abebe Bikila\",\n  \"email\": \"abebe@example.com\",\n  \"password\": \"SecurePass123!\",\n  \"departmentIds\": [\"00000000-0000-0000-0000-000000000000\"]\n}"
+              "raw": "{\n  \"fullName\": \"Abebe Bikila\",\n  \"email\": \"student@assessly.com\",\n  \"password\": \"SecurePassword123!\",\n  \"departmentIds\": [\"3b43fe3c-5d50-4323-9684-7084af26cfab\"]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/register",
@@ -100,6 +102,7 @@
                   "    if (json.data && json.data.token) {",
                   "        pm.environment.set('authToken', json.data.token);",
                   "        pm.collectionVariables.set('authToken', json.data.token);",
+                  "        console.log('authToken automatically stored in environment');",
                   "    }",
                   "}"
                 ],
@@ -117,7 +120,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"abebe@example.com\",\n  \"password\": \"SecurePass123!\"\n}"
+              "raw": "{\n  \"email\": \"student@assessly.com\",\n  \"password\": \"SecurePassword123!\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/login",
@@ -185,7 +188,7 @@
       "name": "Departments",
       "item": [
         {
-          "name": "List Active Departments",
+          "name": "List Active Departments (Live from Supabase)",
           "request": {
             "method": "GET",
             "header": [],
@@ -218,7 +221,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"code\": \"CS-101\",\n  \"name\": \"Computer Science\",\n  \"description\": \"Department of Computer Science & Software Engineering\"\n}"
+              "raw": "{\n  \"code\": \"ENG-101\",\n  \"name\": \"Civil & Environmental Engineering\",\n  \"description\": \"Structural analysis, hydrology, geotechnical engineering, and materials.\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/departments",
@@ -255,7 +258,7 @@
               "query": [
                 { "key": "page", "value": "1" },
                 { "key": "limit", "value": "20" },
-                { "key": "departmentId", "value": "", "disabled": true },
+                { "key": "departmentId", "value": "3b43fe3c-5d50-4323-9684-7084af26cfab", "disabled": true },
                 { "key": "difficulty", "value": "MEDIUM", "disabled": true },
                 { "key": "search", "value": "", "disabled": true }
               ]
@@ -284,7 +287,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"departmentId\": \"00000000-0000-0000-0000-000000000000\",\n  \"body\": \"Which data structure operates on a First-In-First-Out (FIFO) principle?\",\n  \"topic\": \"Data Structures\",\n  \"difficulty\": \"EASY\",\n  \"marks\": 1.0,\n  \"explanation\": \"A Queue processes elements in FIFO order, unlike a Stack which is LIFO.\",\n  \"status\": \"PUBLISHED\",\n  \"options\": [\n    { \"optionText\": \"Stack\", \"isCorrect\": false },\n    { \"optionText\": \"Queue\", \"isCorrect\": true },\n    { \"optionText\": \"Tree\", \"isCorrect\": false },\n    { \"optionText\": \"Graph\", \"isCorrect\": false }\n  ]\n}"
+              "raw": "{\n  \"departmentId\": \"3b43fe3c-5d50-4323-9684-7084af26cfab\",\n  \"body\": \"Which data structure operates on a First-In-First-Out (FIFO) principle?\",\n  \"topic\": \"Data Structures\",\n  \"difficulty\": \"EASY\",\n  \"marks\": 1.0,\n  \"explanation\": \"A Queue processes elements in FIFO order, unlike a Stack which is LIFO.\",\n  \"status\": \"PUBLISHED\",\n  \"options\": [\n    { \"optionText\": \"Stack\", \"isCorrect\": false },\n    { \"optionText\": \"Queue\", \"isCorrect\": true },\n    { \"optionText\": \"Tree\", \"isCorrect\": false },\n    { \"optionText\": \"Graph\", \"isCorrect\": false }\n  ]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/questions",
@@ -315,7 +318,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"difficulty\": \"MEDIUM\",\n  \"status\": \"PUBLISHED\"\n}"
+              "raw": "{\n  \"difficulty\": \"HARD\",\n  \"status\": \"PUBLISHED\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/questions/:id",
@@ -371,6 +374,149 @@
       ]
     },
     {
+      "name": "Timed Exams",
+      "item": [
+        {
+          "name": "List Available Exams (Student/Admin)",
+          "description": "Lists exams in the student's enrolled department(s).",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{authToken}}", "type": "string" }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/exams?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "exams"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" },
+                { "key": "departmentId", "value": "3b43fe3c-5d50-4323-9684-7084af26cfab", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Timed Exam (Admin)",
+          "description": "Admin creates a timed exam and attaches question IDs with specified duration.",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{authToken}}", "type": "string" }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"departmentId\": \"3b43fe3c-5d50-4323-9684-7084af26cfab\",\n  \"title\": \"Computer Science Midterm Examination\",\n  \"instructions\": \"Answer all questions within the allocated time. Automatic submission occurs upon deadline expiration.\",\n  \"durationMinutes\": 60,\n  \"feedbackPolicy\": \"AFTER_SUBMISSION\",\n  \"status\": \"PUBLISHED\",\n  \"questionIds\": [\"question-uuid-here\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/exams",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "exams"]
+            }
+          }
+        },
+        {
+          "name": "Start Timed Exam Attempt (Student)",
+          "description": "Starts the countdown timer, locks server-side deadlineAt, and returns questions sanitized of answer keys.",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{authToken}}", "type": "string" }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/exams/:id/attempts",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "exams", ":id", "attempts"],
+              "variable": [
+                { "key": "id", "value": "exam-uuid-here" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Submit Exam Answers (Student)",
+          "description": "Submits the student's answer sheet. Server evaluates answers against stored answer keys and enforces deadlineAt timestamp.",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{authToken}}", "type": "string" }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"answers\": [\n    {\n      \"questionId\": \"question-uuid-here\",\n      \"selectedOptionId\": \"option-uuid-here\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/exams/attempts/:id/submit",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "exams", "attempts", ":id", "submit"],
+              "variable": [
+                { "key": "id", "value": "attempt-uuid-here" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Attempt Results & Review",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{authToken}}", "type": "string" }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/exams/attempts/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "exams", "attempts", ":id"],
+              "variable": [
+                { "key": "id", "value": "attempt-uuid-here" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get My Past Exam History (Student)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{authToken}}", "type": "string" }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/exams/me/history",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "exams", "me", "history"]
+            }
+          }
+        }
+      ]
+    },
+    {
       "name": "Entitlements & Quota",
       "item": [
         {
@@ -403,6 +549,7 @@
       "item": [
         {
           "name": "Get Payment Instructions (Public)",
+          "description": "Returns active Telebirr and CBE bank account numbers and instructions.",
           "request": {
             "method": "GET",
             "header": [],
@@ -415,6 +562,7 @@
         },
         {
           "name": "Get Purchasable Packages (Public)",
+          "description": "Returns published Semester and Annual access packages seeded in Supabase.",
           "request": {
             "method": "GET",
             "header": [],
@@ -446,7 +594,7 @@
               "formdata": [
                 {
                   "key": "packageId",
-                  "value": "package-uuid-here",
+                  "value": "601bef8e-7457-4c61-925b-fdd04d833177",
                   "type": "text"
                 },
                 {
@@ -491,6 +639,32 @@
               "raw": "{{baseUrl}}/api/v1/payments/me",
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "payments", "me"]
+            }
+          }
+        },
+        {
+          "name": "Get Receipt Signed Preview URL (Owner/Admin Only)",
+          "description": "Generates a secure 15-minute presigned preview link for the uploaded receipt slip (AC-11).",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/payments/:id/receipt-url",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "payments", ":id", "receipt-url"],
+              "variable": [
+                { "key": "id", "value": "payment-uuid-here" }
+              ]
             }
           }
         },

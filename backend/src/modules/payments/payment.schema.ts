@@ -47,3 +47,4 @@ export type ApprovePaymentInput = z.infer<typeof approvePaymentSchema>;
 export type RejectPaymentInput = z.infer<typeof rejectPaymentSchema>;
 export type CreatePackageInput = z.infer<typeof createPackageSchema>;
 export type PaymentSettingInput = z.infer<typeof paymentSettingSchema>;
+

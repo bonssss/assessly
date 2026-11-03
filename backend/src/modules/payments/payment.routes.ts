@@ -5,6 +5,8 @@ import {
   listPackagesHandler,
   createPackageHandler,
   submitPaymentHandler,
+  getReceiptPreviewHandler,
+  serveLocalReceiptFileHandler,
   listStudentPaymentsHandler,
   listAdminPaymentsHandler,
   approvePaymentHandler,
@@ -12,7 +14,7 @@ import {
 } from "./payment.controller.js";
 import { requireAuth, requireRoles } from "../../common/middlewares/auth.middleware.js";
 import { validateBody } from "../../common/middlewares/validate.middleware.js";
-import { uploadReceipt } from "../../common/storage/storage.service.js";
+import { uploadReceipt } from "../../common/storage/index.js";
 import {
   submitPaymentSchema,
   approvePaymentSchema,
@@ -33,8 +35,11 @@ router.get("/instructions", getInstructionsHandler);
 // View purchasable access packages
 router.get("/packages", listPackagesHandler);
 
+// Local file preview/download (for local storage driver)
+router.get("/receipts/:filename", serveLocalReceiptFileHandler);
+
 // ==========================================
-// STUDENT ENDPOINTS
+// STUDENT & AUTHENTICATED ENDPOINTS
 // ==========================================
 
 // Student submits payment receipt and transaction code
@@ -49,6 +54,9 @@ router.post(
 
 // Student reviews personal payment history and status
 router.get("/me", requireAuth, listStudentPaymentsHandler);
+
+// Get short-lived signed preview URL for receipt (owner or admin only - AC-11)
+router.get("/:id/receipt-url", requireAuth, getReceiptPreviewHandler);
 
 // ==========================================
 // ADMIN ENDPOINTS

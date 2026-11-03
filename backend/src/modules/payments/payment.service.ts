@@ -3,7 +3,9 @@ import {
   BadRequestError,
   NotFoundError,
   ConflictError,
+  ForbiddenError,
 } from "../../common/errors/app-error.js";
+import { storageProvider } from "../../common/storage/index.js";
 import type {
   SubmitPaymentInput,
   CreatePackageInput,
@@ -87,6 +89,9 @@ export class PaymentService {
       );
     }
 
+    // Upload receipt to configured storage provider (Local Disk or S3/Cloudflare R2)
+    const stored = await storageProvider.uploadFile(file, "receipts");
+
     // Create payment in PENDING status
     const payment = await prisma.payment.create({
       data: {
@@ -95,7 +100,7 @@ export class PaymentService {
         amount: pkg.price,
         channel,
         transactionRef,
-        receiptKey: file.filename,
+        receiptKey: stored.key,
         status: "PENDING",
       },
       include: {
@@ -105,7 +110,37 @@ export class PaymentService {
       },
     });
 
-    return payment;
+    return {
+      payment,
+      receiptPreviewUrl: stored.url,
+    };
+  }
+
+  /**
+   * Student & Admin: Get secure, time-limited preview/download URL for receipt (SRS §10.2, §10.3)
+   */
+  async getReceiptPreviewUrl(userId: string, role: string, paymentId: string) {
+    const payment = await prisma.payment.findUnique({
+      where: { id: paymentId },
+    });
+
+    if (!payment) {
+      throw new NotFoundError("Payment record not found");
+    }
+
+    // IDOR protection: only owner or administrator can view receipt (AC-11)
+    if (role !== "ADMIN" && role !== "SUPER_ADMIN" && payment.userId !== userId) {
+      throw new ForbiddenError("You are not authorized to access this receipt");
+    }
+
+    const url = await storageProvider.getSignedUrl(payment.receiptKey, 900);
+
+    return {
+      paymentId: payment.id,
+      receiptKey: payment.receiptKey,
+      signedUrl: url,
+      expiresInSeconds: 900,
+    };
   }
 
   /**

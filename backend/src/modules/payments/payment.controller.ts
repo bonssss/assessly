@@ -1,7 +1,9 @@
 import type { Request, Response, NextFunction } from "express";
+import path from "path";
+import fs from "fs";
 import { paymentService } from "./payment.service.js";
 import { sendSuccess } from "../../common/utils/response.js";
-import { UnauthorizedError } from "../../common/errors/app-error.js";
+import { UnauthorizedError, NotFoundError } from "../../common/errors/app-error.js";
 
 export const getInstructionsHandler = async (
   _req: Request,
@@ -64,17 +66,59 @@ export const submitPaymentHandler = async (
     if (!req.user) {
       throw new UnauthorizedError();
     }
-    const payment = await paymentService.submitPayment(
+    const result = await paymentService.submitPayment(
       req.user.id,
       req.body,
       req.file
     );
     sendSuccess(
       res,
-      payment,
+      result,
       "Payment submitted successfully and pending admin verification",
       201
     );
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getReceiptPreviewHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    if (!req.user) {
+      throw new UnauthorizedError();
+    }
+    const { id } = req.params;
+    const result = await paymentService.getReceiptPreviewUrl(
+      req.user.id,
+      req.user.role,
+      id as string
+    );
+    sendSuccess(res, result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const serveLocalReceiptFileHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { filename } = req.params;
+    // Prevent directory traversal
+    const safeFilename = path.basename(filename as string);
+    const filePath = path.resolve(process.cwd(), "uploads", "receipts", safeFilename);
+
+    if (!fs.existsSync(filePath)) {
+      throw new NotFoundError("Receipt file not found");
+    }
+
+    res.sendFile(filePath);
   } catch (error) {
     next(error);
   }
