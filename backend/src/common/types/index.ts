@@ -7,8 +7,13 @@ export interface AuthenticatedUser {
   fullName: string;
 }
 
+export interface TokenPayload {
+  userId: string;
+  email: string;
+  role: UserRole;
+}
+
 export interface PaginationParams {
   page: number;
   limit: number;
 }
-
