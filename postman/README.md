@@ -21,3 +21,4 @@ This folder contains the official Postman API collection and environment files f
 * **Auth**: Registration with department enrollment, login, profile retrieval, profile updates.
 * **Departments**: Public active department directory & admin creation.
 * **Questions, Exams & Payments**: Planned endpoint templates ready for upcoming development phases.
+

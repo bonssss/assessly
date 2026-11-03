@@ -230,10 +230,11 @@
       ]
     },
     {
-      "name": "Questions & Practice (Planned)",
+      "name": "Questions & Practice",
       "item": [
         {
           "name": "List Questions",
+          "description": "Returns sanitized questions for students (no isCorrect or explanation) or full view for admins.",
           "request": {
             "auth": {
               "type": "bearer",
@@ -248,20 +249,21 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/questions?departmentId=",
+              "raw": "{{baseUrl}}/api/v1/questions?page=1&limit=20",
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "questions"],
               "query": [
-                {
-                  "key": "departmentId",
-                  "value": ""
-                }
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" },
+                { "key": "departmentId", "value": "", "disabled": true },
+                { "key": "difficulty", "value": "MEDIUM", "disabled": true },
+                { "key": "search", "value": "", "disabled": true }
               ]
             }
           }
         },
         {
-          "name": "Submit Question Attempt",
+          "name": "Create Question (Admin)",
           "request": {
             "auth": {
               "type": "bearer",
@@ -282,18 +284,115 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"selectedOptionId\": \"\"\n}"
+              "raw": "{\n  \"departmentId\": \"00000000-0000-0000-0000-000000000000\",\n  \"body\": \"Which data structure operates on a First-In-First-Out (FIFO) principle?\",\n  \"topic\": \"Data Structures\",\n  \"difficulty\": \"EASY\",\n  \"marks\": 1.0,\n  \"explanation\": \"A Queue processes elements in FIFO order, unlike a Stack which is LIFO.\",\n  \"status\": \"PUBLISHED\",\n  \"options\": [\n    { \"optionText\": \"Stack\", \"isCorrect\": false },\n    { \"optionText\": \"Queue\", \"isCorrect\": true },\n    { \"optionText\": \"Tree\", \"isCorrect\": false },\n    { \"optionText\": \"Graph\", \"isCorrect\": false }\n  ]\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/v1/questions/:id/attempts",
+              "raw": "{{baseUrl}}/api/v1/questions",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "questions", ":id", "attempts"],
+              "path": ["api", "v1", "questions"]
+            }
+          }
+        },
+        {
+          "name": "Update Question (Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"difficulty\": \"MEDIUM\",\n  \"status\": \"PUBLISHED\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/questions/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "questions", ":id"],
               "variable": [
                 {
                   "key": "id",
-                  "value": ""
+                  "value": "question-uuid-here"
                 }
               ]
+            }
+          }
+        },
+        {
+          "name": "Submit Practice Answer (Student)",
+          "description": "Submits an answer to a question. Atomically checks & decrements trial quota (5 free) or verifies active entitlement. Returns immediate score, correct answer, and explanation.",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"selectedOptionId\": \"option-uuid-here\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/questions/:id/answer",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "questions", ":id", "answer"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "question-uuid-here"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Entitlements & Quota",
+      "item": [
+        {
+          "name": "Get Trial Quota & Entitlement Status",
+          "description": "Returns remaining free attempts, usage counter, and active package entitlements for the current student.",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/entitlements/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "entitlements", "status"]
             }
           }
         }
