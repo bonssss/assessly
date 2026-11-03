@@ -1,5 +1,31 @@
 import { Router } from "express";
+import {
+  getOverviewKPIsHandler,
+  listAuditLogsHandler,
+  listUsersHandler,
+  updateUserRoleHandler,
+  updateUserStatusHandler,
+} from "./admin.controller.js";
+import { requireAuth, requireRoles } from "../../common/middlewares/auth.middleware.js";
 
 const router = Router();
-export default router;
 
+// Protect all admin routes with authentication and ADMIN / SUPER_ADMIN role check
+router.use(requireAuth, requireRoles("ADMIN", "SUPER_ADMIN"));
+
+// System Overview & Real-Time Performance Analytics (FR-ADMIN)
+router.get("/reports/overview", getOverviewKPIsHandler);
+
+// Paginated Audit Logs (FR-AUD)
+router.get("/audit-logs", listAuditLogsHandler);
+
+// User Management
+router.get("/users", listUsersHandler);
+
+// Role modification (SUPER_ADMIN only)
+router.patch("/users/:id/role", requireRoles("SUPER_ADMIN"), updateUserRoleHandler);
+
+// User status (activation / deactivation)
+router.patch("/users/:id/status", updateUserStatusHandler);
+
+export default router;
