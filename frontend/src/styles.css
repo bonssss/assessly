@@ -1,0 +1,74 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-sans: "DM Sans", system-ui, sans-serif;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 10px;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+}
+
+/* Assessly palette: navy #172554, blue #2563EB, bg #F8FAFC, text #1E293B, muted #64748B, border #E2E8F0 */
+:root {
+  --radius: 8px;
+  --background: oklch(0.984 0.003 247.86);
+  --foreground: oklch(0.279 0.041 260.03);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.279 0.041 260.03);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.279 0.041 260.03);
+  --primary: oklch(0.282 0.091 267.94);
+  --primary-foreground: oklch(1 0 0);
+  --brand: oklch(0.546 0.215 262.88);
+  --brand-foreground: oklch(1 0 0);
+  --secondary: oklch(0.968 0.007 247.9);
+  --secondary-foreground: oklch(0.279 0.041 260.03);
+  --muted: oklch(0.968 0.007 247.9);
+  --muted-foreground: oklch(0.554 0.041 257.42);
+  --accent: oklch(0.97 0.014 254.6);
+  --accent-foreground: oklch(0.282 0.091 267.94);
+  --destructive: oklch(0.577 0.215 27.33);
+  --destructive-foreground: oklch(1 0 0);
+  --success: oklch(0.627 0.17 149.21);
+  --warning: oklch(0.666 0.157 58.32);
+  --border: oklch(0.929 0.013 255.51);
+  --input: oklch(0.929 0.013 255.51);
+  --ring: oklch(0.546 0.215 262.88);
+}
+
+@layer base {
+  * { border-color: var(--color-border); }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+}
