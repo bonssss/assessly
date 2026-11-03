@@ -60,3 +60,4 @@ export const updateProfileHandler = async (
     next(error);
   }
 };
+
