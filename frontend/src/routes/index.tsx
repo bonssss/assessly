@@ -8,9 +8,9 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "ExamPro — Prepare Smart. Succeed Confidently." },
+      { title: "Assessly — Prepare Smart. Succeed Confidently." },
       { name: "description", content: "Department-based exam practice and self-assessment. Start with five free questions." },
-      { property: "og:title", content: "ExamPro — Prepare Smart. Succeed Confidently." },
+      { property: "og:title", content: "Assessly — Prepare Smart. Succeed Confidently." },
       { property: "og:description", content: "Practice real exam questions for your department. Five free questions to start." },
     ],
   }),

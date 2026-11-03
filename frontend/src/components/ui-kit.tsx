@@ -4,9 +4,11 @@ import { cn } from "@/lib/utils";
 
 export function Logo({ className }: { className?: string }) {
   return (
-    <span className={cn("flex items-center gap-2 font-semibold tracking-tight", className)}>
-      <span className="grid size-7 place-items-center rounded-md bg-primary text-xs font-bold text-primary-foreground">EP</span>
-      ExamPro
+    <span className={cn("flex items-center gap-2.5 font-bold tracking-tight text-foreground text-lg", className)}>
+      <span className="grid size-8 place-items-center rounded-lg bg-gradient-to-br from-blue-600 to-indigo-700 text-sm font-extrabold text-white shadow-sm ring-1 ring-blue-500/20">
+        A
+      </span>
+      <span>Assessly</span>
     </span>
   );
 }

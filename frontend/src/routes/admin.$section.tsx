@@ -19,7 +19,7 @@ const titles: Record<string, [string, string]> = {
 export const Route = createFileRoute("/admin/$section")({
   beforeLoad: ({ params }) => { if (!titles[params.section]) throw notFound(); },
   head: ({ params }) => {
-    const t = `${titles[params.section]?.[0] ?? "Admin"} — ExamPro Admin`;
+    const t = `${titles[params.section]?.[0] ?? "Admin"} — Assessly Admin`;
     return { meta: [{ title: t }, { name: "description", content: titles[params.section]?.[1] ?? "" }, { property: "og:title", content: t }, { property: "og:description", content: titles[params.section]?.[1] ?? "" }] };
   },
   component: AdminSection,

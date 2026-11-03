@@ -26,8 +26,8 @@ export function PublicFooter() {
     <footer className="border-t bg-card">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-8 text-sm text-muted-foreground">
         <Logo className="text-foreground" />
-        <span>© 2026 ExamPro. Online examination & self-assessment.</span>
-        <span>support@exampro.et</span>
+        <span>© 2026 Assessly. Online examination & self-assessment.</span>
+        <span>support@assessly.com</span>
       </div>
     </footer>
   );

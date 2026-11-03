@@ -35,7 +35,7 @@
   --color-ring: var(--ring);
 }
 
-/* ExamPro palette: navy #172554, blue #2563EB, bg #F8FAFC, text #1E293B, muted #64748B, border #E2E8F0 */
+/* Assessly palette: navy #172554, blue #2563EB, bg #F8FAFC, text #1E293B, muted #64748B, border #E2E8F0 */
 :root {
   --radius: 8px;
   --background: oklch(0.984 0.003 247.86);
