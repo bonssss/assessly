@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Award, CheckCircle2, CreditCard, Download, FileText, ListChecks } from "lucide-react";
 import { StudentShell } from "@/components/StudentShell";
 import { PageHeader, Section, Stat, StatusBadge, btn, td } from "@/components/ui-kit";
+import { ScrollReveal } from "@/components/ScrollReveal";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 
@@ -68,46 +69,55 @@ function Dashboard() {
 
   return (
     <StudentShell>
-      <PageHeader
-        title={`Welcome back, ${user?.fullName || "Student"}`}
-        description="Exit exam preparation & practice dashboard"
-        action={
-          <Link to="/exams" className={btn.primary}>
-            <FileText className="size-4" />
-            Start Exam
-          </Link>
-        }
-      />
+      <ScrollReveal animation="fade-down" delay={50}>
+        <PageHeader
+          title={`Welcome back, ${user?.fullName || "Student"}`}
+          description="Exit exam preparation & practice dashboard"
+          action={
+            <Link to="/exams" className={`${btn.brand} group shadow-xs`}>
+              <FileText className="size-4" />
+              <span>Start Exam</span>
+            </Link>
+          }
+        />
+      </ScrollReveal>
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <Stat
-          label="Free Questions Used"
-          value={`${used}/${limit}`}
-          hint={used >= limit ? "Trial quota reached" : `${limit - used} free questions remaining`}
-          icon={ListChecks}
-        />
-        <Stat
-          label="Completed Exams"
-          value={String(completedExams.length)}
-          hint={completedExams.length > 0 ? "Attempts recorded" : "No exams taken yet"}
-          icon={CheckCircle2}
-        />
-        <Stat
-          label="Average Score"
-          value={completedExams.length > 0 ? `${avgScore}%` : "—"}
-          hint="Pass mark is 50%"
-          icon={Award}
-        />
-        <Stat
-          label="Subscription Status"
-          value={<StatusBadge status={isPaid ? "Approved" : used >= limit ? "Rejected" : "Pending"} />}
-          hint={isPaid ? "Full access active" : "Purchase package for full access"}
-          icon={CreditCard}
-        />
+        {[
+          {
+            label: "Free Questions Used",
+            value: `${used}/${limit}`,
+            hint: used >= limit ? "Trial quota reached" : `${limit - used} free questions remaining`,
+            icon: ListChecks,
+          },
+          {
+            label: "Completed Exams",
+            value: String(completedExams.length),
+            hint: completedExams.length > 0 ? "Attempts recorded" : "No exams taken yet",
+            icon: CheckCircle2,
+          },
+          {
+            label: "Average Score",
+            value: completedExams.length > 0 ? `${avgScore}%` : "—",
+            hint: "Pass mark is 50%",
+            icon: Award,
+          },
+          {
+            label: "Subscription Status",
+            value: <StatusBadge status={isPaid ? "Approved" : used >= limit ? "Rejected" : "Pending"} />,
+            hint: isPaid ? "Full access active" : "Purchase package for full access",
+            icon: CreditCard,
+          },
+        ].map((item, idx) => (
+          <ScrollReveal key={item.label} animation="fade-up" delay={100 + idx * 80}>
+            <Stat {...item} />
+          </ScrollReveal>
+        ))}
       </div>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-3">
-        <Section title="My Enrolled Departments" className="lg:col-span-1">
+      <ScrollReveal animation="fade-up" delay={250}>
+        <div className="mt-6 grid gap-6 lg:grid-cols-3">
+          <Section title="My Enrolled Departments" className="lg:col-span-1 shadow-xs transition-all hover:shadow-sm">
           <div className="divide-y">
             {departments.length === 0 && (
               <p className="p-4 text-sm text-muted-foreground">No departments enrolled.</p>
@@ -159,39 +169,42 @@ function Dashboard() {
           </ul>
         </Section>
       </div>
+      </ScrollReveal>
 
-      <div className="mt-6">
-        <Section
-          title="Recent Exam Attempts"
-          action={
-            <Link to="/exams" className="text-sm text-brand font-medium">
-              View All Exams →
-            </Link>
-          }
-        >
-          {examHistory.length === 0 ? (
-            <p className="p-4 text-sm text-muted-foreground">No exam attempts recorded yet.</p>
-          ) : (
-            <table className="w-full">
-              <tbody className="divide-y">
-                {examHistory.slice(0, 5).map((attempt) => (
-                  <tr key={attempt.id}>
-                    <td className={td}>
-                      <div className="font-medium">{attempt.exam?.title || "Timed Exam"}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {new Date(attempt.startedAt).toLocaleDateString()} · Status: {attempt.status}
-                      </div>
-                    </td>
-                    <td className={`${td} text-right font-semibold`}>
-                      {attempt.percentage !== null ? `${attempt.percentage}%` : "In Progress"}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </Section>
-      </div>
+      <ScrollReveal animation="fade-up" delay={350}>
+        <div className="mt-6">
+          <Section
+            title="Recent Exam Attempts"
+            action={
+              <Link to="/exams" className="text-sm text-brand font-medium hover:underline">
+                View All Exams →
+              </Link>
+            }
+          >
+            {examHistory.length === 0 ? (
+              <p className="p-4 text-sm text-muted-foreground">No exam attempts recorded yet.</p>
+            ) : (
+              <table className="w-full">
+                <tbody className="divide-y">
+                  {examHistory.slice(0, 5).map((attempt) => (
+                    <tr key={attempt.id} className="transition-colors hover:bg-muted/50">
+                      <td className={td}>
+                        <div className="font-medium">{attempt.exam?.title || "Timed Exam"}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {new Date(attempt.startedAt).toLocaleDateString()} · Status: {attempt.status}
+                        </div>
+                      </td>
+                      <td className={`${td} text-right font-semibold`}>
+                        {attempt.percentage !== null ? `${attempt.percentage}%` : "In Progress"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </Section>
+        </div>
+      </ScrollReveal>
     </StudentShell>
   );
 }

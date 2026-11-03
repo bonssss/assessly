@@ -56,7 +56,7 @@ export function AppShell({
             <Logo />
           </Link>
         </div>
-        <nav className="flex-1 space-y-0.5 p-3">
+        <nav className="flex-1 space-y-1 p-3">
           {nav.map((n) => (
             <Link
               key={n.label}
@@ -64,26 +64,26 @@ export function AppShell({
               params={n.params as never}
               activeOptions={{ exact: true }}
               onClick={() => setOpen(false)}
-              className="flex items-center gap-3 rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
-              activeProps={{ className: "bg-accent font-medium !text-primary" }}
+              className="flex items-center gap-3 rounded-md px-3 py-2 text-sm text-muted-foreground transition-all duration-150 hover:bg-muted hover:text-foreground hover:translate-x-0.5 active:scale-[0.98]"
+              activeProps={{ className: "bg-accent font-medium !text-primary shadow-xs" }}
             >
-              <n.icon className="size-4" />
-              {n.label}
+              <n.icon className="size-4 shrink-0" />
+              <span>{n.label}</span>
             </Link>
           ))}
         </nav>
         <div className="border-t p-3">
           <button
             onClick={handleLogout}
-            className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-destructive"
+            className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm text-muted-foreground transition-all duration-150 hover:bg-destructive/10 hover:text-destructive active:scale-[0.98] cursor-pointer"
           >
-            <LogOut className="size-4" /> Logout
+            <LogOut className="size-4 shrink-0" /> <span>Logout</span>
           </button>
         </div>
       </aside>
       {open && (
         <div
-          className="fixed inset-0 z-20 bg-foreground/20 md:hidden"
+          className="fixed inset-0 z-20 bg-foreground/30 backdrop-blur-xs transition-opacity duration-300 md:hidden animate-fade-in"
           onClick={() => setOpen(false)}
         />
       )}
