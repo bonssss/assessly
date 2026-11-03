@@ -30,14 +30,14 @@ if (!fs.existsSync(tempDir)) {
   fs.mkdirSync(tempDir, { recursive: true });
 }
 
-const allowedMimeTypes = ["image/jpeg", "image/png", "image/jpg", "application/pdf"];
+const allowedReceiptMimeTypes = ["image/jpeg", "image/png", "image/jpg", "application/pdf"];
 
-const fileFilter = (
+const receiptFileFilter = (
   _req: any,
   file: Express.Multer.File,
   cb: multer.FileFilterCallback
 ) => {
-  if (allowedMimeTypes.includes(file.mimetype)) {
+  if (allowedReceiptMimeTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
     cb(
@@ -50,9 +50,44 @@ const fileFilter = (
 
 export const uploadReceipt = multer({
   storage,
-  fileFilter,
+  fileFilter: receiptFileFilter,
   limits: {
     fileSize: 5 * 1024 * 1024, // 5 MB max limit (SRS TBD-08)
+  },
+});
+
+const allowedResourceMimeTypes = [
+  "application/pdf",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "application/vnd.ms-powerpoint",
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+  "text/plain",
+  "image/jpeg",
+  "image/png",
+];
+
+const resourceFileFilter = (
+  _req: any,
+  file: Express.Multer.File,
+  cb: multer.FileFilterCallback
+) => {
+  if (allowedResourceMimeTypes.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(
+      new BadRequestError(
+        `Invalid resource file format (${file.mimetype}). Supported formats: PDF, Word (DOC/DOCX), PowerPoint (PPT/PPTX), TXT, and Images.`
+      )
+    );
+  }
+};
+
+export const uploadResourceFile = multer({
+  storage,
+  fileFilter: resourceFileFilter,
+  limits: {
+    fileSize: 50 * 1024 * 1024, // 50 MB max limit for course resources
   },
 });
 

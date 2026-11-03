@@ -30,10 +30,11 @@ export class LocalStorageProvider implements IStorageProvider {
     }
 
     const key = `${folder}/${filename}`;
+    const endpointPrefix = folder === "resources" ? "/api/v1/resources/files" : "/api/v1/payments/receipts";
 
     return {
       key,
-      url: `/api/v1/payments/receipts/${encodeURIComponent(filename)}`,
+      url: `${endpointPrefix}/${encodeURIComponent(filename)}`,
       mimeType: file.mimetype,
       size: file.size,
     };
@@ -42,7 +43,9 @@ export class LocalStorageProvider implements IStorageProvider {
   async getSignedUrl(key: string, _expiresInSeconds: number = 900): Promise<string> {
     // For local driver, points to the local download/preview API endpoint
     const filename = path.basename(key);
-    return `/api/v1/payments/receipts/${encodeURIComponent(filename)}`;
+    const folder = key.split("/")[0] || "receipts";
+    const endpointPrefix = folder === "resources" ? "/api/v1/resources/files" : "/api/v1/payments/receipts";
+    return `${endpointPrefix}/${encodeURIComponent(filename)}`;
   }
 
   async deleteFile(key: string): Promise<void> {

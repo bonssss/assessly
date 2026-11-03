@@ -28,8 +28,12 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/",
-              "host": ["{{baseUrl}}"],
-              "path": [""]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                ""
+              ]
             }
           }
         },
@@ -40,8 +44,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/health",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "health"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "health"
+              ]
             }
           }
         }
@@ -85,8 +95,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/register",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "auth", "register"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "register"
+              ]
             }
           }
         },
@@ -124,8 +141,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "auth", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
             }
           }
         },
@@ -146,8 +170,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/me",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "auth", "me"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me"
+              ]
             }
           }
         },
@@ -177,8 +208,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/me",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "auth", "me"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me"
+              ]
             }
           }
         }
@@ -194,8 +232,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/departments",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "departments"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "departments"
+              ]
             }
           }
         },
@@ -225,8 +269,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/departments",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "departments"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "departments"
+              ]
             }
           }
         }
@@ -253,14 +303,38 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/questions?page=1&limit=20",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "questions"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "questions"
+              ],
               "query": [
-                { "key": "page", "value": "1" },
-                { "key": "limit", "value": "20" },
-                { "key": "departmentId", "value": "3b43fe3c-5d50-4323-9684-7084af26cfab", "disabled": true },
-                { "key": "difficulty", "value": "MEDIUM", "disabled": true },
-                { "key": "search", "value": "", "disabled": true }
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "departmentId",
+                  "value": "3b43fe3c-5d50-4323-9684-7084af26cfab",
+                  "disabled": true
+                },
+                {
+                  "key": "difficulty",
+                  "value": "MEDIUM",
+                  "disabled": true
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "disabled": true
+                }
               ]
             }
           }
@@ -291,8 +365,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/questions",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "questions"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "questions"
+              ]
             }
           }
         },
@@ -322,8 +402,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/questions/:id",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "questions", ":id"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "questions",
+                ":id"
+              ],
               "variable": [
                 {
                   "key": "id",
@@ -360,8 +447,16 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/questions/:id/answer",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "questions", ":id", "answer"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "questions",
+                ":id",
+                "answer"
+              ],
               "variable": [
                 {
                   "key": "id",
@@ -383,19 +478,39 @@
             "auth": {
               "type": "bearer",
               "bearer": [
-                { "key": "token", "value": "{{authToken}}", "type": "string" }
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
               ]
             },
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/exams?page=1&limit=20",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "exams"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "exams"
+              ],
               "query": [
-                { "key": "page", "value": "1" },
-                { "key": "limit", "value": "20" },
-                { "key": "departmentId", "value": "3b43fe3c-5d50-4323-9684-7084af26cfab", "disabled": true }
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "departmentId",
+                  "value": "3b43fe3c-5d50-4323-9684-7084af26cfab",
+                  "disabled": true
+                }
               ]
             }
           }
@@ -407,12 +522,19 @@
             "auth": {
               "type": "bearer",
               "bearer": [
-                { "key": "token", "value": "{{authToken}}", "type": "string" }
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
               ]
             },
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -420,8 +542,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/exams",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "exams"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "exams"
+              ]
             }
           }
         },
@@ -432,17 +560,32 @@
             "auth": {
               "type": "bearer",
               "bearer": [
-                { "key": "token", "value": "{{authToken}}", "type": "string" }
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
               ]
             },
             "method": "POST",
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/exams/:id/attempts",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "exams", ":id", "attempts"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "exams",
+                ":id",
+                "attempts"
+              ],
               "variable": [
-                { "key": "id", "value": "exam-uuid-here" }
+                {
+                  "key": "id",
+                  "value": "exam-uuid-here"
+                }
               ]
             }
           }
@@ -454,12 +597,19 @@
             "auth": {
               "type": "bearer",
               "bearer": [
-                { "key": "token", "value": "{{authToken}}", "type": "string" }
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
               ]
             },
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -467,10 +617,22 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/exams/attempts/:id/submit",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "exams", "attempts", ":id", "submit"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "exams",
+                "attempts",
+                ":id",
+                "submit"
+              ],
               "variable": [
-                { "key": "id", "value": "attempt-uuid-here" }
+                {
+                  "key": "id",
+                  "value": "attempt-uuid-here"
+                }
               ]
             }
           }
@@ -481,17 +643,32 @@
             "auth": {
               "type": "bearer",
               "bearer": [
-                { "key": "token", "value": "{{authToken}}", "type": "string" }
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
               ]
             },
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/exams/attempts/:id",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "exams", "attempts", ":id"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "exams",
+                "attempts",
+                ":id"
+              ],
               "variable": [
-                { "key": "id", "value": "attempt-uuid-here" }
+                {
+                  "key": "id",
+                  "value": "attempt-uuid-here"
+                }
               ]
             }
           }
@@ -502,15 +679,27 @@
             "auth": {
               "type": "bearer",
               "bearer": [
-                { "key": "token", "value": "{{authToken}}", "type": "string" }
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
               ]
             },
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/exams/me/history",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "exams", "me", "history"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "exams",
+                "me",
+                "history"
+              ]
             }
           }
         }
@@ -537,8 +726,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/entitlements/status",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "entitlements", "status"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "entitlements",
+                "status"
+              ]
             }
           }
         }
@@ -555,8 +751,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/payments/instructions",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "payments", "instructions"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "payments",
+                "instructions"
+              ]
             }
           }
         },
@@ -568,8 +771,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/payments/packages",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "payments", "packages"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "payments",
+                "packages"
+              ]
             }
           }
         },
@@ -615,8 +825,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/payments",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "payments"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "payments"
+              ]
             }
           }
         },
@@ -637,8 +853,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/payments/me",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "payments", "me"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "payments",
+                "me"
+              ]
             }
           }
         },
@@ -660,10 +883,21 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/payments/:id/receipt-url",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "payments", ":id", "receipt-url"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "payments",
+                ":id",
+                "receipt-url"
+              ],
               "variable": [
-                { "key": "id", "value": "payment-uuid-here" }
+                {
+                  "key": "id",
+                  "value": "payment-uuid-here"
+                }
               ]
             }
           }
@@ -685,10 +919,21 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/payments/admin/queue?status=PENDING",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "payments", "admin", "queue"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "payments",
+                "admin",
+                "queue"
+              ],
               "query": [
-                { "key": "status", "value": "PENDING" }
+                {
+                  "key": "status",
+                  "value": "PENDING"
+                }
               ]
             }
           }
@@ -709,7 +954,10 @@
             },
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -717,10 +965,22 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/payments/admin/:id/approve",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "payments", "admin", ":id", "approve"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "payments",
+                "admin",
+                ":id",
+                "approve"
+              ],
               "variable": [
-                { "key": "id", "value": "payment-uuid-here" }
+                {
+                  "key": "id",
+                  "value": "payment-uuid-here"
+                }
               ]
             }
           }
@@ -740,7 +1000,10 @@
             },
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -748,10 +1011,22 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/payments/admin/:id/reject",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "payments", "admin", ":id", "reject"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "payments",
+                "admin",
+                ":id",
+                "reject"
+              ],
               "variable": [
-                { "key": "id", "value": "payment-uuid-here" }
+                {
+                  "key": "id",
+                  "value": "payment-uuid-here"
+                }
               ]
             }
           }
@@ -771,7 +1046,10 @@
             },
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -779,8 +1057,16 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/payments/admin/packages",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "payments", "admin", "packages"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "payments",
+                "admin",
+                "packages"
+              ]
             }
           }
         },
@@ -799,7 +1085,10 @@
             },
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -807,8 +1096,370 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/payments/admin/settings",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "payments", "admin", "settings"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "payments",
+                "admin",
+                "settings"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Learning Resources",
+      "item": [
+        {
+          "name": "List Learning Resources",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/resources?departmentId={{department_id}}&page=1&limit=20",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "resources"
+              ],
+              "query": [
+                {
+                  "key": "departmentId",
+                  "value": "{{department_id}}"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Single Resource",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/resources/{{resource_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "resources",
+                "{{resource_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Generate Secure Download URL",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/resources/{{resource_id}}/download",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "resources",
+                "{{resource_id}}",
+                "download"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Upload Learning Resource (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "title",
+                  "value": "Comprehensive Computer Science Study Guide",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "Full semester recap with sample past questions",
+                  "type": "text"
+                },
+                {
+                  "key": "topic",
+                  "value": "Algorithms & Architecture",
+                  "type": "text"
+                },
+                {
+                  "key": "departmentId",
+                  "value": "{{department_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "accessLevel",
+                  "value": "PAID",
+                  "type": "text"
+                },
+                {
+                  "key": "status",
+                  "value": "PUBLISHED",
+                  "type": "text"
+                },
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/resources",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "resources"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Resource Metadata (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated CS Study Guide 2026 Edition\",\n  \"accessLevel\": \"FREE\",\n  \"status\": \"PUBLISHED\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/resources/{{resource_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "resources",
+                "{{resource_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Resource (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/resources/{{resource_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "resources",
+                "{{resource_id}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin & Analytics",
+      "item": [
+        {
+          "name": "Get Overview KPIs & Metrics (FR-ADMIN)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/reports/overview",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "reports",
+                "overview"
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Audit Logs (FR-AUD)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/audit-logs?page=1&limit=20",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "audit-logs"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Users (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/users?page=1&limit=20",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "users"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update User Role (Super Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"ADMIN\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/users/{{target_user_id}}/role",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "users",
+                "{{target_user_id}}",
+                "role"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update User Status (Active/Suspended/Inactive)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"SUSPENDED\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/users/{{target_user_id}}/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "users",
+                "{{target_user_id}}",
+                "status"
+              ]
             }
           }
         }
