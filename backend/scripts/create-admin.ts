@@ -56,3 +56,4 @@ createAdmin()
   .finally(async () => {
     await prisma.$disconnect();
   });
+

@@ -36,3 +36,4 @@ export const queryResourceSchema = z.object({
 export type CreateResourceInput = z.infer<typeof createResourceSchema>;
 export type UpdateResourceInput = z.infer<typeof updateResourceSchema>;
 export type QueryResourceInput = z.infer<typeof queryResourceSchema>;
+

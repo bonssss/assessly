@@ -1,5 +1,6 @@
 import express, { type Application } from "express";
 import cors from "cors";
+import helmet from "helmet";
 import { config } from "./config/env.js";
 import apiRouter from "./routes.js";
 import { errorHandler } from "./common/middlewares/error.middleware.js";
@@ -7,10 +8,13 @@ import { NotFoundError } from "./common/errors/app-error.js";
 
 const app: Application = express();
 
-// Global Middlewares
+// Security Middlewares
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+}));
 app.use(cors({ origin: config.corsOrigin }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: "2mb" }));
+app.use(express.urlencoded({ extended: true, limit: "2mb" }));
 
 // Base / Root Endpoint
 app.get("/", (_req, res) => {

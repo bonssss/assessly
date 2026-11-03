@@ -2,11 +2,19 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+const nodeEnv = process.env.NODE_ENV || "development";
+const jwtSecret = process.env.JWT_SECRET || "default_development_jwt_secret";
+
+if (nodeEnv === "production" && (!process.env.JWT_SECRET || process.env.JWT_SECRET === "default_development_jwt_secret")) {
+  console.error("FATAL SECURITY ERROR: JWT_SECRET must be set to a secure unique secret in production environment.");
+  process.exit(1);
+}
+
 export const config = {
   port: Number(process.env.PORT) || 3000,
-  nodeEnv: process.env.NODE_ENV || "development",
+  nodeEnv,
   corsOrigin: process.env.CORS_ORIGIN || "*",
-  jwtSecret: process.env.JWT_SECRET || "default_development_jwt_secret",
+  jwtSecret,
   databaseUrl: process.env.DATABASE_URL || "",
   freeTrialQuota: Number(process.env.FREE_TRIAL_QUOTA) || 5,
 

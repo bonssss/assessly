@@ -109,6 +109,10 @@ export const serveLocalReceiptFileHandler = async (
   next: NextFunction
 ): Promise<void> => {
   try {
+    if (!req.user) {
+      throw new UnauthorizedError("Authentication required to access receipt files");
+    }
+
     const { filename } = req.params;
     // Prevent directory traversal
     const safeFilename = path.basename(filename as string);
@@ -118,6 +122,25 @@ export const serveLocalReceiptFileHandler = async (
       throw new NotFoundError("Receipt file not found");
     }
 
+    // Role-based authorization & IDOR defense:
+    // Only ADMIN, SUPER_ADMIN, or the student who owns this receipt may view it
+    if (req.user.role !== "ADMIN" && req.user.role !== "SUPER_ADMIN") {
+      const { prisma } = await import("../../prisma.js");
+      const payment = await prisma.payment.findFirst({
+        where: {
+          userId: req.user.id,
+          receiptUrl: { contains: safeFilename },
+        },
+      });
+
+      if (!payment) {
+        throw new NotFoundError("Receipt file not found or unauthorized");
+      }
+    }
+
+    // Secure response headers against MIME confusion and browser script execution
+    res.setHeader("X-Content-Type-Options", "nosniff");
+    res.setHeader("Content-Security-Policy", "default-src 'none'");
     res.sendFile(filePath);
   } catch (error) {
     next(error);

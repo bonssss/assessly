@@ -122,15 +122,76 @@ export const deleteResourceHandler = async (
 };
 
 /**
- * Controller to serve local resource files safely when STORAGE_DRIVER=local
+ * Controller to serve local resource files safely when STORAGE_DRIVER=local.
+ * Enforces authentication and paywall entitlement checks.
  */
-export const serveLocalResourceFileHandler = (req: Request, res: Response) => {
-  const filename = path.basename(req.params.filename as string);
-  const filePath = path.resolve(process.cwd(), "uploads", "resources", filename);
+export const serveLocalResourceFileHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    if (!req.user) {
+      throw new NotFoundError("File not found or unauthorized");
+    }
 
-  if (!fs.existsSync(filePath)) {
-    throw new NotFoundError("File not found on local storage");
+    const filename = path.basename(req.params.filename as string);
+    const filePath = path.resolve(process.cwd(), "uploads", "resources", filename);
+
+    if (!fs.existsSync(filePath)) {
+      throw new NotFoundError("File not found on local storage");
+    }
+
+    const { prisma } = await import("../../prisma.js");
+    const { ForbiddenError } = await import("../../common/errors/app-error.js");
+
+    const resource = await prisma.resource.findFirst({
+      where: {
+        fileKey: { contains: filename },
+      },
+    });
+
+    if (!resource) {
+      throw new NotFoundError("Resource record not found");
+    }
+
+    // Check paywall if student and resource is PAID
+    if (req.user.role === "STUDENT") {
+      if (resource.status !== "PUBLISHED") {
+        throw new NotFoundError("Resource not found");
+      }
+
+      if (resource.accessLevel === "PAID") {
+        const activeEntitlement = await prisma.entitlement.findFirst({
+          where: {
+            userId: req.user.id,
+            status: "ACTIVE",
+            OR: [
+              { departmentId: null },
+              { departmentId: resource.departmentId },
+            ],
+            AND: [
+              {
+                OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
+              },
+            ],
+          },
+        });
+
+        if (!activeEntitlement) {
+          throw new ForbiddenError(
+            "Access requires an active subscription for this department",
+            "PAYWALL_REQUIRED"
+          );
+        }
+      }
+    }
+
+    // Security headers preventing script execution / MIME sniffing
+    res.setHeader("X-Content-Type-Options", "nosniff");
+    res.setHeader("Content-Security-Policy", "default-src 'none'");
+    res.sendFile(filePath);
+  } catch (error) {
+    next(error);
   }
-
-  res.sendFile(filePath);
 };
