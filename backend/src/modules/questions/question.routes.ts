@@ -1,5 +1,57 @@
 import { Router } from "express";
+import {
+  createQuestionHandler,
+  updateQuestionHandler,
+  listQuestionsHandler,
+  submitPracticeAnswerHandler,
+} from "./question.controller.js";
+import { requireAuth, requireRoles } from "../../common/middlewares/auth.middleware.js";
+import {
+  validateBody,
+  validateQuery,
+} from "../../common/middlewares/validate.middleware.js";
+import {
+  createQuestionSchema,
+  updateQuestionSchema,
+  submitAnswerSchema,
+  listQuestionsQuerySchema,
+} from "./question.schema.js";
 
 const router = Router();
-export default router;
 
+// Both students and admins can list questions (filtered & sanitized per role)
+router.get(
+  "/",
+  requireAuth,
+  validateQuery(listQuestionsQuerySchema),
+  listQuestionsHandler
+);
+
+// Admin only: create a new question with options
+router.post(
+  "/",
+  requireAuth,
+  requireRoles("ADMIN", "SUPER_ADMIN"),
+  validateBody(createQuestionSchema),
+  createQuestionHandler
+);
+
+// Admin only: edit an existing question
+router.patch(
+  "/:id",
+  requireAuth,
+  requireRoles("ADMIN", "SUPER_ADMIN"),
+  validateBody(updateQuestionSchema),
+  updateQuestionHandler
+);
+
+// Student: submit practice answer (with atomic trial decrement & scoring)
+router.post(
+  "/:id/answer",
+  requireAuth,
+  requireRoles("STUDENT"),
+  validateBody(submitAnswerSchema),
+  submitPracticeAnswerHandler
+);
+
+export default router;

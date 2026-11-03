@@ -27,3 +27,4 @@ export const createDepartmentHandler = async (
     next(error);
   }
 };
+
