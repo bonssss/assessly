@@ -13,3 +13,4 @@ export interface IStorageProvider {
   getSignedUrl(key: string, expiresInSeconds?: number): Promise<string>;
   deleteFile(key: string): Promise<void>;
 }
+
