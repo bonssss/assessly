@@ -374,6 +374,149 @@
       ]
     },
     {
+      "name": "Timed Exams",
+      "item": [
+        {
+          "name": "List Available Exams (Student/Admin)",
+          "description": "Lists exams in the student's enrolled department(s).",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{authToken}}", "type": "string" }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/exams?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "exams"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" },
+                { "key": "departmentId", "value": "3b43fe3c-5d50-4323-9684-7084af26cfab", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Timed Exam (Admin)",
+          "description": "Admin creates a timed exam and attaches question IDs with specified duration.",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{authToken}}", "type": "string" }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"departmentId\": \"3b43fe3c-5d50-4323-9684-7084af26cfab\",\n  \"title\": \"Computer Science Midterm Examination\",\n  \"instructions\": \"Answer all questions within the allocated time. Automatic submission occurs upon deadline expiration.\",\n  \"durationMinutes\": 60,\n  \"feedbackPolicy\": \"AFTER_SUBMISSION\",\n  \"status\": \"PUBLISHED\",\n  \"questionIds\": [\"question-uuid-here\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/exams",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "exams"]
+            }
+          }
+        },
+        {
+          "name": "Start Timed Exam Attempt (Student)",
+          "description": "Starts the countdown timer, locks server-side deadlineAt, and returns questions sanitized of answer keys.",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{authToken}}", "type": "string" }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/exams/:id/attempts",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "exams", ":id", "attempts"],
+              "variable": [
+                { "key": "id", "value": "exam-uuid-here" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Submit Exam Answers (Student)",
+          "description": "Submits the student's answer sheet. Server evaluates answers against stored answer keys and enforces deadlineAt timestamp.",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{authToken}}", "type": "string" }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"answers\": [\n    {\n      \"questionId\": \"question-uuid-here\",\n      \"selectedOptionId\": \"option-uuid-here\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/exams/attempts/:id/submit",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "exams", "attempts", ":id", "submit"],
+              "variable": [
+                { "key": "id", "value": "attempt-uuid-here" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Attempt Results & Review",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{authToken}}", "type": "string" }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/exams/attempts/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "exams", "attempts", ":id"],
+              "variable": [
+                { "key": "id", "value": "attempt-uuid-here" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get My Past Exam History (Student)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{authToken}}", "type": "string" }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/exams/me/history",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "exams", "me", "history"]
+            }
+          }
+        }
+      ]
+    },
+    {
       "name": "Entitlements & Quota",
       "item": [
         {
