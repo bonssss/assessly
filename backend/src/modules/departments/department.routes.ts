@@ -1,5 +1,16 @@
 import { Router } from "express";
+import {
+  listDepartmentsHandler,
+  createDepartmentHandler,
+} from "./department.controller.js";
+import { requireAuth, requireRoles } from "../../common/middlewares/auth.middleware.js";
 
 const router = Router();
-export default router;
 
+// Public: Guests can view active departments during registration
+router.get("/", listDepartmentsHandler);
+
+// Admin only: Create a department
+router.post("/", requireAuth, requireRoles("ADMIN", "SUPER_ADMIN"), createDepartmentHandler);
+
+export default router;
