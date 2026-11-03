@@ -293,3 +293,4 @@ Register a new student enrolled in Computer Science.
 - **Request**: `GET {{baseUrl}}/admin/audit-logs?page=1&limit=20`
 - **Header**: `Authorization: Bearer {{admin_token}}`
 - **Response**: Paginated audit events verifying `PAYMENT_APPROVED`, `RESOURCE_UPLOADED`, and user actions.
+
