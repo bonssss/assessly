@@ -15,7 +15,13 @@ export const validateBody = (schema: ZodTypeAny) => {
 export const validateQuery = (schema: ZodTypeAny) => {
   return async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
     try {
-      req.query = (await schema.parseAsync(req.query)) as typeof req.query;
+      const parsed = await schema.parseAsync(req.query);
+      Object.defineProperty(req, "query", {
+        value: parsed,
+        writable: true,
+        enumerable: true,
+        configurable: true,
+      });
       next();
     } catch (error) {
       next(error);
@@ -26,7 +32,13 @@ export const validateQuery = (schema: ZodTypeAny) => {
 export const validateParams = (schema: ZodTypeAny) => {
   return async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
     try {
-      req.params = (await schema.parseAsync(req.params)) as typeof req.params;
+      const parsed = await schema.parseAsync(req.params);
+      Object.defineProperty(req, "params", {
+        value: parsed,
+        writable: true,
+        enumerable: true,
+        configurable: true,
+      });
       next();
     } catch (error) {
       next(error);
