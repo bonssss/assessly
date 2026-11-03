@@ -1,0 +1,13 @@
+import dotenv from "dotenv";
+
+dotenv.config();
+
+export const config = {
+  port: Number(process.env.PORT) || 3000,
+  nodeEnv: process.env.NODE_ENV || "development",
+  corsOrigin: process.env.CORS_ORIGIN || "*",
+  jwtSecret: process.env.JWT_SECRET || "default_development_jwt_secret",
+  databaseUrl: process.env.DATABASE_URL || "",
+  freeTrialQuota: Number(process.env.FREE_TRIAL_QUOTA) || 5,
+};
+

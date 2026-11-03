@@ -1,0 +1,371 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==========================================
+// ENUMS
+// ==========================================
+
+enum UserRole {
+  STUDENT
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  INACTIVE
+}
+
+enum DepartmentStatus {
+  ACTIVE
+  ARCHIVED
+}
+
+enum QuestionType {
+  SINGLE_CHOICE
+  MULTIPLE_CHOICE
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum ContentStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum AccessLevel {
+  FREE
+  TRIAL
+  PAID
+}
+
+enum ExamFeedbackPolicy {
+  IMMEDIATE
+  AFTER_SUBMISSION
+  AFTER_EXAM_CLOSES
+}
+
+enum AttemptStatus {
+  IN_PROGRESS
+  COMPLETED
+  TIMED_OUT
+  ABANDONED
+}
+
+enum PaymentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum EntitlementStatus {
+  ACTIVE
+  EXPIRED
+  REVOKED
+}
+
+// ==========================================
+// CORE ENTITIES
+// ==========================================
+
+model User {
+  id           String     @id @default(uuid())
+  fullName     String     @map("full_name")
+  email        String     @unique
+  passwordHash String     @map("password_hash")
+  role         UserRole   @default(STUDENT)
+  status       UserStatus @default(ACTIVE)
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+
+  // Relations
+  enrollments      UserDepartment[]
+  examAttempts     ExamAttempt[]
+  trialUsage       TrialUsage?
+  payments         Payment[]         @relation("StudentPayments")
+  reviewedPayments Payment[]         @relation("AdminReviewedPayments")
+  entitlements     Entitlement[]
+  auditLogs        AuditLog[]        @relation("ActorAuditLogs")
+
+  @@map("users")
+}
+
+model Department {
+  id          String           @id @default(uuid())
+  code        String           @unique
+  name        String
+  description String?
+  status      DepartmentStatus @default(ACTIVE)
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @updatedAt @map("updated_at")
+
+  // Relations
+  students     UserDepartment[]
+  questions    Question[]
+  exams        Exam[]
+  resources    Resource[]
+  entitlements Entitlement[]
+
+  @@map("departments")
+}
+
+model UserDepartment {
+  userId       String   @map("user_id")
+  departmentId String   @map("department_id")
+  enrolledAt   DateTime @default(now()) @map("enrolled_at")
+  status       String   @default("ACTIVE") // ACTIVE, ARCHIVED
+
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  department Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+
+  @@id([userId, departmentId])
+  @@map("user_departments")
+}
+
+model Question {
+  id           String        @id @default(uuid())
+  departmentId String        @map("department_id")
+  topic        String?
+  type         QuestionType  @default(SINGLE_CHOICE)
+  body         String
+  difficulty   Difficulty    @default(MEDIUM)
+  marks        Decimal       @default(1.0) @db.Decimal(5, 2)
+  explanation  String?
+  status       ContentStatus @default(DRAFT)
+  version      Int           @default(1)
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+
+  department     Department       @relation(fields: [departmentId], references: [id])
+  options        QuestionOption[]
+  examQuestions  ExamQuestion[]
+  studentAnswers StudentAnswer[]
+
+  @@index([departmentId, status])
+  @@map("questions")
+}
+
+model QuestionOption {
+  id         String   @id @default(uuid())
+  questionId String   @map("question_id")
+  optionText String   @map("option_text")
+  isCorrect  Boolean  @default(false) @map("is_correct")
+  sortOrder  Int      @default(0) @map("sort_order")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  question       Question        @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  studentAnswers StudentAnswer[]
+
+  @@index([questionId])
+  @@map("question_options")
+}
+
+model Resource {
+  id           String        @id @default(uuid())
+  departmentId String        @map("department_id")
+  title        String
+  description  String?
+  topic        String?
+  fileKey      String        @map("file_key")
+  mimeType     String        @map("mime_type")
+  accessLevel  AccessLevel   @default(FREE) @map("access_level")
+  status       ContentStatus @default(PUBLISHED)
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+
+  department Department @relation(fields: [departmentId], references: [id])
+
+  @@index([departmentId, accessLevel])
+  @@map("resources")
+}
+
+model Exam {
+  id              String             @id @default(uuid())
+  departmentId    String             @map("department_id")
+  title           String
+  instructions    String?
+  durationMinutes Int                @map("duration_minutes")
+  feedbackPolicy  ExamFeedbackPolicy @default(AFTER_SUBMISSION) @map("feedback_policy")
+  status          ContentStatus      @default(DRAFT)
+  createdAt       DateTime           @default(now()) @map("created_at")
+  updatedAt       DateTime           @updatedAt @map("updated_at")
+
+  department Department     @relation(fields: [departmentId], references: [id])
+  questions  ExamQuestion[]
+  attempts   ExamAttempt[]
+
+  @@index([departmentId, status])
+  @@map("exams")
+}
+
+model ExamQuestion {
+  examId     String   @map("exam_id")
+  questionId String   @map("question_id")
+  marks      Decimal  @default(1.0) @db.Decimal(5, 2)
+  sequence   Int      @default(0)
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  exam     Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@id([examId, questionId])
+  @@map("exam_questions")
+}
+
+model ExamAttempt {
+  id          String        @id @default(uuid())
+  userId      String        @map("user_id")
+  examId      String?       @map("exam_id") // Null for unconfigured direct practice sessions
+  startedAt   DateTime      @default(now()) @map("started_at")
+  deadlineAt  DateTime?     @map("deadline_at")
+  submittedAt DateTime?     @map("submitted_at")
+  status      AttemptStatus @default(IN_PROGRESS)
+  score       Decimal       @default(0.0) @db.Decimal(6, 2)
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+
+  user    User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exam    Exam?           @relation(fields: [examId], references: [id], onDelete: SetNull)
+  answers StudentAnswer[]
+
+  @@index([userId, examId])
+  @@map("exam_attempts")
+}
+
+model StudentAnswer {
+  id               String   @id @default(uuid())
+  attemptId        String   @map("attempt_id")
+  questionId       String   @map("question_id")
+  selectedOptionId String?  @map("selected_option_id")
+  isCorrect        Boolean  @default(false) @map("is_correct")
+  awardedMarks     Decimal  @default(0.0) @db.Decimal(5, 2) @map("awarded_marks")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  attempt        ExamAttempt     @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question       Question        @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  selectedOption QuestionOption? @relation(fields: [selectedOptionId], references: [id], onDelete: SetNull)
+
+  @@unique([attemptId, questionId])
+  @@map("student_answers")
+}
+
+model TrialUsage {
+  id          String   @id @default(uuid())
+  userId      String   @unique @map("user_id")
+  quotaLimit  Int      @default(5) @map("quota_limit")
+  usedCount   Int      @default(0) @map("used_count")
+  resetPolicy String   @default("NEVER") @map("reset_policy")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("trial_usage")
+}
+
+model Package {
+  id            String        @id @default(uuid())
+  name          String
+  price         Decimal       @db.Decimal(10, 2)
+  currency      String        @default("ETB")
+  scope         String        @default("DEPARTMENT") // ALL_DEPARTMENTS, DEPARTMENT
+  durationDays  Int?          @map("duration_days")
+  questionLimit Int?          @map("question_limit")
+  status        ContentStatus @default(PUBLISHED)
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+
+  payments     Payment[]
+  entitlements Entitlement[]
+
+  @@map("packages")
+}
+
+model Payment {
+  id             String        @id @default(uuid())
+  userId         String        @map("user_id")
+  packageId      String        @map("package_id")
+  amount         Decimal       @db.Decimal(10, 2)
+  channel        String        // Telebirr, CBE, Awash Bank, etc.
+  transactionRef String        @map("transaction_ref")
+  receiptKey     String        @map("receipt_key")
+  status         PaymentStatus @default(PENDING)
+  decisionNote   String?       @map("decision_note")
+  reviewedById   String?       @map("reviewed_by_id")
+  reviewedAt     DateTime?     @map("reviewed_at")
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+
+  user         User          @relation("StudentPayments", fields: [userId], references: [id], onDelete: Cascade)
+  package      Package       @relation(fields: [packageId], references: [id])
+  reviewedBy   User?         @relation("AdminReviewedPayments", fields: [reviewedById], references: [id])
+  entitlements Entitlement[]
+
+  @@index([status, createdAt])
+  @@index([transactionRef])
+  @@map("payments")
+}
+
+model Entitlement {
+  id               String            @id @default(uuid())
+  userId           String            @map("user_id")
+  departmentId     String?           @map("department_id")
+  packageId        String            @map("package_id")
+  sourcePaymentId  String?           @map("source_payment_id")
+  startsAt         DateTime          @default(now()) @map("starts_at")
+  expiresAt        DateTime?         @map("expires_at")
+  remainingCredits Int?              @map("remaining_credits")
+  status           EntitlementStatus @default(ACTIVE)
+  createdAt        DateTime          @default(now()) @map("created_at")
+  updatedAt        DateTime          @updatedAt @map("updated_at")
+
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  department    Department? @relation(fields: [departmentId], references: [id])
+  package       Package     @relation(fields: [packageId], references: [id])
+  sourcePayment Payment?    @relation(fields: [sourcePaymentId], references: [id])
+
+  @@index([userId, status])
+  @@map("entitlements")
+}
+
+model PaymentSetting {
+  id             String   @id @default(uuid())
+  method         String   // TELEBIRR, BANK_TRANSFER
+  displayName    String   @map("display_name")
+  accountDetails String   @map("account_details")
+  instructions   String?
+  active         Boolean  @default(true)
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@map("payment_settings")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  actorId    String?  @map("actor_id")
+  action     String   // e.g. PAYMENT_APPROVED, QUESTION_PUBLISHED, ROLE_CHANGED
+  entityType String   @map("entity_type") // PAYMENT, QUESTION, USER
+  entityId   String?  @map("entity_id")
+  metadata   Json?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  actor User? @relation("ActorAuditLogs", fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
