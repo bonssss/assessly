@@ -82,3 +82,4 @@ export type CreateQuestionInput = z.infer<typeof createQuestionSchema>;
 export type UpdateQuestionInput = z.infer<typeof updateQuestionSchema>;
 export type SubmitAnswerInput = z.infer<typeof submitAnswerSchema>;
 export type ListQuestionsQuery = z.infer<typeof listQuestionsQuerySchema>;
+

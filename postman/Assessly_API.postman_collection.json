@@ -399,10 +399,10 @@
       ]
     },
     {
-      "name": "Payments & Verification (Planned)",
+      "name": "Payments & Verification",
       "item": [
         {
-          "name": "Get Payment Instructions",
+          "name": "Get Payment Instructions (Public)",
           "request": {
             "method": "GET",
             "header": [],
@@ -414,7 +414,20 @@
           }
         },
         {
-          "name": "Submit Payment Receipt",
+          "name": "Get Purchasable Packages (Public)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/payments/packages",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "payments", "packages"]
+            }
+          }
+        },
+        {
+          "name": "Submit Payment Receipt (Student)",
+          "description": "Student uploads payment receipt image/PDF with transaction reference code. Saved with PENDING status.",
           "request": {
             "auth": {
               "type": "bearer",
@@ -433,7 +446,7 @@
               "formdata": [
                 {
                   "key": "packageId",
-                  "value": "",
+                  "value": "package-uuid-here",
                   "type": "text"
                 },
                 {
@@ -443,7 +456,7 @@
                 },
                 {
                   "key": "transactionRef",
-                  "value": "",
+                  "value": "FT123456789",
                   "type": "text"
                 },
                 {
@@ -456,6 +469,172 @@
               "raw": "{{baseUrl}}/api/v1/payments",
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "payments"]
+            }
+          }
+        },
+        {
+          "name": "Get My Payment History (Student)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/payments/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "payments", "me"]
+            }
+          }
+        },
+        {
+          "name": "Admin: Review Queue",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/payments/admin/queue?status=PENDING",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "payments", "admin", "queue"],
+              "query": [
+                { "key": "status", "value": "PENDING" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Admin: Approve Payment & Unlock Entitlement",
+          "description": "Atomically marks payment APPROVED and creates an active Entitlement for the student.",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"decisionNote\": \"Telebirr transaction verified against merchant statement.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/payments/admin/:id/approve",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "payments", "admin", ":id", "approve"],
+              "variable": [
+                { "key": "id", "value": "payment-uuid-here" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Admin: Reject Payment",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"decisionNote\": \"Invalid screenshot or transaction code mismatch.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/payments/admin/:id/reject",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "payments", "admin", ":id", "reject"],
+              "variable": [
+                { "key": "id", "value": "payment-uuid-here" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Admin: Create Package",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Full Academic Year Access\",\n  \"price\": 799.00,\n  \"currency\": \"ETB\",\n  \"scope\": \"ALL_DEPARTMENTS\",\n  \"durationDays\": 365,\n  \"status\": \"PUBLISHED\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/payments/admin/packages",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "payments", "admin", "packages"]
+            }
+          }
+        },
+        {
+          "name": "Admin: Configure Payment Settings",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"method\": \"TELEBIRR\",\n  \"displayName\": \"Assessly Telebirr Account\",\n  \"accountDetails\": \"+251911223344\",\n  \"instructions\": \"Send payment and submit the transaction confirmation code and screenshot.\",\n  \"active\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/payments/admin/settings",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "payments", "admin", "settings"]
             }
           }
         }
