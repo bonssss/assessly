@@ -160,3 +160,4 @@ erDiagram
 | **IDOR Protection** | Ownership verification checks | Students can only access their own payment receipts; paid materials require valid entitlement. |
 | **Request Tampering** | `Object.defineProperty` on Express | Safely overrides `req.query` and `req.params` without prototype getter conflicts. |
 | **Database Privacy** | Prisma error interception | Prevents schema leakage or internal DB errors (`P2002` maps to 409 Conflict). |
+
