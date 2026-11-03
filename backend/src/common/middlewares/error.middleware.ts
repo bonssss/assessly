@@ -30,6 +30,23 @@ export const errorHandler = (
     });
   }
 
+  // Handle Prisma Database Errors (P2002 Unique Constraint, P2025 Not Found)
+  const prismaErr = err as any;
+  if (prismaErr.code === "P2002") {
+    const fields = prismaErr.meta?.target ? ` (${Array.isArray(prismaErr.meta.target) ? prismaErr.meta.target.join(", ") : prismaErr.meta.target})` : "";
+    return res.status(409).json({
+      success: false,
+      message: `A record with this unique identifier already exists${fields}.`,
+    });
+  }
+
+  if (prismaErr.code === "P2025") {
+    return res.status(404).json({
+      success: false,
+      message: "The requested record was not found or has been deleted.",
+    });
+  }
+
   // Unhandled / Internal Server Error
   console.error("Unhandled Error:", err);
 

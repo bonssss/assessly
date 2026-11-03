@@ -113,3 +113,4 @@ describe("Resource Access Control Logic (FR-RES-03, FR-ACCESS)", () => {
     assert.equal(evaluateStudentAccess(paidRes, entitlements), true);
   });
 });
+

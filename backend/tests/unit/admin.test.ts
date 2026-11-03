@@ -95,3 +95,4 @@ describe("Admin Operations Self-Protection Logic (Security Guardrails)", () => {
     assert.equal(canDeactivateUser(actorId, targetId, "SUSPENDED"), true);
   });
 });
+

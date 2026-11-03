@@ -59,3 +59,4 @@ export type CreateExamInput = z.infer<typeof createExamSchema>;
 export type UpdateExamInput = z.infer<typeof updateExamSchema>;
 export type SubmitExamAttemptInput = z.infer<typeof submitExamAttemptSchema>;
 export type ListExamsQuery = z.infer<typeof listExamsQuerySchema>;
+

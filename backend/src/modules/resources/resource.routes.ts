@@ -14,9 +14,9 @@ import { uploadResourceFile } from "../../common/storage/index.js";
 const router = Router();
 
 // ==========================================
-// FILE STREAMING ENDPOINT (Local Storage)
+// FILE STREAMING ENDPOINT (Local Storage, Authenticated with Paywall Guard)
 // ==========================================
-router.get("/files/:filename", serveLocalResourceFileHandler);
+router.get("/files/:filename", requireAuth, serveLocalResourceFileHandler);
 
 // ==========================================
 // AUTHENTICATED ENDPOINTS (Students & Admins)

@@ -35,8 +35,8 @@ router.get("/instructions", getInstructionsHandler);
 // View purchasable access packages
 router.get("/packages", listPackagesHandler);
 
-// Local file preview/download (for local storage driver)
-router.get("/receipts/:filename", serveLocalReceiptFileHandler);
+// Local file preview/download (strictly authenticated with ownership verification)
+router.get("/receipts/:filename", requireAuth, serveLocalReceiptFileHandler);
 
 // ==========================================
 // STUDENT & AUTHENTICATED ENDPOINTS
