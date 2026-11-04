@@ -1,12 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowRight,
+  Award,
+  BookOpen,
   Check,
   ClipboardCheck,
+  Clock,
   GraduationCap,
   Menu,
   Receipt,
   Search,
+  ShieldCheck,
   Sparkles,
   UserPlus,
   X,
