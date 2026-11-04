@@ -4,6 +4,7 @@ import { Award, CheckCircle2, CreditCard, Download, FileText, ListChecks } from 
 import { StudentShell } from "@/components/StudentShell";
 import { PageHeader, Section, Stat, StatusBadge, btn, td } from "@/components/ui-kit";
 import { ScrollReveal } from "@/components/ScrollReveal";
+import { StudentAnalyticsChart } from "@/components/StudentAnalyticsChart";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 
@@ -125,7 +126,14 @@ function Dashboard() {
         ))}
       </div>
 
-      <ScrollReveal animation="fade-up" delay={250}>
+      {/* Student Performance Trajectory & Assessment Analytics */}
+      <ScrollReveal animation="fade-up" delay={220}>
+        <div className="mt-6">
+          <StudentAnalyticsChart examHistory={examHistory} />
+        </div>
+      </ScrollReveal>
+
+      <ScrollReveal animation="fade-up" delay={280}>
         <div className="mt-6 grid gap-6 lg:grid-cols-3">
           <Section title="My Enrolled Departments" className="lg:col-span-1 shadow-xs transition-all hover:shadow-sm">
           <div className="divide-y">

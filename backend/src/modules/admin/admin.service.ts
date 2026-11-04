@@ -24,6 +24,7 @@ export class AdminService {
       totalSuperAdmins,
       activeEntitlements,
       pendingPayments,
+      rejectedPayments,
       approvedPaymentsAgg,
       totalQuestions,
       totalExams,
@@ -31,6 +32,7 @@ export class AdminService {
       completedAttempts,
       attemptScores,
       departments,
+      completedAttemptsList,
     ] = await Promise.all([
       prisma.user.count({ where: { role: "STUDENT" } }),
       prisma.user.count({ where: { role: "ADMIN" } }),
@@ -42,6 +44,7 @@ export class AdminService {
         },
       }),
       prisma.payment.count({ where: { status: "PENDING" } }),
+      prisma.payment.count({ where: { status: "REJECTED" } }),
       prisma.payment.aggregate({
         where: { status: "APPROVED" },
         _sum: { amount: true },
@@ -70,12 +73,76 @@ export class AdminService {
           },
         },
       }),
+      prisma.examAttempt.findMany({
+        where: { status: { in: ["COMPLETED", "TIMED_OUT"] } },
+        select: {
+          score: true,
+          answers: {
+            select: {
+              question: { select: { marks: true } },
+            },
+          },
+          exam: {
+            select: {
+              questions: { select: { marks: true } },
+            },
+          },
+        },
+      }),
     ]);
 
     const totalRevenueETB = Number(approvedPaymentsAgg._sum.amount ?? 0);
-    const averageScore = attemptScores._avg?.score
-      ? Math.round(Number(attemptScores._avg.score) * 100) / 100
-      : 0;
+
+    // Compute platform-wide percentage average score
+    let averageScore = 0;
+    if (completedAttemptsList && completedAttemptsList.length > 0) {
+      const allPercentages: number[] = completedAttemptsList.map((a: any) => {
+        let maxMarks = 0;
+        if (a.answers && a.answers.length > 0) {
+          maxMarks = a.answers.reduce(
+            (sum: number, ans: any) => sum + Number(ans.question?.marks || 1),
+            0
+          );
+        } else if (a.exam?.questions && a.exam.questions.length > 0) {
+          maxMarks = a.exam.questions.reduce(
+            (sum: number, q: any) => sum + Number(q.marks || 1),
+            0
+          );
+        } else {
+          maxMarks = 100;
+        }
+        const raw = Number(a.score || 0);
+        return maxMarks > 0 ? Math.round((raw / maxMarks) * 100 * 10) / 10 : 0;
+      });
+      averageScore =
+        Math.round((allPercentages.reduce((s: number, p: number) => s + p, 0) / allPercentages.length) * 10) / 10;
+    } else if (attemptScores._avg?.score) {
+      averageScore = Math.round(Number(attemptScores._avg.score) * 100) / 100;
+    }
+
+    // Last 7 days exam activity telemetry
+    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const recentAttempts = await prisma.examAttempt.findMany({
+      where: { startedAt: { gte: sevenDaysAgo } },
+      select: { startedAt: true, status: true },
+    });
+
+    const daysMap: Record<string, { date: string; attempts: number; completed: number }> = {};
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+      const dateStr = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+      daysMap[dateStr] = { date: dateStr, attempts: 0, completed: 0 };
+    }
+    for (const att of recentAttempts) {
+      const dateStr = att.startedAt.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+      if (daysMap[dateStr]) {
+        daysMap[dateStr].attempts += 1;
+        if (att.status === "COMPLETED" || att.status === "TIMED_OUT") {
+          daysMap[dateStr].completed += 1;
+        }
+      }
+    }
+    const recentActivity = Object.values(daysMap);
 
     return {
       kpis: {
@@ -88,9 +155,15 @@ export class AdminService {
         monetization: {
           activeEntitlements,
           pendingPayments,
+          rejectedPayments,
           totalApprovedPayments: approvedPaymentsAgg._count.id,
           totalRevenueETB,
           currency: "ETB",
+          paymentBreakdown: [
+            { status: "Approved", count: approvedPaymentsAgg._count.id, fill: "#10b981" },
+            { status: "Pending", count: pendingPayments, fill: "#f59e0b" },
+            { status: "Rejected", count: rejectedPayments, fill: "#ef4444" },
+          ],
         },
         content: {
           totalQuestions,
@@ -102,6 +175,7 @@ export class AdminService {
           averageScore,
         },
       },
+      recentActivity,
       departmentBreakdown: departments.map((d) => ({
         id: d.id,
         code: d.code,
@@ -445,11 +519,24 @@ export class AdminService {
         exams: {
           select: {
             id: true,
+            questions: {
+              select: {
+                marks: true,
+              },
+            },
             attempts: {
               select: {
                 id: true,
                 status: true,
                 score: true,
+                answers: {
+                  select: {
+                    awardedMarks: true,
+                    question: {
+                      select: { marks: true },
+                    },
+                  },
+                },
               },
             },
           },
@@ -459,12 +546,41 @@ export class AdminService {
     });
 
     return departments.map((dept) => {
-      const allAttempts = dept.exams.flatMap((e) => e.attempts);
-      const completed = allAttempts.filter((a) => a.status === "COMPLETED");
-      const totalScore = completed.reduce((sum, a) => sum + (a.score ? Number(a.score) : 0), 0);
-      const avgScore = completed.length > 0 ? Math.round((totalScore / completed.length) * 10) / 10 : 0;
-      const passedCount = completed.filter((a) => (a.score ? Number(a.score) : 0) >= 50).length;
-      const passRate = completed.length > 0 ? Math.round((passedCount / completed.length) * 100) : 0;
+      const allAttempts = dept.exams.flatMap((e) =>
+        e.attempts.map((a) => ({ ...a, defaultExamQuestions: e.questions }))
+      );
+      const completed = allAttempts.filter(
+        (a) => a.status === "COMPLETED" || a.status === "TIMED_OUT"
+      );
+
+      const percentages: number[] = completed.map((a: any) => {
+        let maxMarks = 0;
+        if (a.answers && a.answers.length > 0) {
+          maxMarks = a.answers.reduce(
+            (sum: number, ans: any) => sum + Number(ans.question?.marks || 1),
+            0
+          );
+        } else if (a.defaultExamQuestions && a.defaultExamQuestions.length > 0) {
+          maxMarks = a.defaultExamQuestions.reduce(
+            (sum: number, q: any) => sum + Number(q.marks || 1),
+            0
+          );
+        } else {
+          maxMarks = 100;
+        }
+
+        const raw = Number(a.score || 0);
+        return maxMarks > 0 ? Math.round((raw / maxMarks) * 100 * 10) / 10 : 0;
+      });
+
+      const totalPercentage = percentages.reduce((sum: number, p: number) => sum + p, 0);
+      const avgScore =
+        percentages.length > 0
+          ? Math.round((totalPercentage / percentages.length) * 10) / 10
+          : 0;
+      const passedCount = percentages.filter((p) => p >= 50).length;
+      const passRate =
+        percentages.length > 0 ? Math.round((passedCount / percentages.length) * 100) : 0;
 
       return {
         id: dept.id,
