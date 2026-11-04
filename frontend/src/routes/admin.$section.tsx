@@ -332,26 +332,26 @@ function AdminSectionComponent() {
       switch (section) {
         case "questions": {
           const res = await api.questions.list({ limit: 100 });
-          setQuestions(res.questions || []);
+          setQuestions(Array.isArray(res) ? res : res?.questions || res?.data || []);
           break;
         }
         case "departments": {
-          setDepartments(depts);
+          setDepartments(Array.isArray(depts) ? depts : depts?.data || []);
           break;
         }
         case "resources": {
           const res = await api.resources.list();
-          setResources(Array.isArray(res) ? res : res.resources || []);
+          setResources(Array.isArray(res) ? res : res?.data || res?.resources || []);
           break;
         }
         case "students": {
           const res = await api.admin.listUsers({ limit: 100 });
-          setStudents(res.users || []);
+          setStudents(Array.isArray(res) ? res : res?.data || res?.users || []);
           break;
         }
         case "payments": {
           const res = await api.payments.listAdminPayments();
-          setPayments(Array.isArray(res) ? res : []);
+          setPayments(Array.isArray(res) ? res : res?.data || res?.payments || []);
           break;
         }
         case "exams": {
@@ -359,26 +359,27 @@ function AdminSectionComponent() {
             api.exams.list({ limit: 100 }),
             api.questions.list({ limit: 100 }),
           ]);
-          setExams(examsRes.exams || []);
-          setQuestions(qsRes.questions || []);
+          setExams(Array.isArray(examsRes) ? examsRes : examsRes?.exams || examsRes?.data || []);
+          setQuestions(Array.isArray(qsRes) ? qsRes : qsRes?.questions || qsRes?.data || []);
           break;
         }
         case "reports": {
           const res = await api.admin.getDepartmentReports();
-          setReports(Array.isArray(res) ? res : []);
+          setReports(Array.isArray(res) ? res : res?.data || []);
           break;
         }
         case "settings": {
           const res = await api.admin.getSettings();
-          if (res) {
-            setSettings(res);
+          const s = res?.data ?? res;
+          if (s) {
+            setSettings(s);
             setSettingsForm({
-              freeTrialQuestions: res.freeTrialQuestions ?? 5,
-              telebirrNumber: res.telebirr?.accountNumber ?? "0911 234 567",
-              telebirrInstructions: res.telebirr?.instructions ?? "",
-              cbeAccount: res.cbe?.accountNumber ?? "1000 2345 6789 0",
-              cbeInstructions: res.cbe?.instructions ?? "",
-              passMarkPercentage: res.passMarkPercentage ?? 50,
+              freeTrialQuestions: s.freeTrialQuestions ?? 5,
+              telebirrNumber: s.telebirr?.accountNumber ?? "0911 234 567",
+              telebirrInstructions: s.telebirr?.instructions ?? "",
+              cbeAccount: s.cbe?.accountNumber ?? "1000 2345 6789 0",
+              cbeInstructions: s.cbe?.instructions ?? "",
+              passMarkPercentage: s.passMarkPercentage ?? 50,
             });
           }
           break;
@@ -843,7 +844,7 @@ function AdminSectionComponent() {
         <DataTable
           rows={students}
           loading={loading}
-          search={(r) => `${r.fullName} ${r.email}`}
+          search={(r) => `${r.fullName ?? ""} ${r.email ?? ""}`}
           filters={{
             label: "Statuses",
             key: (r) => r.status,
