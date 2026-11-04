@@ -2,7 +2,6 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import { AuthCard, Field } from "@/components/AuthCard";
-import { input } from "@/components/ui-kit";
 import { useAuth } from "@/lib/auth-context";
 
 export const Route = createFileRoute("/login")({
@@ -45,27 +44,27 @@ function LoginComponent() {
 
   return (
     <AuthCard
-      title="Log in"
-      subtitle="Welcome back. Continue your preparation."
+      title="Welcome back"
+      subtitle="Sign in to continue your examination preparation."
       cta="Log in"
       loading={loading}
       onSubmit={handleSubmit}
       footer={
         <>
-          No account?{" "}
-          <Link to="/register" className="font-medium text-brand">
-            Register
+          Don&apos;t have an account?{" "}
+          <Link to="/register" className="font-semibold text-emerald-600 hover:text-emerald-700 underline-offset-2 hover:underline">
+            Register now
           </Link>
         </>
       }
     >
-      <Field label="Email">
+      <Field label="Email address">
         <input
           type="email"
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className={input}
+          className="w-full rounded-full border border-slate-200 bg-slate-50/60 px-4 py-2.5 text-xs sm:text-sm outline-none focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 transition-all placeholder:text-slate-400"
           placeholder="you@university.edu.et"
         />
       </Field>
@@ -75,7 +74,7 @@ function LoginComponent() {
           required
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className={input}
+          className="w-full rounded-full border border-slate-200 bg-slate-50/60 px-4 py-2.5 text-xs sm:text-sm outline-none focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 transition-all placeholder:text-slate-400"
           placeholder="••••••••"
         />
       </Field>
