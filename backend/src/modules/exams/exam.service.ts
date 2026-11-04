@@ -832,22 +832,67 @@ export class ExamService {
             id: true,
             title: true,
             department: { select: { id: true, name: true, code: true } },
+            questions: { select: { marks: true } },
+          },
+        },
+        answers: {
+          select: {
+            isCorrect: true,
+            awardedMarks: true,
+            question: { select: { marks: true } },
           },
         },
       },
       orderBy: { startedAt: "desc" },
     });
 
-    return attempts.map((a) => ({
-      attemptId: a.id,
-      examId: a.examId,
-      examTitle: a.exam?.title ?? "Exam",
-      department: a.exam?.department,
-      score: Number(a.score),
-      status: a.status,
-      startedAt: a.startedAt,
-      submittedAt: a.submittedAt,
-    }));
+    return attempts.map((a) => {
+      let maxPossibleMarks = 0;
+      if (a.answers && a.answers.length > 0) {
+        maxPossibleMarks = a.answers.reduce(
+          (sum, ans) => sum + Number(ans.question?.marks || 1),
+          0
+        );
+      } else if (a.exam?.questions && a.exam.questions.length > 0) {
+        maxPossibleMarks = a.exam.questions.reduce(
+          (sum, q) => sum + Number(q.marks || 1),
+          0
+        );
+      } else {
+        maxPossibleMarks = 100;
+      }
+
+      const score = Number(a.score || 0);
+      const percentage =
+        a.status === "COMPLETED" || a.status === "TIMED_OUT"
+          ? maxPossibleMarks > 0
+            ? Math.round((score / maxPossibleMarks) * 100 * 10) / 10
+            : 0
+          : null;
+
+      return {
+        id: a.id,
+        attemptId: a.id,
+        examId: a.examId,
+        examTitle: a.exam?.title ?? "Exam",
+        exam: a.exam
+          ? {
+              id: a.exam.id,
+              title: a.exam.title,
+              department: a.exam.department,
+            }
+          : undefined,
+        department: a.exam?.department,
+        score,
+        obtainedMarks: score,
+        totalMarks: maxPossibleMarks,
+        maxPossibleScore: maxPossibleMarks,
+        percentage,
+        status: a.status,
+        startedAt: a.startedAt,
+        submittedAt: a.submittedAt,
+      };
+    });
   }
 }
 

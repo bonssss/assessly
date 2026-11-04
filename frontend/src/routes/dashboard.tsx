@@ -54,12 +54,22 @@ function Dashboard() {
     }
   }, [user, authLoading, navigate]);
 
-  const completedExams = examHistory.filter((h) => h.status === "COMPLETED");
+  const completedExams = examHistory.filter(
+    (h) => h.status === "COMPLETED" || h.status === "TIMED_OUT"
+  );
   const avgScore =
     completedExams.length > 0
       ? Math.round(
-          completedExams.reduce((acc, curr) => acc + Number(curr.percentage || 0), 0) /
-            completedExams.length
+          completedExams.reduce(
+            (acc, curr) =>
+              acc +
+              Number(
+                typeof curr.percentage === "number"
+                  ? curr.percentage
+                  : curr.score || 0
+              ),
+            0
+          ) / completedExams.length
         )
       : 0;
 
@@ -189,13 +199,21 @@ function Dashboard() {
                   {examHistory.slice(0, 5).map((attempt) => (
                     <tr key={attempt.id} className="transition-colors hover:bg-muted/50">
                       <td className={td}>
-                        <div className="font-medium">{attempt.exam?.title || "Timed Exam"}</div>
+                        <div className="font-medium">
+                          {attempt.exam?.title || attempt.examTitle || "Timed Exam"}
+                        </div>
                         <div className="text-xs text-muted-foreground">
                           {new Date(attempt.startedAt).toLocaleDateString()} · Status: {attempt.status}
                         </div>
                       </td>
                       <td className={`${td} text-right font-semibold`}>
-                        {attempt.percentage !== null ? `${attempt.percentage}%` : "In Progress"}
+                        {attempt.status === "IN_PROGRESS"
+                          ? "In Progress"
+                          : typeof attempt.percentage === "number"
+                          ? `${attempt.percentage}%`
+                          : typeof attempt.score === "number"
+                          ? `${attempt.score}%`
+                          : "—"}
                       </td>
                     </tr>
                   ))}
