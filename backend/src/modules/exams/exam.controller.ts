@@ -31,6 +31,20 @@ export const updateExamHandler = async (
   }
 };
 
+export const deleteExamHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+    await examService.deleteExam(id as string);
+    sendSuccess(res, { message: "Exam deleted successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const listExamsHandler = async (
   req: Request,
   res: Response,

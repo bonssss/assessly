@@ -62,26 +62,26 @@ router.get("/:id/receipt-url", requireAuth, getReceiptPreviewHandler);
 // ADMIN ENDPOINTS
 // ==========================================
 
-// Admin review queue for submitted payments
+// Admin review queue for submitted payments (supports ?status=PENDING | APPROVED | REJECTED)
 router.get(
-  "/admin/queue",
+  ["/admin/queue", "/admin/pending", "/admin/all"],
   requireAuth,
   requireRoles("ADMIN", "SUPER_ADMIN"),
   listAdminPaymentsHandler
 );
 
-// Admin approves payment & activates access entitlement
+// Admin approves payment & activates access entitlement (supports both /admin/:id/approve and /:id/approve)
 router.post(
-  "/admin/:id/approve",
+  ["/admin/:id/approve", "/:id/approve"],
   requireAuth,
   requireRoles("ADMIN", "SUPER_ADMIN"),
   validateBody(approvePaymentSchema),
   approvePaymentHandler
 );
 
-// Admin declines/rejects payment with feedback note
+// Admin declines/rejects payment with feedback note (supports both /admin/:id/reject and /:id/reject)
 router.post(
-  "/admin/:id/reject",
+  ["/admin/:id/reject", "/:id/reject"],
   requireAuth,
   requireRoles("ADMIN", "SUPER_ADMIN"),
   validateBody(rejectPaymentSchema),

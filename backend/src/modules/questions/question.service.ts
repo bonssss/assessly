@@ -54,6 +54,21 @@ export class QuestionService {
   }
 
   /**
+   * Admin: Delete question
+   */
+  async deleteQuestion(id: string) {
+    const question = await prisma.question.findUnique({
+      where: { id },
+    });
+    if (!question) {
+      throw new NotFoundError("Question not found");
+    }
+    return prisma.question.delete({
+      where: { id },
+    });
+  }
+
+  /**
    * Admin: Update question details and options
    */
   async updateQuestion(id: string, data: UpdateQuestionInput) {

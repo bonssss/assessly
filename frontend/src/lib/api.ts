@@ -129,8 +129,15 @@ export const api = {
 
   // Academic Departments (FR-DEPT)
   departments: {
-    async list(): Promise<Array<{ id: string; code: string; name: string; description?: string }>> {
+    async list(): Promise<Array<{ id: string; code: string; name: string; description?: string; _count?: { questions: number; resources: number; exams: number } }>> {
       return request("/departments");
+    },
+
+    async create(data: { code: string; name: string; description?: string }): Promise<any> {
+      return request("/departments", {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
     },
   },
 
@@ -140,6 +147,7 @@ export const api = {
       departmentId?: string;
       topic?: string;
       difficulty?: string;
+      status?: string;
       page?: number;
       limit?: number;
     }): Promise<{ total: number; page: number; limit: number; totalPages: number; questions: any[] }> {
@@ -147,6 +155,7 @@ export const api = {
       if (params?.departmentId) search.set("departmentId", params.departmentId);
       if (params?.topic) search.set("topic", params.topic);
       if (params?.difficulty) search.set("difficulty", params.difficulty);
+      if (params?.status) search.set("status", params.status);
       if (params?.page) search.set("page", String(params.page));
       if (params?.limit) search.set("limit", String(params.limit));
 
@@ -176,6 +185,19 @@ export const api = {
         body: JSON.stringify(data),
       });
     },
+
+    async updateQuestion(id: string, data: any): Promise<any> {
+      return request(`/questions/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify(data),
+      });
+    },
+
+    async deleteQuestion(id: string): Promise<any> {
+      return request(`/questions/${id}`, {
+        method: "DELETE",
+      });
+    },
   },
 
   // Timed Exam Engine (FR-EXAM)
@@ -190,6 +212,27 @@ export const api = {
       if (params?.limit) search.set("limit", String(params.limit));
       const queryStr = search.toString();
       return request(`/exams${queryStr ? `?${queryStr}` : ""}`);
+    },
+
+    async create(data: {
+      departmentId: string;
+      title: string;
+      instructions?: string;
+      durationMinutes: number;
+      feedbackPolicy?: string;
+      status?: string;
+      questionIds: string[];
+    }): Promise<any> {
+      return request("/exams", {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+    },
+
+    async delete(id: string): Promise<any> {
+      return request(`/exams/${id}`, {
+        method: "DELETE",
+      });
     },
 
     async start(examId: string): Promise<{
@@ -278,6 +321,19 @@ export const api = {
       return request(`/payments/admin/pending${queryStr ? `?${queryStr}` : ""}`);
     },
 
+    async listAdminPayments(params?: { status?: string }): Promise<any[]> {
+      const search = new URLSearchParams();
+      if (params?.status && params.status !== "All") {
+        search.set("status", params.status.toUpperCase());
+      }
+      const queryStr = search.toString();
+      return request(`/payments/admin/queue${queryStr ? `?${queryStr}` : ""}`);
+    },
+
+    async getReceiptUrl(paymentId: string): Promise<{ previewUrl: string }> {
+      return request(`/payments/${paymentId}/receipt-url`);
+    },
+
     async approve(paymentId: string, note?: string): Promise<any> {
       return request(`/payments/${paymentId}/approve`, {
         method: "POST",
@@ -303,6 +359,19 @@ export const api = {
       return request(`/resources${queryStr ? `?${queryStr}` : ""}`);
     },
 
+    async upload(formData: FormData): Promise<any> {
+      return request("/resources", {
+        method: "POST",
+        body: formData,
+      });
+    },
+
+    async delete(id: string): Promise<any> {
+      return request(`/resources/${id}`, {
+        method: "DELETE",
+      });
+    },
+
     async getDownloadUrl(resourceId: string): Promise<{ downloadUrl: string; title: string }> {
       return request(`/resources/${resourceId}/download`);
     },
@@ -312,6 +381,21 @@ export const api = {
   admin: {
     async getOverviewKPIs(): Promise<any> {
       return request("/admin/reports/overview");
+    },
+
+    async getDepartmentReports(): Promise<any[]> {
+      return request("/admin/reports/departments");
+    },
+
+    async getSettings(): Promise<any> {
+      return request("/admin/settings");
+    },
+
+    async updateSettings(data: any): Promise<any> {
+      return request("/admin/settings", {
+        method: "PATCH",
+        body: JSON.stringify(data),
+      });
     },
 
     async listAuditLogs(params?: { page?: number; limit?: number; action?: string }): Promise<any> {

@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   createQuestionHandler,
   updateQuestionHandler,
+  deleteQuestionHandler,
   listQuestionsHandler,
   submitPracticeAnswerHandler,
 } from "./question.controller.js";
@@ -43,6 +44,14 @@ router.patch(
   requireRoles("ADMIN", "SUPER_ADMIN"),
   validateBody(updateQuestionSchema),
   updateQuestionHandler
+);
+
+// Admin only: delete a question
+router.delete(
+  "/:id",
+  requireAuth,
+  requireRoles("ADMIN", "SUPER_ADMIN"),
+  deleteQuestionHandler
 );
 
 // Student: submit practice answer (with atomic trial decrement & scoring)

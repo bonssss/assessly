@@ -96,3 +96,40 @@ describe("Admin Operations Self-Protection Logic (Security Guardrails)", () => {
   });
 });
 
+describe("Admin Department Analytics Computation Logic", () => {
+  function computeDepartmentPassMetrics(attempts: Array<{ score: number | null; status: string }>) {
+    const completed = attempts.filter((a) => a.status === "COMPLETED");
+    const totalScore = completed.reduce((sum, a) => sum + (a.score ? Number(a.score) : 0), 0);
+    const avgScore = completed.length > 0 ? Math.round((totalScore / completed.length) * 10) / 10 : 0;
+    const passedCount = completed.filter((a) => (a.score ? Number(a.score) : 0) >= 50).length;
+    const passRate = completed.length > 0 ? Math.round((passedCount / completed.length) * 100) : 0;
+
+    return {
+      examsTaken: completed.length,
+      avgScore,
+      passRate,
+    };
+  }
+
+  test("calculates accurate department average score and pass rate", () => {
+    const attempts = [
+      { score: 80, status: "COMPLETED" },
+      { score: 40, status: "COMPLETED" },
+      { score: 60, status: "COMPLETED" },
+      { score: null, status: "TIMED_OUT" },
+    ];
+    const metrics = computeDepartmentPassMetrics(attempts);
+    assert.equal(metrics.examsTaken, 3);
+    assert.equal(metrics.avgScore, 60);
+    assert.equal(metrics.passRate, 67); // 2 out of 3 >= 50 (66.67% -> 67%)
+  });
+
+  test("handles zero attempts gracefully without NaN", () => {
+    const metrics = computeDepartmentPassMetrics([]);
+    assert.equal(metrics.examsTaken, 0);
+    assert.equal(metrics.avgScore, 0);
+    assert.equal(metrics.passRate, 0);
+  });
+});
+
+
