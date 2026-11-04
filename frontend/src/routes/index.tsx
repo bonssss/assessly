@@ -201,55 +201,70 @@ function Index() {
             <div className="lg:col-span-6 flex flex-col justify-center">
               
               {/* Category Subtitle */}
-              <div className="text-xs sm:text-sm font-medium text-slate-400 mb-3 tracking-wide">
-                Online education &bull; University Exit Exam
-              </div>
+              <ScrollReveal animation="fade-down" delay={100}>
+                <div className="text-xs sm:text-sm font-medium text-slate-400 mb-3 tracking-wide flex items-center gap-2">
+                  <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>Online education &bull; University Exit Exam</span>
+                </div>
+              </ScrollReveal>
 
               {/* Main Clean Headline */}
-              <h1 className="text-4xl sm:text-5xl lg:text-[62px] font-normal text-slate-700 tracking-tight leading-[1.08]">
-                Start learning <br />
-                <span className="font-extrabold text-slate-900">at home</span>
-              </h1>
+              <ScrollReveal animation="fade-up" delay={200}>
+                <h1 className="text-4xl sm:text-5xl lg:text-[62px] font-normal text-slate-700 tracking-tight leading-[1.08]">
+                  Start learning <br />
+                  <span className="font-extrabold text-slate-900">at home</span>
+                </h1>
+              </ScrollReveal>
 
               {/* Subtitle */}
-              <p className="mt-4 text-xs sm:text-sm text-slate-500 max-w-md leading-relaxed font-normal">
-                Prepare for your university exit exam with authentic department practice questions, realistic timed mock exams, and instant solutions. Start with 5 free questions.
-              </p>
+              <ScrollReveal animation="fade-up" delay={300}>
+                <p className="mt-4 text-xs sm:text-sm text-slate-500 max-w-md leading-relaxed font-normal">
+                  Prepare for your university exit exam with authentic department practice questions, realistic timed mock exams, and instant solutions. Start with 5 free questions.
+                </p>
+              </ScrollReveal>
 
               {/* Search Pill Bar (White Pill with Yellow Circular Button) */}
-              <form
-                onSubmit={handleSearchScroll}
-                className="mt-6 sm:mt-8 flex items-center justify-between rounded-full border border-slate-200/90 bg-white shadow-sm hover:shadow-md pl-6 pr-2 py-2 max-w-md transition-all focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500/20"
-              >
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="What are you looking for?"
-                  className="w-full bg-transparent text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 outline-none pr-3"
-                />
-                <button
-                  type="submit"
-                  className="size-9 sm:size-10 rounded-full bg-[#facc15] hover:bg-[#eab308] text-white flex items-center justify-center shadow-xs transition-transform active:scale-95 shrink-0 cursor-pointer"
-                  title="Search departments"
+              <ScrollReveal animation="fade-up" delay={400}>
+                <form
+                  onSubmit={handleSearchScroll}
+                  className="mt-6 sm:mt-8 flex items-center justify-between rounded-full border border-slate-200/90 bg-white shadow-sm hover:shadow-md pl-6 pr-2 py-2 max-w-md transition-all duration-300 focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500/20 hover:scale-[1.01]"
                 >
-                  <ArrowRight className="size-4 text-white stroke-[2.5]" />
-                </button>
-              </form>
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="What are you looking for?"
+                    className="w-full bg-transparent text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 outline-none pr-3"
+                  />
+                  <button
+                    type="submit"
+                    className="size-9 sm:size-10 rounded-full bg-[#facc15] hover:bg-[#eab308] text-white flex items-center justify-center shadow-xs transition-transform active:scale-95 shrink-0 cursor-pointer"
+                    title="Search departments"
+                  >
+                    <ArrowRight className="size-4 text-white stroke-[2.5]" />
+                  </button>
+                </form>
+              </ScrollReveal>
 
               {/* 5 Pagination Dots at Bottom Left */}
-              <div className="mt-8 sm:mt-12 flex items-center gap-2">
-                <span className="size-3 rounded-full bg-amber-400 ring-4 ring-amber-400/25 transition-all" />
-                <span className="size-2 rounded-full border border-slate-300 bg-white" />
-                <span className="size-2 rounded-full border border-slate-300 bg-white" />
-                <span className="size-2 rounded-full border border-slate-300 bg-white" />
-                <span className="size-2 rounded-full border border-slate-300 bg-white" />
-              </div>
+              <ScrollReveal animation="fade-up" delay={500}>
+                <div className="mt-8 sm:mt-12 flex items-center gap-2">
+                  <span className="size-3 rounded-full bg-amber-400 ring-4 ring-amber-400/25 transition-all animate-pulse" />
+                  <span className="size-2 rounded-full border border-slate-300 bg-white hover:border-amber-400 transition-colors" />
+                  <span className="size-2 rounded-full border border-slate-300 bg-white hover:border-amber-400 transition-colors" />
+                  <span className="size-2 rounded-full border border-slate-300 bg-white hover:border-amber-400 transition-colors" />
+                  <span className="size-2 rounded-full border border-slate-300 bg-white hover:border-amber-400 transition-colors" />
+                </div>
+              </ScrollReveal>
             </div>
 
             {/* Right Column: Freepik Education Vector Illustration */}
             <div className="lg:col-span-6 flex justify-center items-center">
-              <HeroStudyIllustration className="w-full max-w-[520px] drop-shadow-sm" />
+              <ScrollReveal animation="scale-in" delay={250} className="w-full flex justify-center">
+                <div className="animate-float transition-transform duration-500 hover:scale-[1.02]">
+                  <HeroStudyIllustration className="w-full max-w-[520px] drop-shadow-md" />
+                </div>
+              </ScrollReveal>
             </div>
           </div>
         </div>
@@ -266,7 +281,13 @@ function Index() {
       {/* ========================================================= */}
       {/* 2. AVAILABLE DEPARTMENTS CARD                             */}
       {/* ========================================================= */}
-      <section id="departments" className="w-full max-w-7xl mx-auto bg-white rounded-[32px] sm:rounded-[40px] shadow-xl shadow-cyan-950/5 border border-white/80 p-8 sm:p-12 lg:p-16 my-8 sm:my-10">
+      <ScrollReveal
+        as="section"
+        id="departments"
+        animation="fade-up"
+        duration={700}
+        className="w-full max-w-7xl mx-auto bg-white rounded-[32px] sm:rounded-[40px] shadow-xl shadow-cyan-950/5 border border-white/80 p-8 sm:p-12 lg:p-16 my-8 sm:my-10 transition-all duration-500 hover:shadow-2xl"
+      >
         <ScrollReveal animation="fade-up">
           <div className="flex flex-col gap-1 text-center max-w-xl mx-auto">
             <span className="text-xs font-bold uppercase tracking-wider text-emerald-600">
@@ -287,10 +308,10 @@ function Index() {
               key={d.code}
               animation="scale-in"
               delay={i * 70}
-              className="group rounded-3xl border border-slate-200/80 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:border-emerald-500/40"
+              className="group rounded-3xl border border-slate-200/80 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:scale-[1.02] hover:border-emerald-500/40 cursor-pointer"
             >
               <div className="flex items-center justify-between">
-                <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-600">
+                <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors duration-200">
                   {d.code}
                 </span>
                 <span className="text-xs text-slate-400 font-medium">{d.questions.toLocaleString()} Qs</span>
@@ -305,9 +326,9 @@ function Index() {
                 <span className="text-xs text-slate-400">{d.resources} resources</span>
                 <Link
                   to="/register"
-                  className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 hover:text-emerald-700"
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 hover:text-emerald-700 transition-colors"
                 >
-                  Practice now <ArrowRight className="size-3" />
+                  Practice now <ArrowRight className="size-3 group-hover:translate-x-1 transition-transform duration-200" />
                 </Link>
               </div>
             </ScrollReveal>
@@ -318,12 +339,18 @@ function Index() {
             </div>
           )}
         </div>
-      </section>
+      </ScrollReveal>
 
       {/* ========================================================= */}
       {/* 3. HOW IT WORKS (FOUR CLEAR STEPS)                        */}
       {/* ========================================================= */}
-      <section id="about" className="w-full max-w-7xl mx-auto bg-white rounded-[32px] sm:rounded-[40px] shadow-xl shadow-cyan-950/5 border border-white/80 p-8 sm:p-12 lg:p-16 mb-8 sm:mb-10">
+      <ScrollReveal
+        as="section"
+        id="about"
+        animation="fade-up"
+        duration={700}
+        className="w-full max-w-7xl mx-auto bg-white rounded-[32px] sm:rounded-[40px] shadow-xl shadow-cyan-950/5 border border-white/80 p-8 sm:p-12 lg:p-16 mb-8 sm:mb-10 transition-all duration-500 hover:shadow-2xl"
+      >
         <ScrollReveal animation="fade-up">
           <div className="text-center max-w-xl mx-auto">
             <span className="text-xs font-bold uppercase tracking-wider text-emerald-600">
@@ -345,13 +372,13 @@ function Index() {
               as="li"
               animation="fade-up"
               delay={i * 100}
-              className="group relative rounded-3xl border border-slate-200/80 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-lg hover:border-emerald-500/40"
+              className="group relative rounded-3xl border border-slate-200/80 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-2.5 hover:shadow-xl hover:scale-[1.02] hover:border-emerald-500/40 cursor-default"
             >
               <div className="flex items-center justify-between">
-                <div className="grid size-11 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 group-hover:bg-[#4ade80] group-hover:text-white transition-colors duration-200 shadow-xs">
-                  <s.icon className="size-5" />
+                <div className="grid size-11 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 group-hover:bg-[#4ade80] group-hover:text-white group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-xs">
+                  <s.icon className="size-5 transition-transform duration-300" />
                 </div>
-                <span className="text-xs font-bold text-slate-400">0{i + 1}</span>
+                <span className="text-xs font-bold text-slate-400 group-hover:text-emerald-600 transition-colors">0{i + 1}</span>
               </div>
               <h3 className="mt-5 font-bold text-base text-slate-900 group-hover:text-emerald-600 transition-colors duration-200">
                 {s.title}
@@ -360,12 +387,18 @@ function Index() {
             </ScrollReveal>
           ))}
         </ol>
-      </section>
+      </ScrollReveal>
 
       {/* ========================================================= */}
       {/* 4. AFFORDABLE PRICING SECTION                             */}
       {/* ========================================================= */}
-      <section id="pricing" className="w-full max-w-7xl mx-auto bg-white rounded-[32px] sm:rounded-[40px] shadow-xl shadow-cyan-950/5 border border-white/80 p-8 sm:p-12 lg:p-16 mb-8 sm:mb-10">
+      <ScrollReveal
+        as="section"
+        id="pricing"
+        animation="fade-up"
+        duration={700}
+        className="w-full max-w-7xl mx-auto bg-white rounded-[32px] sm:rounded-[40px] shadow-xl shadow-cyan-950/5 border border-white/80 p-8 sm:p-12 lg:p-16 mb-8 sm:mb-10 transition-all duration-500 hover:shadow-2xl"
+      >
         <ScrollReveal animation="fade-up">
           <div className="text-center max-w-xl mx-auto">
             <span className="text-xs font-bold uppercase tracking-wider text-emerald-600">
@@ -386,17 +419,17 @@ function Index() {
               key={p.id}
               animation="fade-up"
               delay={i * 100}
-              className={`relative flex flex-col justify-between rounded-3xl bg-white p-8 shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-xl border ${
+              className={`relative flex flex-col justify-between rounded-3xl bg-white p-8 shadow-sm transition-all duration-300 hover:-translate-y-3 hover:shadow-2xl hover:scale-[1.02] border ${
                 p.popular
-                  ? "border-emerald-400 ring-2 ring-emerald-400/20 shadow-emerald-500/5"
-                  : "border-slate-200/80"
+                  ? "border-emerald-400 ring-2 ring-emerald-400/20 shadow-emerald-500/5 hover:ring-emerald-400/40"
+                  : "border-slate-200/80 hover:border-slate-300"
               }`}
             >
               <div>
                 <div className="flex items-center justify-between">
                   <h3 className="font-bold text-xl text-slate-900">{p.name}</h3>
                   {p.popular && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-[#4ade80] px-3 py-1 text-xs font-bold text-white shadow-xs">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-[#4ade80] px-3 py-1 text-xs font-bold text-white shadow-xs animate-pulse">
                       <Sparkles className="size-3" /> Popular
                     </span>
                   )}
@@ -418,7 +451,7 @@ function Index() {
               </div>
               <Link
                 to="/register"
-                className={`mt-8 w-full rounded-full py-3 text-center text-xs font-bold shadow-xs transition-all ${
+                className={`mt-8 w-full rounded-full py-3 text-center text-xs font-bold shadow-xs transition-all hover:scale-105 active:scale-95 ${
                   p.popular
                     ? "bg-[#4ade80] hover:bg-[#22c55e] text-white shadow-emerald-500/20"
                     : "bg-slate-100 hover:bg-slate-200 text-slate-800"
@@ -429,12 +462,18 @@ function Index() {
             </ScrollReveal>
           ))}
         </div>
-      </section>
+      </ScrollReveal>
 
       {/* ========================================================= */}
       {/* 5. FREQUENTLY ASKED QUESTIONS                             */}
       {/* ========================================================= */}
-      <section id="faq" className="w-full max-w-7xl mx-auto bg-white rounded-[32px] sm:rounded-[40px] shadow-xl shadow-cyan-950/5 border border-white/80 p-8 sm:p-12 lg:p-16 mb-8 sm:mb-10">
+      <ScrollReveal
+        as="section"
+        id="faq"
+        animation="fade-up"
+        duration={700}
+        className="w-full max-w-7xl mx-auto bg-white rounded-[32px] sm:rounded-[40px] shadow-xl shadow-cyan-950/5 border border-white/80 p-8 sm:p-12 lg:p-16 mb-8 sm:mb-10 transition-all duration-500 hover:shadow-2xl"
+      >
         <div className="grid gap-10 md:grid-cols-[1fr_2fr] items-start">
           <ScrollReveal animation="fade-right">
             <div>
@@ -465,15 +504,20 @@ function Index() {
             </Accordion>
           </ScrollReveal>
         </div>
-      </section>
+      </ScrollReveal>
 
       {/* Floating Scroll To Top Button */}
       <ScrollToTopButton />
 
       {/* Public Footer */}
-      <div className="w-full max-w-7xl mx-auto bg-white rounded-[24px] sm:rounded-[32px] overflow-hidden shadow-sm border border-white/80">
+      <ScrollReveal
+        animation="fade-up"
+        duration={600}
+        delay={100}
+        className="w-full max-w-7xl mx-auto bg-white rounded-[24px] sm:rounded-[32px] overflow-hidden shadow-sm border border-white/80 transition-all duration-300 hover:shadow-md"
+      >
         <PublicFooter />
-      </div>
+      </ScrollReveal>
     </div>
   );
 }
