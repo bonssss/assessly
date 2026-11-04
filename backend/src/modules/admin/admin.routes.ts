@@ -1,3 +1,4 @@
+
 import { Router } from "express";
 import {
   getOverviewKPIsHandler,
@@ -5,6 +6,9 @@ import {
   listUsersHandler,
   updateUserRoleHandler,
   updateUserStatusHandler,
+  getSettingsHandler,
+  updateSettingsHandler,
+  getDepartmentReportsHandler,
 } from "./admin.controller.js";
 import { requireAuth, requireRoles } from "../../common/middlewares/auth.middleware.js";
 
@@ -15,6 +19,9 @@ router.use(requireAuth, requireRoles("ADMIN", "SUPER_ADMIN"));
 
 // System Overview & Real-Time Performance Analytics (FR-ADMIN)
 router.get("/reports/overview", getOverviewKPIsHandler);
+
+// Department Performance & Pass Rate Analytics
+router.get("/reports/departments", getDepartmentReportsHandler);
 
 // Paginated Audit Logs (FR-AUD)
 router.get("/audit-logs", listAuditLogsHandler);
@@ -27,5 +34,10 @@ router.patch("/users/:id/role", requireRoles("SUPER_ADMIN"), updateUserRoleHandl
 
 // User status (activation / deactivation)
 router.patch("/users/:id/status", updateUserStatusHandler);
+
+// Platform Settings (Telebirr, CBE, Trial Quota, Pass Mark)
+router.get("/settings", getSettingsHandler);
+router.patch("/settings", updateSettingsHandler);
+router.post("/settings", updateSettingsHandler);
 
 export default router;

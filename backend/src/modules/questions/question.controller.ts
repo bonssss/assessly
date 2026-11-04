@@ -31,6 +31,20 @@ export const updateQuestionHandler = async (
   }
 };
 
+export const deleteQuestionHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+    await questionService.deleteQuestion(id as string);
+    sendSuccess(res, { message: "Question deleted successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const listQuestionsHandler = async (
   req: Request,
   res: Response,

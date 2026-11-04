@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   createExamHandler,
   updateExamHandler,
+  deleteExamHandler,
   listExamsHandler,
   startExamAttemptHandler,
   submitExamAttemptHandler,
@@ -72,6 +73,14 @@ router.patch(
   requireRoles("ADMIN", "SUPER_ADMIN"),
   validateBody(updateExamSchema),
   updateExamHandler
+);
+
+// Admin deletes exam configuration
+router.delete(
+  "/:id",
+  requireAuth,
+  requireRoles("ADMIN", "SUPER_ADMIN"),
+  deleteExamHandler
 );
 
 export default router;

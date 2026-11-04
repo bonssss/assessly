@@ -98,3 +98,52 @@ export const updateUserStatusHandler = async (
     next(error);
   }
 };
+
+export const getSettingsHandler = async (
+  _req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const data = await adminService.getSettings();
+    res.json({
+      success: true,
+      data,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateSettingsHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const data = await adminService.updateSettings(req.body);
+    res.json({
+      success: true,
+      message: "Platform settings updated successfully",
+      data,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getDepartmentReportsHandler = async (
+  _req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const data = await adminService.getDepartmentReports();
+    res.json({
+      success: true,
+      data,
+    });
+  } catch (error) {
+    next(error);
+  }
+};

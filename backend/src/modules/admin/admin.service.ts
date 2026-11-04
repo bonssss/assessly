@@ -326,6 +326,159 @@ export class AdminService {
 
     return updated;
   }
+
+  /**
+   * Platform Settings: Retrieve payment settings and policy thresholds
+   */
+  async getSettings() {
+    const settings = await prisma.paymentSetting.findMany({
+      orderBy: { createdAt: "asc" },
+    });
+
+    const telebirr = settings.find((s) => s.method === "TELEBIRR");
+    const cbe = settings.find((s) => s.method === "BANK_TRANSFER");
+
+    return {
+      freeTrialQuestions: 5,
+      passMarkPercentage: 50,
+      telebirr: {
+        accountNumber: telebirr?.accountDetails || "0911 234 567",
+        displayName: telebirr?.displayName || "Assessly Telebirr",
+        instructions: telebirr?.instructions || "Pay via Telebirr merchant/account and attach receipt.",
+        active: telebirr?.active ?? true,
+      },
+      cbe: {
+        accountNumber: cbe?.accountDetails || "1000 2345 6789 0",
+        displayName: cbe?.displayName || "Commercial Bank of Ethiopia",
+        instructions: cbe?.instructions || "Transfer to CBE account and attach screenshot/SMS confirmation.",
+        active: cbe?.active ?? true,
+      },
+    };
+  }
+
+  /**
+   * Platform Settings: Update payment settings and policy thresholds
+   */
+  async updateSettings(data: {
+    telebirrNumber?: string;
+    telebirrInstructions?: string;
+    cbeAccount?: string;
+    cbeInstructions?: string;
+    freeTrialQuestions?: number;
+    passMarkPercentage?: number;
+  }) {
+    if (data.telebirrNumber !== undefined) {
+      const existing = await prisma.paymentSetting.findFirst({
+        where: { method: "TELEBIRR" },
+      });
+      if (existing) {
+        await prisma.paymentSetting.update({
+          where: { id: existing.id },
+          data: {
+            accountDetails: data.telebirrNumber,
+            instructions: data.telebirrInstructions ?? existing.instructions,
+          },
+        });
+      } else {
+        await prisma.paymentSetting.create({
+          data: {
+            method: "TELEBIRR",
+            displayName: "Telebirr",
+            accountDetails: data.telebirrNumber,
+            instructions: data.telebirrInstructions || "Pay via Telebirr and submit receipt.",
+            active: true,
+          },
+        });
+      }
+    }
+
+    if (data.cbeAccount !== undefined) {
+      const existing = await prisma.paymentSetting.findFirst({
+        where: { method: "BANK_TRANSFER" },
+      });
+      if (existing) {
+        await prisma.paymentSetting.update({
+          where: { id: existing.id },
+          data: {
+            accountDetails: data.cbeAccount,
+            instructions: data.cbeInstructions ?? existing.instructions,
+          },
+        });
+      } else {
+        await prisma.paymentSetting.create({
+          data: {
+            method: "BANK_TRANSFER",
+            displayName: "Commercial Bank of Ethiopia (CBE)",
+            accountDetails: data.cbeAccount,
+            instructions: data.cbeInstructions || "Transfer to CBE and submit receipt.",
+            active: true,
+          },
+        });
+      }
+    }
+
+    if (data.freeTrialQuestions !== undefined) {
+      await prisma.trialUsage.updateMany({
+        data: {
+          quotaLimit: data.freeTrialQuestions,
+        },
+      });
+    }
+
+    return this.getSettings();
+  }
+
+  /**
+   * Reports: Detailed department breakdown with attempt counts, average scores, and pass rates
+   */
+  async getDepartmentReports() {
+    const departments = await prisma.department.findMany({
+      where: { status: "ACTIVE" },
+      include: {
+        _count: {
+          select: {
+            enrollments: true,
+            questions: true,
+            exams: true,
+          },
+        },
+        exams: {
+          select: {
+            id: true,
+            attempts: {
+              select: {
+                id: true,
+                status: true,
+                score: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: { name: "asc" },
+    });
+
+    return departments.map((dept) => {
+      const allAttempts = dept.exams.flatMap((e) => e.attempts);
+      const completed = allAttempts.filter((a) => a.status === "COMPLETED");
+      const totalScore = completed.reduce((sum, a) => sum + (a.score ? Number(a.score) : 0), 0);
+      const avgScore = completed.length > 0 ? Math.round((totalScore / completed.length) * 10) / 10 : 0;
+      const passedCount = completed.filter((a) => (a.score ? Number(a.score) : 0) >= 50).length;
+      const passRate = completed.length > 0 ? Math.round((passedCount / completed.length) * 100) : 0;
+
+      return {
+        id: dept.id,
+        code: dept.code,
+        name: dept.name,
+        students: dept._count.enrollments,
+        questions: dept._count.questions,
+        exams: dept._count.exams,
+        examsTaken: completed.length,
+        avgScore,
+        passRate,
+      };
+    });
+  }
 }
 
 export const adminService = new AdminService();

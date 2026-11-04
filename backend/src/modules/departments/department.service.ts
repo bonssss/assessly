@@ -12,6 +12,13 @@ export class DepartmentService {
         name: true,
         description: true,
         createdAt: true,
+        _count: {
+          select: {
+            questions: true,
+            resources: true,
+            exams: true,
+          },
+        },
       },
       orderBy: { name: "asc" },
     });

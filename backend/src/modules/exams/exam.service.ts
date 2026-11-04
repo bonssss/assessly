@@ -140,6 +140,21 @@ export class ExamService {
   }
 
   /**
+   * Admin: Delete an exam
+   */
+  async deleteExam(id: string) {
+    const exam = await prisma.exam.findUnique({
+      where: { id },
+    });
+    if (!exam) {
+      throw new NotFoundError("Exam not found");
+    }
+    return prisma.exam.delete({
+      where: { id },
+    });
+  }
+
+  /**
    * List exams for student (filtered by enrolled departments and PUBLISHED status)
    */
   async listExamsForStudent(userId: string, query: ListExamsQuery) {

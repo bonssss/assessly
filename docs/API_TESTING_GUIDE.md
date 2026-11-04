@@ -294,3 +294,30 @@ Register a new student enrolled in Computer Science.
 - **Header**: `Authorization: Bearer {{admin_token}}`
 - **Response**: Paginated audit events verifying `PAYMENT_APPROVED`, `RESOURCE_UPLOADED`, and user actions.
 
+#### 10.3 Department Performance Analytics & Pass Rates
+- **Request**: `GET {{baseUrl}}/admin/reports/departments`
+- **Header**: `Authorization: Bearer {{admin_token}}`
+- **Response**: Breakdown of active students, question bank size, exam attempts taken, average score percentage, and passing rates per department.
+
+#### 10.4 Platform Settings (Telebirr & CBE)
+- **Get Settings**: `GET {{baseUrl}}/admin/settings`
+- **Update Settings**: `PATCH {{baseUrl}}/admin/settings`
+- **Body**:
+  ```json
+  {
+    "telebirrNumber": "0911 234 567",
+    "cbeAccount": "1000 2345 6789 0",
+    "freeTrialQuestions": 5,
+    "passMarkPercentage": 50
+  }
+  ```
+
+---
+
+### Step 11: Content Lifecycle & Deletion
+- **Delete Question**: `DELETE {{baseUrl}}/questions/{{question_id}}`
+- **Delete Exam**: `DELETE {{baseUrl}}/exams/{{exam_id}}`
+- **Header**: `Authorization: Bearer {{admin_token}}`
+- **Response** (`200 OK`): Cascade deletion of related options, attempt references, and exam links.
+
+
