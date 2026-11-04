@@ -62,7 +62,7 @@ export class AdminService {
           name: true,
           _count: {
             select: {
-              enrollments: true,
+              students: true,
               questions: true,
               exams: true,
               resources: true,
@@ -106,7 +106,7 @@ export class AdminService {
         id: d.id,
         code: d.code,
         name: d.name,
-        enrolledStudents: d._count.enrollments,
+        enrolledStudents: d._count.students,
         questionsCount: d._count.questions,
         examsCount: d._count.exams,
         resourcesCount: d._count.resources,
@@ -437,7 +437,7 @@ export class AdminService {
       include: {
         _count: {
           select: {
-            enrollments: true,
+            students: true,
             questions: true,
             exams: true,
           },
@@ -470,7 +470,7 @@ export class AdminService {
         id: dept.id,
         code: dept.code,
         name: dept.name,
-        students: dept._count.enrollments,
+        students: dept._count.students,
         questions: dept._count.questions,
         exams: dept._count.exams,
         examsTaken: completed.length,
