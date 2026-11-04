@@ -1,3 +1,4 @@
+
 import prisma from "../../prisma.js";
 import {
   BadRequestError,
@@ -449,9 +450,10 @@ export class ExamService {
           },
         });
       } else {
+        const activeAttempt: typeof attempt = attempt;
         await prisma.studentAnswer.createMany({
           data: selectedQuestions.map((q) => ({
-            attemptId: attempt.id,
+            attemptId: activeAttempt.id,
             questionId: q.id,
             selectedOptionId: null,
             isCorrect: false,
@@ -459,6 +461,10 @@ export class ExamService {
           })),
         });
       }
+    }
+
+    if (!attempt) {
+      throw new BadRequestError("Failed to initialize exam attempt");
     }
 
     const deadlineTime = attempt.deadlineAt ? new Date(attempt.deadlineAt).getTime() : 0;
