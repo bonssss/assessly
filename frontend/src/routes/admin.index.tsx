@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { AdminShell } from "@/components/AdminShell";
 import { PageHeader, Section, Stat, StatusBadge, btn, td, th } from "@/components/ui-kit";
+import { AdminAnalyticsChart } from "@/components/AdminAnalyticsChart";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 
@@ -25,19 +26,26 @@ function AdminDashboardComponent() {
   const [loading, setLoading] = useState(true);
   const [kpis, setKpis] = useState<any>(null);
   const [departments, setDepartments] = useState<any[]>([]);
+  const [departmentReports, setDepartmentReports] = useState<any[]>([]);
+  const [recentActivity, setRecentActivity] = useState<any[]>([]);
+  const [paymentBreakdown, setPaymentBreakdown] = useState<any[]>([]);
   const [pendingPayments, setPendingPayments] = useState<any[]>([]);
 
   const loadData = async () => {
     try {
-      const [overviewData, pendingRes] = await Promise.all([
+      const [overviewData, pendingRes, deptReports] = await Promise.all([
         api.admin.getOverviewKPIs().catch(() => null),
         api.payments.listPendingPayments({ limit: 5 }).catch(() => ({ payments: [] })),
+        api.admin.getDepartmentReports().catch(() => []),
       ]);
 
       if (overviewData) {
         setKpis(overviewData.kpis);
         setDepartments(overviewData.departmentBreakdown || []);
+        setRecentActivity(overviewData.recentActivity || []);
+        setPaymentBreakdown(overviewData.kpis?.monetization?.paymentBreakdown || []);
       }
+      setDepartmentReports(deptReports || []);
       setPendingPayments(pendingRes?.payments || []);
     } catch (err: any) {
       toast.error(err.message || "Failed to load admin overview");
@@ -109,6 +117,16 @@ function AdminDashboardComponent() {
           value={kpis ? String(kpis.content.totalQuestions) : "—"}
           hint={`${kpis?.content?.totalExams || 0} exams configured`}
           icon={FileQuestion}
+        />
+      </div>
+
+      {/* Admin Visual Analytics & Telemetry Graphs */}
+      <div className="mt-6">
+        <AdminAnalyticsChart
+          departmentReports={departmentReports}
+          paymentBreakdown={paymentBreakdown}
+          recentActivity={recentActivity}
+          totalRevenue={Number(kpis?.monetization?.totalRevenueETB || 0)}
         />
       </div>
 

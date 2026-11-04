@@ -24,6 +24,7 @@ export class AdminService {
       totalSuperAdmins,
       activeEntitlements,
       pendingPayments,
+      rejectedPayments,
       approvedPaymentsAgg,
       totalQuestions,
       totalExams,
@@ -42,6 +43,7 @@ export class AdminService {
         },
       }),
       prisma.payment.count({ where: { status: "PENDING" } }),
+      prisma.payment.count({ where: { status: "REJECTED" } }),
       prisma.payment.aggregate({
         where: { status: "APPROVED" },
         _sum: { amount: true },
@@ -77,6 +79,30 @@ export class AdminService {
       ? Math.round(Number(attemptScores._avg.score) * 100) / 100
       : 0;
 
+    // Last 7 days exam activity telemetry
+    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const recentAttempts = await prisma.examAttempt.findMany({
+      where: { startedAt: { gte: sevenDaysAgo } },
+      select: { startedAt: true, status: true },
+    });
+
+    const daysMap: Record<string, { date: string; attempts: number; completed: number }> = {};
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+      const dateStr = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+      daysMap[dateStr] = { date: dateStr, attempts: 0, completed: 0 };
+    }
+    for (const att of recentAttempts) {
+      const dateStr = att.startedAt.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+      if (daysMap[dateStr]) {
+        daysMap[dateStr].attempts += 1;
+        if (att.status === "COMPLETED" || att.status === "TIMED_OUT") {
+          daysMap[dateStr].completed += 1;
+        }
+      }
+    }
+    const recentActivity = Object.values(daysMap);
+
     return {
       kpis: {
         users: {
@@ -88,9 +114,15 @@ export class AdminService {
         monetization: {
           activeEntitlements,
           pendingPayments,
+          rejectedPayments,
           totalApprovedPayments: approvedPaymentsAgg._count.id,
           totalRevenueETB,
           currency: "ETB",
+          paymentBreakdown: [
+            { status: "Approved", count: approvedPaymentsAgg._count.id, fill: "#10b981" },
+            { status: "Pending", count: pendingPayments, fill: "#f59e0b" },
+            { status: "Rejected", count: rejectedPayments, fill: "#ef4444" },
+          ],
         },
         content: {
           totalQuestions,
@@ -102,6 +134,7 @@ export class AdminService {
           averageScore,
         },
       },
+      recentActivity,
       departmentBreakdown: departments.map((d) => ({
         id: d.id,
         code: d.code,
