@@ -93,18 +93,16 @@ function Index() {
   return (
     <div className="relative min-h-screen bg-slate-50 selection:bg-brand/10 selection:text-brand">
       {/* ========================================================= */}
-      {/* TOP HERO CONTAINER (AQUA/CYAN CANVAS WITH CENTERED CARD)  */}
+      {/* 1. FULL SCREEN HERO SECTION (EDGE-TO-EDGE, NO PADDING GAPS)*/}
       {/* ========================================================= */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-[#cffafe] via-[#a7f3d0]/35 to-[#bae6fd]/50 px-3 sm:px-6 md:px-10 py-6 md:py-12 flex flex-col items-center justify-center">
-        {/* Subtle decorative background organic rings */}
-        <div className="pointer-events-none absolute -top-24 -left-24 size-96 rounded-full bg-cyan-200/30 blur-2xl" />
-        <div className="pointer-events-none absolute -bottom-24 -right-24 size-96 rounded-full bg-emerald-200/30 blur-2xl" />
+      <section className="relative w-full min-h-screen bg-white flex flex-col justify-between overflow-hidden">
+        {/* Subtle decorative background organic glow */}
+        <div className="pointer-events-none absolute -top-24 right-0 w-[50vw] h-[50vw] max-w-[650px] max-h-[650px] rounded-full bg-gradient-to-br from-[#cffafe]/60 via-[#e0f2fe]/40 to-transparent blur-3xl -z-10" />
+        <div className="pointer-events-none absolute bottom-0 -left-20 w-[40vw] h-[40vw] max-w-[500px] max-h-[500px] rounded-full bg-gradient-to-tr from-[#dcfce7]/50 via-[#f0fdf4]/30 to-transparent blur-3xl -z-10" />
 
-        {/* Main Floating Rounded Hero Card */}
-        <div className="relative w-full max-w-6xl rounded-[32px] sm:rounded-[40px] bg-white shadow-2xl shadow-cyan-950/10 border border-white/80 p-6 sm:p-10 lg:p-14">
-          
-          {/* Header Row within Card */}
-          <header className="flex items-center justify-between border-b border-slate-100 pb-6 mb-8 lg:mb-12">
+        {/* Top Navigation Bar (Full Width) */}
+        <header className="w-full border-b border-slate-100 bg-white/95 backdrop-blur-md sticky top-0 z-40">
+          <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 sm:px-10 lg:px-12">
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -127,13 +125,13 @@ function Index() {
                 DEPARTMENTS
               </a>
               <a href="#about" className="hover:text-slate-900 transition-colors">
-                ABOUT
+                HOW IT WORKS
               </a>
               <a href="#pricing" className="hover:text-slate-900 transition-colors">
                 PRICING
               </a>
               <a href="#faq" className="hover:text-slate-900 transition-colors">
-                CONTACT
+                FAQ
               </a>
             </nav>
 
@@ -142,83 +140,85 @@ function Index() {
               {user ? (
                 <Link
                   to={isAdmin ? "/admin" : "/dashboard"}
-                  className="rounded-full bg-[#4ade80] hover:bg-[#22c55e] text-white px-5 sm:px-6 py-2 sm:py-2.5 text-xs font-bold tracking-wide shadow-md shadow-emerald-500/20 transition-all hover:scale-105"
+                  className="rounded-full bg-[#4ade80] hover:bg-[#22c55e] text-white px-6 py-2.5 text-xs font-bold tracking-wide shadow-md shadow-emerald-500/20 transition-all hover:scale-105"
                 >
-                  {isAdmin ? "Admin Portal" : "My Dashboard"}
+                  {isAdmin ? "Admin Portal" : "Student Dashboard"}
                 </Link>
               ) : (
                 <div className="flex items-center gap-2">
                   <Link
                     to="/login"
-                    className="hidden sm:inline-flex text-xs font-semibold text-slate-600 hover:text-slate-900 px-3 py-2 transition-colors"
+                    className="hidden sm:inline-flex text-xs font-semibold text-slate-600 hover:text-slate-900 px-4 py-2 transition-colors"
                   >
                     Log in
                   </Link>
                   <Link
                     to="/register"
-                    className="rounded-full bg-[#4ade80] hover:bg-[#22c55e] text-white px-5 sm:px-6 py-2 sm:py-2.5 text-xs font-bold tracking-wide shadow-md shadow-emerald-500/20 transition-all hover:scale-105"
+                    className="rounded-full bg-[#4ade80] hover:bg-[#22c55e] text-white px-6 py-2.5 text-xs font-bold tracking-wide shadow-md shadow-emerald-500/20 transition-all hover:scale-105"
                   >
-                    Sign up
+                    Start Free Trial
                   </Link>
                 </div>
               )}
             </div>
-          </header>
+          </div>
 
           {/* Mobile Dropdown Nav Menu */}
           {mobileMenuOpen && (
-            <div className="lg:hidden mb-8 rounded-2xl bg-slate-50 p-4 border border-slate-200/80 animate-in fade-in slide-in-from-top-2">
+            <div className="lg:hidden border-t border-slate-100 bg-white px-6 py-4 shadow-lg animate-in fade-in slide-in-from-top-2">
               <nav className="flex flex-col gap-3 text-xs font-semibold uppercase tracking-wider text-slate-600">
-                <Link to="/" onClick={() => setMobileMenuOpen(false)} className="py-1 text-slate-900">
+                <Link to="/" onClick={() => setMobileMenuOpen(false)} className="py-1.5 text-slate-900">
                   Home
                 </Link>
-                <a href="#departments" onClick={() => setMobileMenuOpen(false)} className="py-1 hover:text-slate-900">
-                  Departments
+                <a href="#departments" onClick={() => setMobileMenuOpen(false)} className="py-1.5 hover:text-slate-900">
+                  Departments & Curricula
                 </a>
-                <a href="#about" onClick={() => setMobileMenuOpen(false)} className="py-1 hover:text-slate-900">
-                  About & Steps
+                <a href="#about" onClick={() => setMobileMenuOpen(false)} className="py-1.5 hover:text-slate-900">
+                  How It Works
                 </a>
-                <a href="#pricing" onClick={() => setMobileMenuOpen(false)} className="py-1 hover:text-slate-900">
-                  Pricing Plans
+                <a href="#pricing" onClick={() => setMobileMenuOpen(false)} className="py-1.5 hover:text-slate-900">
+                  Pricing Plans (ETB)
                 </a>
-                <a href="#faq" onClick={() => setMobileMenuOpen(false)} className="py-1 hover:text-slate-900">
+                <a href="#faq" onClick={() => setMobileMenuOpen(false)} className="py-1.5 hover:text-slate-900">
                   FAQ & Support
                 </a>
                 {!user && (
-                  <div className="pt-2 border-t flex gap-2">
-                    <Link to="/login" className="py-2 text-center text-xs font-semibold text-slate-700 flex-1">
+                  <div className="pt-3 border-t flex gap-2">
+                    <Link to="/login" className="py-2 text-center text-xs font-semibold text-slate-700 flex-1 rounded-full border">
                       Log in
                     </Link>
                     <Link to="/register" className="py-2 text-center text-xs font-bold bg-[#4ade80] text-white rounded-full flex-1">
-                      Sign up
+                      Start Free Trial
                     </Link>
                   </div>
                 )}
               </nav>
             </div>
           )}
+        </header>
 
-          {/* Hero Main Content Row */}
-          <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+        {/* Hero Main Content Row (Expanded Viewport Height) */}
+        <div className="flex-1 w-full mx-auto max-w-7xl px-6 sm:px-10 lg:px-12 py-10 lg:py-16 flex items-center">
+          <div className="grid lg:grid-cols-12 gap-10 lg:gap-14 items-center w-full">
             
             {/* Left Column: Heading, Subtitle, Search Pill, Pagination */}
             <div className="lg:col-span-6 flex flex-col justify-center">
               <ScrollReveal animation="fade-down" delay={50}>
-                <span className="text-xs sm:text-sm font-medium text-slate-400 tracking-wide">
-                  Online education & assessment
+                <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 px-3.5 py-1.5 rounded-full border border-emerald-200/60 max-w-fit mb-4">
+                  <ShieldCheck className="size-3.5 text-emerald-600" /> Ethiopian University Exit Exam Portal
                 </span>
               </ScrollReveal>
 
               <ScrollReveal animation="fade-up" delay={150}>
-                <h1 className="mt-2 text-4xl sm:text-5xl lg:text-6xl font-normal text-slate-700 tracking-tight leading-[1.08]">
-                  Start learning <br />
-                  <span className="font-extrabold text-slate-900">at home</span>
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-normal text-slate-700 tracking-tight leading-[1.08]">
+                  Ace your exit exam <br />
+                  <span className="font-extrabold text-slate-900">from home</span>
                 </h1>
               </ScrollReveal>
 
               <ScrollReveal animation="fade-up" delay={250}>
                 <p className="mt-4 text-sm sm:text-base text-slate-500 max-w-lg leading-relaxed">
-                  Prepare for university exit exams with full department question banks, timed practice, and downloadable study guides.
+                  Practice department-specific questions, sit realistic timed mock exams with instant auto-grading, and download past solutions. Start with 5 free questions.
                 </p>
               </ScrollReveal>
 
@@ -232,22 +232,40 @@ function Index() {
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="What are you looking for?"
+                    placeholder="Search department (e.g. Computer Science, Medicine, Law)..."
                     className="w-full bg-transparent text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 outline-none pr-3"
                   />
                   <button
                     type="submit"
                     className="size-9 sm:size-10 rounded-full bg-[#facc15] hover:bg-[#eab308] text-white flex items-center justify-center shadow-xs transition-transform active:scale-95 shrink-0 cursor-pointer"
-                    title="Search departments & questions"
+                    title="Find department questions"
                   >
                     <ArrowRight className="size-4 text-white stroke-[2.5]" />
                   </button>
                 </form>
               </ScrollReveal>
 
-              {/* Pagination Dots at Bottom Left */}
+              {/* Value proposition badges */}
               <ScrollReveal animation="fade-up" delay={450}>
-                <div className="mt-10 sm:mt-14 flex items-center gap-2">
+                <div className="mt-8 flex flex-wrap gap-4 sm:gap-6 text-xs font-semibold text-slate-600">
+                  <div className="flex items-center gap-1.5">
+                    <BookOpen className="size-4 text-emerald-500" />
+                    <span>8,500+ MoE Questions</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <Clock className="size-4 text-amber-500" />
+                    <span>Timed Mock Exams</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <Award className="size-4 text-blue-500" />
+                    <span>5 Free Trial Questions</span>
+                  </div>
+                </div>
+              </ScrollReveal>
+
+              {/* Pagination Dots at Bottom Left */}
+              <ScrollReveal animation="fade-up" delay={550}>
+                <div className="mt-8 sm:mt-12 flex items-center gap-2">
                   <span className="size-3 rounded-full bg-amber-400 ring-4 ring-amber-400/25 transition-all" />
                   <span className="size-2 rounded-full border border-slate-300 bg-white" />
                   <span className="size-2 rounded-full border border-slate-300 bg-white" />
@@ -260,7 +278,7 @@ function Index() {
             {/* Right Column: Freepik-Style Education Vector Illustration */}
             <div className="lg:col-span-6 flex justify-center items-center">
               <ScrollReveal animation="scale-in" delay={200}>
-                <HeroStudyIllustration />
+                <HeroStudyIllustration className="w-full max-w-[540px] drop-shadow-md" />
               </ScrollReveal>
             </div>
           </div>
