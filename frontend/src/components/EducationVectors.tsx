@@ -364,3 +364,4 @@ export function AuthVectorIllustration(props: SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
+

@@ -30,14 +30,21 @@ const router = Router();
 // List exams (filtered by enrolled departments for students, complete for admin)
 router.get("/", requireAuth, validateQuery(listExamsQuerySchema), listExamsHandler);
 
-// Student: View past exam attempt history
+// Student: View past exam attempt history (supports both /history/my-attempts and /me/history)
 router.get("/me/history", requireAuth, listStudentExamHistoryHandler);
+router.get("/history/my-attempts", requireAuth, listStudentExamHistoryHandler);
 
-// Student: Start a timed exam attempt (starts countdown & returns sanitized questions)
+// Student: Start a timed exam attempt (starts countdown & returns sanitized questions, supports /:id/start and /:id/attempts)
 router.post(
   "/:id/attempts",
   requireAuth,
-  requireRoles("STUDENT"),
+  requireRoles("STUDENT", "ADMIN", "SUPER_ADMIN"),
+  startExamAttemptHandler
+);
+router.post(
+  "/:id/start",
+  requireAuth,
+  requireRoles("STUDENT", "ADMIN", "SUPER_ADMIN"),
   startExamAttemptHandler
 );
 

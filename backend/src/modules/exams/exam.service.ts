@@ -1,3 +1,4 @@
+
 import prisma from "../../prisma.js";
 import {
   BadRequestError,
@@ -348,32 +349,136 @@ export class ExamService {
 
     // Determine attempt
     let attempt = existingAttempt;
-    if (!attempt) {
-      const deadlineAt = new Date(now.getTime() + exam.durationMinutes * 60 * 1000);
-      attempt = await prisma.examAttempt.create({
-        data: {
-          userId,
-          examId: exam.id,
-          startedAt: now,
-          deadlineAt,
-          status: "IN_PROGRESS",
-          score: 0.0,
+    let selectedQuestions: Array<{
+      id: string;
+      body: string;
+      difficulty: any;
+      marks: number;
+      options: any[];
+    }> = [];
+
+    if (existingAttempt) {
+      // Reload questions already assigned to this in-progress attempt
+      const existingAnswers = await prisma.studentAnswer.findMany({
+        where: { attemptId: existingAttempt.id },
+        include: {
+          question: {
+            include: {
+              options: { orderBy: { sortOrder: "asc" } },
+            },
+          },
         },
       });
+
+      if (existingAnswers.length > 0) {
+        selectedQuestions = existingAnswers.map((a) => ({
+          id: a.question.id,
+          body: a.question.body,
+          difficulty: a.question.difficulty,
+          marks: Number(a.question.marks || 1),
+          options: a.question.options,
+        }));
+      }
+    }
+
+    if (!attempt || selectedQuestions.length === 0) {
+      // 1. Gather question pool from directly linked exam questions
+      const linkedQuestions = exam.questions.map((eq) => ({
+        id: eq.question.id,
+        body: eq.question.body,
+        difficulty: eq.question.difficulty,
+        marks: Number(eq.marks || eq.question.marks || 1),
+        options: eq.question.options,
+      }));
+
+      // 2. Also gather published questions from the department / subject bank
+      const bankQuestions = await prisma.question.findMany({
+        where: {
+          departmentId: exam.departmentId,
+          status: "PUBLISHED",
+        },
+        include: {
+          options: { orderBy: { sortOrder: "asc" } },
+        },
+      });
+
+      // Merge into a deduplicated pool
+      const poolMap = new Map<string, any>();
+      for (const q of linkedQuestions) poolMap.set(q.id, q);
+      for (const q of bankQuestions) {
+        if (!poolMap.has(q.id)) {
+          poolMap.set(q.id, {
+            id: q.id,
+            body: q.body,
+            difficulty: q.difficulty,
+            marks: Number(q.marks || 1),
+            options: q.options,
+          });
+        }
+      }
+
+      const pool = Array.from(poolMap.values());
+
+      // Randomize selection using Fisher-Yates shuffle
+      for (let i = pool.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [pool[i], pool[j]] = [pool[j], pool[i]];
+      }
+
+      // Randomly select up to 60 questions from bank (or all if <= 60)
+      const count = Math.min(60, pool.length);
+      selectedQuestions = pool.slice(0, count);
+
+      if (!attempt) {
+        const deadlineAt = new Date(now.getTime() + exam.durationMinutes * 60 * 1000);
+        attempt = await prisma.examAttempt.create({
+          data: {
+            userId,
+            examId: exam.id,
+            startedAt: now,
+            deadlineAt,
+            status: "IN_PROGRESS",
+            score: 0.0,
+            answers: {
+              create: selectedQuestions.map((q) => ({
+                questionId: q.id,
+                selectedOptionId: null,
+                isCorrect: false,
+                awardedMarks: 0,
+              })),
+            },
+          },
+        });
+      } else {
+        const activeAttempt: typeof attempt = attempt;
+        await prisma.studentAnswer.createMany({
+          data: selectedQuestions.map((q) => ({
+            attemptId: activeAttempt.id,
+            questionId: q.id,
+            selectedOptionId: null,
+            isCorrect: false,
+            awardedMarks: 0,
+          })),
+        });
+      }
+    }
+
+    if (!attempt) {
+      throw new BadRequestError("Failed to initialize exam attempt");
     }
 
     const deadlineTime = attempt.deadlineAt ? new Date(attempt.deadlineAt).getTime() : 0;
     const remainingSeconds = Math.max(0, Math.floor((deadlineTime - now.getTime()) / 1000));
 
     // 4. SANITIZE QUESTIONS: Strip correct answer keys and explanations before submission (AC-09)
-    const sanitizedQuestions = exam.questions.map((eq, index) => ({
-      sequence: eq.sequence || index + 1,
-      marks: Number(eq.marks),
+    const sanitizedQuestions = selectedQuestions.map((q, index) => ({
+      sequence: index + 1,
+      marks: q.marks,
       question: {
-        id: eq.question.id,
-        body: eq.question.body,
-        difficulty: eq.question.difficulty,
-        options: eq.question.options.map((opt) => ({
+        id: q.id,
+        body: q.body,
+        difficulty: q.difficulty,
+        options: q.options.map((opt: any) => ({
           id: opt.id,
           optionText: opt.optionText,
           sortOrder: opt.sortOrder,
@@ -384,6 +489,7 @@ export class ExamService {
     return {
       attemptId: attempt.id,
       examId: exam.id,
+      examTitle: exam.title,
       title: exam.title,
       instructions: exam.instructions,
       durationMinutes: exam.durationMinutes,
@@ -452,6 +558,41 @@ export class ExamService {
     }
 
     // 1. Grade the student's submission on the server using stored answer keys (FR-EXAM-07)
+    let questionsToGrade: Array<{
+      id: string;
+      marks: number;
+      body: string;
+      explanation: string | null;
+      options: any[];
+    }> = [];
+
+    const attemptAnswers = await prisma.studentAnswer.findMany({
+      where: { attemptId: attempt.id },
+      include: {
+        question: {
+          include: { options: { orderBy: { sortOrder: "asc" } } },
+        },
+      },
+    });
+
+    if (attemptAnswers.length > 0) {
+      questionsToGrade = attemptAnswers.map((a) => ({
+        id: a.question.id,
+        marks: Number(a.question.marks || 1),
+        body: a.question.body,
+        explanation: a.question.explanation,
+        options: a.question.options,
+      }));
+    } else if (exam.questions && exam.questions.length > 0) {
+      questionsToGrade = exam.questions.map((eq) => ({
+        id: eq.question.id,
+        marks: Number(eq.marks || 1),
+        body: eq.question.body,
+        explanation: eq.question.explanation,
+        options: eq.question.options,
+      }));
+    }
+
     let totalScore = 0;
     let maxPossibleScore = 0;
 
@@ -465,15 +606,14 @@ export class ExamService {
 
     const reviewQuestions: Array<any> = [];
 
-    for (const eq of exam.questions) {
-      const q = eq.question;
-      const questionMarks = Number(eq.marks);
+    for (const q of questionsToGrade) {
+      const questionMarks = Number(q.marks);
       maxPossibleScore += questionMarks;
 
       const studentAnswer = data.answers.find((a) => a.questionId === q.id);
       const selectedOptionId = studentAnswer?.selectedOptionId ?? null;
 
-      const correctOption = q.options.find((opt) => opt.isCorrect);
+      const correctOption = q.options.find((opt: any) => opt.isCorrect);
       const isCorrect = Boolean(
         selectedOptionId && correctOption && selectedOptionId === correctOption.id
       );
@@ -489,7 +629,7 @@ export class ExamService {
         awardedMarks,
       });
 
-      // Prepare feedback data
+      // Prepare feedback data including explanation for each question
       reviewQuestions.push({
         questionId: q.id,
         body: q.body,
@@ -499,7 +639,7 @@ export class ExamService {
         awardedMarks,
         maxMarks: questionMarks,
         explanation: q.explanation,
-        options: q.options.map((opt) => ({
+        options: q.options.map((opt: any) => ({
           id: opt.id,
           optionText: opt.optionText,
           isCorrect: opt.isCorrect,
@@ -546,11 +686,16 @@ export class ExamService {
       title: exam.title,
       status: finalStatus,
       score: totalScore,
+      obtainedMarks: totalScore,
+      totalMarks: maxPossibleScore,
       maxPossibleScore,
+      totalQuestions: questionsToGrade.length,
+      correctAnswers: reviewQuestions.filter((r) => r.isCorrect).length,
       percentage,
       submittedAt: now,
       feedbackPolicy: exam.feedbackPolicy,
       review: showReview ? reviewQuestions : null,
+      results: showReview ? reviewQuestions : null,
     };
   }
 
@@ -588,31 +733,64 @@ export class ExamService {
     let maxPossibleScore = 0;
     const review: any[] = [];
 
-    if (exam) {
-      for (const eq of exam.questions) {
-        const q = eq.question;
-        const maxMarks = Number(eq.marks);
-        maxPossibleScore += maxMarks;
+    const attemptAnswers = await prisma.studentAnswer.findMany({
+      where: { attemptId: attempt.id },
+      include: {
+        question: {
+          include: { options: { orderBy: { sortOrder: "asc" } } },
+        },
+      },
+    });
 
-        const ans = attempt.answers.find((a) => a.questionId === q.id);
-        const correctOption = q.options.find((opt) => opt.isCorrect);
+    let questionsToReview: Array<{
+      question: any;
+      maxMarks: number;
+      selectedOptionId: string | null;
+      awardedMarks: number;
+      isCorrect: boolean;
+    }> = [];
 
-        review.push({
-          questionId: q.id,
-          body: q.body,
+    if (attemptAnswers.length > 0) {
+      questionsToReview = attemptAnswers.map((a) => ({
+        question: a.question,
+        maxMarks: Number(a.question.marks || 1),
+        selectedOptionId: a.selectedOptionId,
+        awardedMarks: Number(a.awardedMarks || 0),
+        isCorrect: a.isCorrect,
+      }));
+    } else if (exam?.questions) {
+      questionsToReview = exam.questions.map((eq) => {
+        const ans = attempt.answers.find((a) => a.questionId === eq.question.id);
+        return {
+          question: eq.question,
+          maxMarks: Number(eq.marks || 1),
           selectedOptionId: ans?.selectedOptionId ?? null,
-          correctOptionId: correctOption?.id ?? null,
-          isCorrect: ans?.isCorrect ?? false,
           awardedMarks: ans ? Number(ans.awardedMarks) : 0,
-          maxMarks,
-          explanation: q.explanation,
-          options: q.options.map((opt) => ({
-            id: opt.id,
-            optionText: opt.optionText,
-            isCorrect: opt.isCorrect,
-          })),
-        });
-      }
+          isCorrect: ans?.isCorrect ?? false,
+        };
+      });
+    }
+
+    for (const item of questionsToReview) {
+      const q = item.question;
+      maxPossibleScore += item.maxMarks;
+      const correctOption = q.options.find((opt: any) => opt.isCorrect);
+
+      review.push({
+        questionId: q.id,
+        body: q.body,
+        selectedOptionId: item.selectedOptionId,
+        correctOptionId: correctOption?.id ?? null,
+        isCorrect: item.isCorrect,
+        awardedMarks: item.awardedMarks,
+        maxMarks: item.maxMarks,
+        explanation: q.explanation,
+        options: q.options.map((opt: any) => ({
+          id: opt.id,
+          optionText: opt.optionText,
+          isCorrect: opt.isCorrect,
+        })),
+      });
     }
 
     const score = Number(attempt.score);
@@ -626,11 +804,16 @@ export class ExamService {
       examTitle: exam?.title ?? "Practice Session",
       status: attempt.status,
       score,
+      obtainedMarks: score,
+      totalMarks: maxPossibleScore,
       maxPossibleScore,
+      totalQuestions: questionsToReview.length,
+      correctAnswers: review.filter((r) => r.isCorrect).length,
       percentage,
       startedAt: attempt.startedAt,
       submittedAt: attempt.submittedAt,
       review,
+      results: review,
     };
   }
 

@@ -1,16 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowRight,
-  Award,
-  BookOpen,
   Check,
   ClipboardCheck,
-  Clock,
   GraduationCap,
   Menu,
   Receipt,
   Search,
-  ShieldCheck,
   Sparkles,
   UserPlus,
   X,
@@ -19,7 +15,7 @@ import { useState } from "react";
 import { HeroStudyIllustration } from "@/components/EducationVectors";
 import { PublicFooter } from "@/components/PublicHeader";
 import { ScrollReveal, ScrollToTopButton } from "@/components/ScrollReveal";
-import { Logo, btn } from "@/components/ui-kit";
+import { Logo } from "@/components/ui-kit";
 import { departments, plans } from "@/lib/data";
 import { useAuth } from "@/lib/auth-context";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -27,15 +23,15 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Assessly — Start Learning & Practice at Home" },
+      { title: "Assessly — Start Learning At Home" },
       {
         name: "description",
-        content: "Department-based exam practice and university exit assessments. Start with 5 free questions at home.",
+        content: "Department-specific practice questions, timed mock exams, and past exit papers. Start with 5 free questions at home.",
       },
-      { property: "og:title", content: "Assessly — Start Learning & Practice at Home" },
+      { property: "og:title", content: "Assessly — Start Learning At Home" },
       {
         property: "og:description",
-        content: "Practice real exam questions for your department. Five free questions to start.",
+        content: "Practice real exit exam questions for your department at home. 5 free questions to start.",
       },
     ],
   }),
@@ -46,17 +42,17 @@ const steps = [
   {
     icon: UserPlus,
     title: "Create an account",
-    text: "Register and choose your university department. Your trial questions are ready immediately.",
+    text: "Register and choose your university department. Your 5 trial questions are ready immediately.",
   },
   {
     icon: ClipboardCheck,
     title: "Try five free questions",
-    text: "Experience the real exam simulator and instant feedback with zero payment up front.",
+    text: "Experience the real timed exam simulator and instant feedback with zero payment up front.",
   },
   {
     icon: Receipt,
     title: "Pay via Telebirr or CBE",
-    text: "Submit your payment receipt and reference code for rapid administrative verification.",
+    text: "Submit your payment receipt screenshot and reference code for rapid administrative verification.",
   },
   {
     icon: GraduationCap,
@@ -66,9 +62,9 @@ const steps = [
 ];
 
 const faqs: [string, string][] = [
-  ["How many free questions do I get?", "Every new candidate receives five free practice questions upon registration. No payment or receipt is required to test the platform."],
+  ["How many free questions do I get?", "Every new candidate receives five free practice questions upon registration. No payment or bank receipt is required to test the platform."],
   ["How do I pay?", "We accept Telebirr transfers and direct Commercial Bank of Ethiopia (CBE) deposits. After paying, upload a photo or screenshot of your receipt in the Payments portal."],
-  ["How long does payment approval take?", "Our team reviews submitted payment receipts regularly, usually approving requests within a few hours (maximum 24h). Access is instantly unlocked upon approval."],
+  ["How long does payment approval take?", "Our team reviews submitted payment receipts regularly, usually approving requests within 1 to 3 hours (maximum 24h). Access is instantly unlocked upon approval."],
   ["Can I practice multiple departments?", "Yes! You can enroll in multiple departments or upgrade to an Annual plan that includes multi-department access."],
   ["What if my receipt is rejected?", "You will receive an explanation note from the reviewer and can re-submit a legible receipt image anytime from your payments dashboard."],
 ];
@@ -95,204 +91,182 @@ function Index() {
   };
 
   return (
-    <div className="relative min-h-screen bg-slate-50 selection:bg-brand/10 selection:text-brand">
+    <div className="min-h-screen bg-gradient-to-br from-[#cffafe] via-[#a7f3d0]/35 to-[#bae6fd]/50 selection:bg-brand/10 selection:text-brand p-3 sm:p-6 lg:p-8 flex flex-col justify-between">
+      
       {/* ========================================================= */}
-      {/* 1. FULL SCREEN HERO SECTION (EDGE-TO-EDGE, NO PADDING GAPS)*/}
+      {/* 1. MAIN FLOATING HERO CARD (MATCHING FREEPIK REFERENCE)   */}
       {/* ========================================================= */}
-      <section className="relative w-full min-h-screen bg-white flex flex-col justify-between overflow-hidden">
-        {/* Subtle decorative background organic glow */}
-        <div className="pointer-events-none absolute -top-24 right-0 w-[50vw] h-[50vw] max-w-[650px] max-h-[650px] rounded-full bg-gradient-to-br from-[#cffafe]/60 via-[#e0f2fe]/40 to-transparent blur-3xl -z-10" />
-        <div className="pointer-events-none absolute bottom-0 -left-20 w-[40vw] h-[40vw] max-w-[500px] max-h-[500px] rounded-full bg-gradient-to-tr from-[#dcfce7]/50 via-[#f0fdf4]/30 to-transparent blur-3xl -z-10" />
+      <section className="w-full max-w-7xl mx-auto bg-white rounded-[32px] sm:rounded-[40px] shadow-2xl shadow-cyan-950/10 border border-white/80 overflow-hidden flex flex-col justify-between min-h-[calc(100vh-2rem)] sm:min-h-[calc(100vh-4rem)] animate-in fade-in zoom-in-95 duration-200">
+        
+        {/* Card Header (Hamburger + Brand + Navigation + Green Pill Button) */}
+        <header className="w-full px-6 sm:px-10 lg:px-12 pt-6 sm:pt-8 flex items-center justify-between border-b border-slate-100/60 pb-5">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="lg:hidden rounded-lg p-2 text-slate-600 hover:bg-slate-100 transition-colors"
+              aria-label="Toggle navigation"
+            >
+              {mobileMenuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
+            </button>
+            <Link to="/" className="inline-block hover:opacity-90 transition-opacity">
+              <Logo />
+            </Link>
+          </div>
 
-        {/* Top Navigation Bar (Full Width) */}
-        <header className="w-full border-b border-slate-100 bg-white/95 backdrop-blur-md sticky top-0 z-40">
-          <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 sm:px-10 lg:px-12">
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="lg:hidden rounded-lg p-2 text-slate-600 hover:bg-slate-100 transition-colors"
-                aria-label="Toggle navigation"
+          {/* Desktop Navigation Links */}
+          <nav className="hidden lg:flex items-center gap-8 text-xs font-bold tracking-widest text-slate-500 uppercase">
+            <Link to="/" className="text-slate-900 border-b-2 border-slate-900 pb-1 transition-colors">
+              HOME
+            </Link>
+            <a href="#departments" className="hover:text-slate-900 transition-colors pb-1">
+              DEPARTMENTS
+            </a>
+            <a href="#about" className="hover:text-slate-900 transition-colors pb-1">
+              ABOUT
+            </a>
+            <a href="#pricing" className="hover:text-slate-900 transition-colors pb-1">
+              PRICING
+            </a>
+            <a href="#faq" className="hover:text-slate-900 transition-colors pb-1">
+              CONTACT
+            </a>
+          </nav>
+
+          {/* Green Pill CTA Button */}
+          <div className="flex items-center gap-3">
+            {user ? (
+              <Link
+                to={isAdmin ? "/admin" : "/dashboard"}
+                className="rounded-full bg-[#4ade80] hover:bg-[#22c55e] text-white px-6 py-2.5 text-xs font-bold tracking-wide shadow-md shadow-emerald-500/20 transition-all hover:scale-105 active:scale-95 cursor-pointer"
               >
-                {mobileMenuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
-              </button>
-              <Link to="/" className="hover:opacity-90 transition-opacity">
-                <Logo />
+                {isAdmin ? "Admin Portal" : "Dashboard"}
               </Link>
-            </div>
-
-            {/* Desktop Navigation Links */}
-            <nav className="hidden lg:flex items-center gap-8 text-xs font-bold tracking-widest text-slate-500 uppercase">
-              <Link to="/" className="text-slate-900 transition-colors">
-                HOME
-              </Link>
-              <a href="#departments" className="hover:text-slate-900 transition-colors">
-                DEPARTMENTS
-              </a>
-              <a href="#about" className="hover:text-slate-900 transition-colors">
-                HOW IT WORKS
-              </a>
-              <a href="#pricing" className="hover:text-slate-900 transition-colors">
-                PRICING
-              </a>
-              <a href="#faq" className="hover:text-slate-900 transition-colors">
-                FAQ
-              </a>
-            </nav>
-
-            {/* Sign Up / Dashboard Pill Button */}
-            <div className="flex items-center gap-3">
-              {user ? (
+            ) : (
+              <div className="flex items-center gap-2">
                 <Link
-                  to={isAdmin ? "/admin" : "/dashboard"}
-                  className="rounded-full bg-[#4ade80] hover:bg-[#22c55e] text-white px-6 py-2.5 text-xs font-bold tracking-wide shadow-md shadow-emerald-500/20 transition-all hover:scale-105"
+                  to="/login"
+                  className="hidden sm:inline-flex text-xs font-semibold text-slate-600 hover:text-slate-900 px-3 py-2 transition-colors"
                 >
-                  {isAdmin ? "Admin Portal" : "Student Dashboard"}
+                  Log in
                 </Link>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <Link
-                    to="/login"
-                    className="hidden sm:inline-flex text-xs font-semibold text-slate-600 hover:text-slate-900 px-4 py-2 transition-colors"
-                  >
+                <Link
+                  to="/register"
+                  className="rounded-full bg-[#4ade80] hover:bg-[#22c55e] text-white px-6 py-2.5 text-xs font-bold tracking-wide shadow-md shadow-emerald-500/20 transition-all hover:scale-105 active:scale-95 cursor-pointer"
+                >
+                  Sign up
+                </Link>
+              </div>
+            )}
+          </div>
+        </header>
+
+        {/* Mobile Dropdown Menu */}
+        {mobileMenuOpen && (
+          <div className="lg:hidden border-b border-slate-100 bg-white px-6 py-4 animate-in fade-in slide-in-from-top-2">
+            <nav className="flex flex-col gap-3 text-xs font-semibold uppercase tracking-wider text-slate-600">
+              <Link to="/" onClick={() => setMobileMenuOpen(false)} className="py-1 text-slate-900 font-bold">
+                Home
+              </Link>
+              <a href="#departments" onClick={() => setMobileMenuOpen(false)} className="py-1 hover:text-slate-900">
+                Departments
+              </a>
+              <a href="#about" onClick={() => setMobileMenuOpen(false)} className="py-1 hover:text-slate-900">
+                About
+              </a>
+              <a href="#pricing" onClick={() => setMobileMenuOpen(false)} className="py-1 hover:text-slate-900">
+                Pricing
+              </a>
+              <a href="#faq" onClick={() => setMobileMenuOpen(false)} className="py-1 hover:text-slate-900">
+                Contact & FAQ
+              </a>
+              {!user && (
+                <div className="pt-3 border-t flex gap-2">
+                  <Link to="/login" className="py-2 text-center text-xs font-semibold text-slate-700 flex-1 rounded-full border">
                     Log in
                   </Link>
-                  <Link
-                    to="/register"
-                    className="rounded-full bg-[#4ade80] hover:bg-[#22c55e] text-white px-6 py-2.5 text-xs font-bold tracking-wide shadow-md shadow-emerald-500/20 transition-all hover:scale-105"
-                  >
-                    Start Free Trial
+                  <Link to="/register" className="py-2 text-center text-xs font-bold bg-[#4ade80] text-white rounded-full flex-1">
+                    Sign up
                   </Link>
                 </div>
               )}
-            </div>
+            </nav>
           </div>
+        )}
 
-          {/* Mobile Dropdown Nav Menu */}
-          {mobileMenuOpen && (
-            <div className="lg:hidden border-t border-slate-100 bg-white px-6 py-4 shadow-lg animate-in fade-in slide-in-from-top-2">
-              <nav className="flex flex-col gap-3 text-xs font-semibold uppercase tracking-wider text-slate-600">
-                <Link to="/" onClick={() => setMobileMenuOpen(false)} className="py-1.5 text-slate-900">
-                  Home
-                </Link>
-                <a href="#departments" onClick={() => setMobileMenuOpen(false)} className="py-1.5 hover:text-slate-900">
-                  Departments & Curricula
-                </a>
-                <a href="#about" onClick={() => setMobileMenuOpen(false)} className="py-1.5 hover:text-slate-900">
-                  How It Works
-                </a>
-                <a href="#pricing" onClick={() => setMobileMenuOpen(false)} className="py-1.5 hover:text-slate-900">
-                  Pricing Plans (ETB)
-                </a>
-                <a href="#faq" onClick={() => setMobileMenuOpen(false)} className="py-1.5 hover:text-slate-900">
-                  FAQ & Support
-                </a>
-                {!user && (
-                  <div className="pt-3 border-t flex gap-2">
-                    <Link to="/login" className="py-2 text-center text-xs font-semibold text-slate-700 flex-1 rounded-full border">
-                      Log in
-                    </Link>
-                    <Link to="/register" className="py-2 text-center text-xs font-bold bg-[#4ade80] text-white rounded-full flex-1">
-                      Start Free Trial
-                    </Link>
-                  </div>
-                )}
-              </nav>
-            </div>
-          )}
-        </header>
-
-        {/* Hero Main Content Row (Expanded Viewport Height) */}
-        <div className="flex-1 w-full mx-auto max-w-7xl px-6 sm:px-10 lg:px-12 py-10 lg:py-16 flex items-center">
-          <div className="grid lg:grid-cols-12 gap-10 lg:gap-14 items-center w-full">
+        {/* Card Main Body (2 Columns matching Freepik vector composition) */}
+        <div className="flex-1 px-6 sm:px-10 lg:px-16 py-8 sm:py-12 lg:py-16 flex items-center">
+          <div className="grid lg:grid-cols-12 gap-8 lg:gap-14 items-center w-full">
             
-            {/* Left Column: Heading, Subtitle, Search Pill, Pagination */}
+            {/* Left Column: Heading, Subtitle, Search Pill, Pagination Dots */}
             <div className="lg:col-span-6 flex flex-col justify-center">
-              <ScrollReveal animation="fade-down" delay={50}>
-                <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 px-3.5 py-1.5 rounded-full border border-emerald-200/60 max-w-fit mb-4">
-                  <ShieldCheck className="size-3.5 text-emerald-600" /> Ethiopian University Exit Exam Portal
-                </span>
-              </ScrollReveal>
+              
+              {/* Category Subtitle */}
+              <div className="text-xs sm:text-sm font-medium text-slate-400 mb-3 tracking-wide">
+                Online education &bull; University Exit Exam
+              </div>
 
-              <ScrollReveal animation="fade-up" delay={150}>
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-normal text-slate-700 tracking-tight leading-[1.08]">
-                  Ace your exit exam <br />
-                  <span className="font-extrabold text-slate-900">from home</span>
-                </h1>
-              </ScrollReveal>
+              {/* Main Clean Headline */}
+              <h1 className="text-4xl sm:text-5xl lg:text-[62px] font-normal text-slate-700 tracking-tight leading-[1.08]">
+                Start learning <br />
+                <span className="font-extrabold text-slate-900">at home</span>
+              </h1>
 
-              <ScrollReveal animation="fade-up" delay={250}>
-                <p className="mt-4 text-sm sm:text-base text-slate-500 max-w-lg leading-relaxed">
-                  Practice department-specific questions, sit realistic timed mock exams with instant auto-grading, and download past solutions. Start with 5 free questions.
-                </p>
-              </ScrollReveal>
+              {/* Subtitle */}
+              <p className="mt-4 text-xs sm:text-sm text-slate-500 max-w-md leading-relaxed font-normal">
+                Prepare for your university exit exam with authentic department practice questions, realistic timed mock exams, and instant solutions. Start with 5 free questions.
+              </p>
 
-              {/* Pill Search Bar */}
-              <ScrollReveal animation="fade-up" delay={350}>
-                <form
-                  onSubmit={handleSearchScroll}
-                  className="mt-6 sm:mt-8 flex items-center justify-between rounded-full border border-slate-200/90 bg-white shadow-sm hover:shadow-md pl-5 pr-2 py-1.5 sm:py-2 transition-all max-w-md focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500/20"
+              {/* Search Pill Bar (White Pill with Yellow Circular Button) */}
+              <form
+                onSubmit={handleSearchScroll}
+                className="mt-6 sm:mt-8 flex items-center justify-between rounded-full border border-slate-200/90 bg-white shadow-sm hover:shadow-md pl-6 pr-2 py-2 max-w-md transition-all focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500/20"
+              >
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="What are you looking for?"
+                  className="w-full bg-transparent text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 outline-none pr-3"
+                />
+                <button
+                  type="submit"
+                  className="size-9 sm:size-10 rounded-full bg-[#facc15] hover:bg-[#eab308] text-white flex items-center justify-center shadow-xs transition-transform active:scale-95 shrink-0 cursor-pointer"
+                  title="Search departments"
                 >
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search department (e.g. Computer Science, Medicine, Law)..."
-                    className="w-full bg-transparent text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 outline-none pr-3"
-                  />
-                  <button
-                    type="submit"
-                    className="size-9 sm:size-10 rounded-full bg-[#facc15] hover:bg-[#eab308] text-white flex items-center justify-center shadow-xs transition-transform active:scale-95 shrink-0 cursor-pointer"
-                    title="Find department questions"
-                  >
-                    <ArrowRight className="size-4 text-white stroke-[2.5]" />
-                  </button>
-                </form>
-              </ScrollReveal>
+                  <ArrowRight className="size-4 text-white stroke-[2.5]" />
+                </button>
+              </form>
 
-              {/* Value proposition badges */}
-              <ScrollReveal animation="fade-up" delay={450}>
-                <div className="mt-8 flex flex-wrap gap-4 sm:gap-6 text-xs font-semibold text-slate-600">
-                  <div className="flex items-center gap-1.5">
-                    <BookOpen className="size-4 text-emerald-500" />
-                    <span>8,500+ MoE Questions</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <Clock className="size-4 text-amber-500" />
-                    <span>Timed Mock Exams</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <Award className="size-4 text-blue-500" />
-                    <span>5 Free Trial Questions</span>
-                  </div>
-                </div>
-              </ScrollReveal>
-
-              {/* Pagination Dots at Bottom Left */}
-              <ScrollReveal animation="fade-up" delay={550}>
-                <div className="mt-8 sm:mt-12 flex items-center gap-2">
-                  <span className="size-3 rounded-full bg-amber-400 ring-4 ring-amber-400/25 transition-all" />
-                  <span className="size-2 rounded-full border border-slate-300 bg-white" />
-                  <span className="size-2 rounded-full border border-slate-300 bg-white" />
-                  <span className="size-2 rounded-full border border-slate-300 bg-white" />
-                  <span className="size-2 rounded-full border border-slate-300 bg-white" />
-                </div>
-              </ScrollReveal>
+              {/* 5 Pagination Dots at Bottom Left */}
+              <div className="mt-8 sm:mt-12 flex items-center gap-2">
+                <span className="size-3 rounded-full bg-amber-400 ring-4 ring-amber-400/25 transition-all" />
+                <span className="size-2 rounded-full border border-slate-300 bg-white" />
+                <span className="size-2 rounded-full border border-slate-300 bg-white" />
+                <span className="size-2 rounded-full border border-slate-300 bg-white" />
+                <span className="size-2 rounded-full border border-slate-300 bg-white" />
+              </div>
             </div>
 
-            {/* Right Column: Freepik-Style Education Vector Illustration */}
+            {/* Right Column: Freepik Education Vector Illustration */}
             <div className="lg:col-span-6 flex justify-center items-center">
-              <ScrollReveal animation="scale-in" delay={200}>
-                <HeroStudyIllustration className="w-full max-w-[540px] drop-shadow-md" />
-              </ScrollReveal>
+              <HeroStudyIllustration className="w-full max-w-[520px] drop-shadow-sm" />
             </div>
           </div>
+        </div>
+
+        {/* Card Subtle Bottom Bar */}
+        <div className="px-6 sm:px-10 lg:px-12 py-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400 font-medium">
+          <span>Assessly Online Exit Assessment System</span>
+          <a href="#departments" className="hover:text-slate-600 transition-colors">
+            Explore Curricula &darr;
+          </a>
         </div>
       </section>
 
       {/* ========================================================= */}
-      {/* 2. AVAILABLE DEPARTMENTS / CURRICULUM SECTION             */}
+      {/* 2. AVAILABLE DEPARTMENTS CARD                             */}
       {/* ========================================================= */}
-      <section id="departments" className="mx-auto max-w-6xl px-6 py-20 border-b">
+      <section id="departments" className="w-full max-w-7xl mx-auto bg-white rounded-[32px] sm:rounded-[40px] shadow-xl shadow-cyan-950/5 border border-white/80 p-8 sm:p-12 lg:p-16 my-8 sm:my-10">
         <ScrollReveal animation="fade-up">
           <div className="flex flex-col gap-1 text-center max-w-xl mx-auto">
             <span className="text-xs font-bold uppercase tracking-wider text-emerald-600">
@@ -349,7 +323,7 @@ function Index() {
       {/* ========================================================= */}
       {/* 3. HOW IT WORKS (FOUR CLEAR STEPS)                        */}
       {/* ========================================================= */}
-      <section id="about" className="mx-auto max-w-6xl px-6 py-20">
+      <section id="about" className="w-full max-w-7xl mx-auto bg-white rounded-[32px] sm:rounded-[40px] shadow-xl shadow-cyan-950/5 border border-white/80 p-8 sm:p-12 lg:p-16 mb-8 sm:mb-10">
         <ScrollReveal animation="fade-up">
           <div className="text-center max-w-xl mx-auto">
             <span className="text-xs font-bold uppercase tracking-wider text-emerald-600">
@@ -391,78 +365,76 @@ function Index() {
       {/* ========================================================= */}
       {/* 4. AFFORDABLE PRICING SECTION                             */}
       {/* ========================================================= */}
-      <section id="pricing" className="border-y bg-slate-50/70 py-20">
-        <div className="mx-auto max-w-6xl px-6">
-          <ScrollReveal animation="fade-up">
-            <div className="text-center max-w-xl mx-auto">
-              <span className="text-xs font-bold uppercase tracking-wider text-emerald-600">
-                Simple Pricing
-              </span>
-              <h2 className="mt-1 text-3xl font-extrabold tracking-tight text-slate-900">
-                Pay in Ethiopian Birr
-              </h2>
-              <p className="mt-2 text-sm text-slate-500">
-                Start with 5 free questions. Upgrade anytime via Telebirr or CBE bank transfer.
-              </p>
-            </div>
-          </ScrollReveal>
+      <section id="pricing" className="w-full max-w-7xl mx-auto bg-white rounded-[32px] sm:rounded-[40px] shadow-xl shadow-cyan-950/5 border border-white/80 p-8 sm:p-12 lg:p-16 mb-8 sm:mb-10">
+        <ScrollReveal animation="fade-up">
+          <div className="text-center max-w-xl mx-auto">
+            <span className="text-xs font-bold uppercase tracking-wider text-emerald-600">
+              Simple Pricing
+            </span>
+            <h2 className="mt-1 text-3xl font-extrabold tracking-tight text-slate-900">
+              Pay in Ethiopian Birr
+            </h2>
+            <p className="mt-2 text-sm text-slate-500">
+              Start with 5 free questions. Upgrade anytime via Telebirr or CBE bank transfer.
+            </p>
+          </div>
+        </ScrollReveal>
 
-          <div className="mt-12 grid gap-6 md:grid-cols-3">
-            {plans.map((p, i) => (
-              <ScrollReveal
-                key={p.id}
-                animation="fade-up"
-                delay={i * 100}
-                className={`relative flex flex-col justify-between rounded-3xl bg-white p-8 shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-xl border ${
+        <div className="mt-12 grid gap-6 md:grid-cols-3">
+          {plans.map((p, i) => (
+            <ScrollReveal
+              key={p.id}
+              animation="fade-up"
+              delay={i * 100}
+              className={`relative flex flex-col justify-between rounded-3xl bg-white p-8 shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-xl border ${
+                p.popular
+                  ? "border-emerald-400 ring-2 ring-emerald-400/20 shadow-emerald-500/5"
+                  : "border-slate-200/80"
+              }`}
+            >
+              <div>
+                <div className="flex items-center justify-between">
+                  <h3 className="font-bold text-xl text-slate-900">{p.name}</h3>
+                  {p.popular && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-[#4ade80] px-3 py-1 text-xs font-bold text-white shadow-xs">
+                      <Sparkles className="size-3" /> Popular
+                    </span>
+                  )}
+                </div>
+                <div className="mt-5 flex items-baseline gap-1.5">
+                  <span className="text-4xl font-extrabold tracking-tight text-slate-900">
+                    {p.price.toLocaleString()}
+                  </span>
+                  <span className="text-xs font-bold text-slate-400">ETB / {p.period}</span>
+                </div>
+                <ul className="mt-6 space-y-3 text-xs sm:text-sm">
+                  {p.features.map((f) => (
+                    <li key={f} className="flex items-start gap-2.5">
+                      <Check className="size-4 shrink-0 text-emerald-500 mt-0.5" />
+                      <span className="text-slate-600">{f}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <Link
+                to="/register"
+                className={`mt-8 w-full rounded-full py-3 text-center text-xs font-bold shadow-xs transition-all ${
                   p.popular
-                    ? "border-emerald-400 ring-2 ring-emerald-400/20 shadow-emerald-500/5"
-                    : "border-slate-200/80"
+                    ? "bg-[#4ade80] hover:bg-[#22c55e] text-white shadow-emerald-500/20"
+                    : "bg-slate-100 hover:bg-slate-200 text-slate-800"
                 }`}
               >
-                <div>
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-bold text-xl text-slate-900">{p.name}</h3>
-                    {p.popular && (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-[#4ade80] px-3 py-1 text-xs font-bold text-white shadow-xs">
-                        <Sparkles className="size-3" /> Popular
-                      </span>
-                    )}
-                  </div>
-                  <div className="mt-5 flex items-baseline gap-1.5">
-                    <span className="text-4xl font-extrabold tracking-tight text-slate-900">
-                      {p.price.toLocaleString()}
-                    </span>
-                    <span className="text-xs font-bold text-slate-400">ETB / {p.period}</span>
-                  </div>
-                  <ul className="mt-6 space-y-3 text-xs sm:text-sm">
-                    {p.features.map((f) => (
-                      <li key={f} className="flex items-start gap-2.5">
-                        <Check className="size-4 shrink-0 text-emerald-500 mt-0.5" />
-                        <span className="text-slate-600">{f}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <Link
-                  to="/register"
-                  className={`mt-8 w-full rounded-full py-3 text-center text-xs font-bold shadow-xs transition-all ${
-                    p.popular
-                      ? "bg-[#4ade80] hover:bg-[#22c55e] text-white shadow-emerald-500/20"
-                      : "bg-slate-100 hover:bg-slate-200 text-slate-800"
-                  }`}
-                >
-                  Get started
-                </Link>
-              </ScrollReveal>
-            ))}
-          </div>
+                Get started
+              </Link>
+            </ScrollReveal>
+          ))}
         </div>
       </section>
 
       {/* ========================================================= */}
       {/* 5. FREQUENTLY ASKED QUESTIONS                             */}
       {/* ========================================================= */}
-      <section id="faq" className="mx-auto max-w-6xl px-6 py-20">
+      <section id="faq" className="w-full max-w-7xl mx-auto bg-white rounded-[32px] sm:rounded-[40px] shadow-xl shadow-cyan-950/5 border border-white/80 p-8 sm:p-12 lg:p-16 mb-8 sm:mb-10">
         <div className="grid gap-10 md:grid-cols-[1fr_2fr] items-start">
           <ScrollReveal animation="fade-right">
             <div>
@@ -498,8 +470,10 @@ function Index() {
       {/* Floating Scroll To Top Button */}
       <ScrollToTopButton />
 
-      {/* Footer */}
-      <PublicFooter />
+      {/* Public Footer */}
+      <div className="w-full max-w-7xl mx-auto bg-white rounded-[24px] sm:rounded-[32px] overflow-hidden shadow-sm border border-white/80">
+        <PublicFooter />
+      </div>
     </div>
   );
 }
