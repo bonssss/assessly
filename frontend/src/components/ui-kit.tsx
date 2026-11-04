@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 export function Logo({ className }: { className?: string }) {
   return (
     <span className={cn("flex items-center gap-2.5 font-bold tracking-tight text-foreground text-lg", className)}>
-      <span className="grid size-8 place-items-center rounded-lg bg-gradient-to-br from-blue-600 to-indigo-700 text-sm font-extrabold text-white shadow-sm ring-1 ring-blue-500/20">
+      <span className="grid size-8 place-items-center rounded-lg bg-brand text-sm font-extrabold text-brand-foreground shadow-sm">
         A
       </span>
       <span>Assessly</span>
@@ -15,12 +15,12 @@ export function Logo({ className }: { className?: string }) {
 
 export function Stat({ label, value, hint, icon: Icon }: { label: string; value: ReactNode; hint?: string; icon: LucideIcon }) {
   return (
-    <div className="rounded-lg border bg-card p-4">
+    <div className="group rounded-lg border bg-card p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:border-brand/40">
       <div className="flex items-center justify-between text-sm text-muted-foreground">
         {label}
-        <Icon className="size-4" />
+        <Icon className="size-4 transition-transform duration-200 group-hover:scale-110 text-muted-foreground group-hover:text-brand" />
       </div>
-      <div className="mt-2 text-2xl font-semibold">{value}</div>
+      <div className="mt-2 text-2xl font-semibold tracking-tight">{value}</div>
       {hint && <div className="mt-0.5 text-xs text-muted-foreground">{hint}</div>}
     </div>
   );
@@ -72,10 +72,10 @@ export function PageHeader({ title, description, action }: { title: string; desc
 }
 
 export const btn = {
-  primary: "inline-flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50",
-  brand: "inline-flex items-center justify-center gap-2 rounded-md bg-brand px-4 py-2 text-sm font-medium text-brand-foreground hover:bg-brand/90 disabled:opacity-50",
-  outline: "inline-flex items-center justify-center gap-2 rounded-md border bg-card px-4 py-2 text-sm font-medium hover:bg-muted disabled:opacity-50",
-  ghost: "inline-flex items-center justify-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium hover:bg-muted",
+  primary: "inline-flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-all duration-150 hover:bg-primary/90 hover:shadow-sm active:scale-[0.98] disabled:opacity-50 cursor-pointer",
+  brand: "inline-flex items-center justify-center gap-2 rounded-md bg-brand px-4 py-2 text-sm font-medium text-brand-foreground transition-all duration-150 hover:bg-brand/90 hover:shadow-md hover:shadow-brand/20 active:scale-[0.98] disabled:opacity-50 cursor-pointer",
+  outline: "inline-flex items-center justify-center gap-2 rounded-md border bg-card px-4 py-2 text-sm font-medium transition-all duration-150 hover:bg-muted hover:border-foreground/20 active:scale-[0.98] disabled:opacity-50 cursor-pointer",
+  ghost: "inline-flex items-center justify-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium transition-all duration-150 hover:bg-muted active:scale-[0.98] cursor-pointer",
 };
 
 export const input = "w-full rounded-md border border-input bg-card px-3 py-2 text-sm outline-none focus:border-brand focus:ring-2 focus:ring-ring/20";
