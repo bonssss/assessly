@@ -2,7 +2,6 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { AuthCard, Field } from "@/components/AuthCard";
-import { input } from "@/components/ui-kit";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 
@@ -32,9 +31,10 @@ function RegisterComponent() {
     api.departments
       .list()
       .then((data) => {
-        setDepartments(data);
-        if (data.length > 0) {
-          setDepartmentId(data[0].id);
+        const list = Array.isArray(data) ? data : (data as any)?.data || [];
+        setDepartments(list);
+        if (list.length > 0) {
+          setDepartmentId(list[0].id);
         }
       })
       .catch((err) => {
@@ -63,16 +63,16 @@ function RegisterComponent() {
 
   return (
     <AuthCard
-      title="Create your account"
-      subtitle="Includes 5 free practice questions. No payment needed to start."
-      cta="Create account"
+      title="Create student account"
+      subtitle="Includes 5 free practice questions. No payment required."
+      cta="Start Free Trial"
       loading={loading}
       onSubmit={handleSubmit}
       footer={
         <>
           Already registered?{" "}
-          <Link to="/login" className="font-medium text-brand">
-            Log in
+          <Link to="/login" className="font-semibold text-emerald-600 hover:text-emerald-700 underline-offset-2 hover:underline">
+            Log in here
           </Link>
         </>
       }
@@ -82,30 +82,27 @@ function RegisterComponent() {
           required
           value={fullName}
           onChange={(e) => setFullName(e.target.value)}
-          className={input}
+          className="w-full rounded-full border border-slate-200 bg-slate-50/60 px-4 py-2.5 text-xs sm:text-sm outline-none focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 transition-all placeholder:text-slate-400"
           placeholder="e.g. Abebe Bikila"
         />
       </Field>
-      <Field label="Email">
+      <Field label="Email address">
         <input
           type="email"
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className={input}
+          className="w-full rounded-full border border-slate-200 bg-slate-50/60 px-4 py-2.5 text-xs sm:text-sm outline-none focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 transition-all placeholder:text-slate-400"
           placeholder="you@university.edu.et"
         />
       </Field>
-      <Field label="Department">
+      <Field label="Academic Department">
         <select
-          required
           value={departmentId}
           onChange={(e) => setDepartmentId(e.target.value)}
-          className={input}
+          className="w-full rounded-full border border-slate-200 bg-slate-50/60 px-4 py-2.5 text-xs sm:text-sm outline-none focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 transition-all cursor-pointer"
+          required
         >
-          <option value="" disabled>
-            Select your department
-          </option>
           {departments.map((d) => (
             <option key={d.id} value={d.id}>
               {d.name} ({d.code})
@@ -117,11 +114,11 @@ function RegisterComponent() {
         <input
           type="password"
           required
-          minLength={6}
+          minLength={8}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className={input}
-          placeholder="At least 6 characters"
+          className="w-full rounded-full border border-slate-200 bg-slate-50/60 px-4 py-2.5 text-xs sm:text-sm outline-none focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 transition-all placeholder:text-slate-400"
+          placeholder="At least 8 characters"
         />
       </Field>
     </AuthCard>
