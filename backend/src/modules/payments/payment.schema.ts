@@ -1,16 +1,36 @@
 import { z } from "zod";
 
-export const submitPaymentSchema = z.object({
-  packageId: z.string().uuid("Invalid package identifier"),
-  channel: z
-    .string()
-    .trim()
-    .min(2, "Payment channel must be specified (e.g., Telebirr, CBE)"),
-  transactionRef: z
-    .string()
-    .trim()
-    .min(3, "Transaction reference or confirmation code is required"),
-});
+export const submitPaymentSchema = z
+  .object({
+    packageId: z.string().uuid("Invalid package identifier"),
+    channel: z.string().trim().optional(),
+    paymentMethod: z.string().trim().optional(),
+    transactionRef: z.string().trim().optional(),
+    transactionReference: z.string().trim().optional(),
+  })
+  .superRefine((data, ctx) => {
+    const channel = data.channel || data.paymentMethod;
+    if (!channel || channel.length < 2) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["channel"],
+        message: "Payment channel must be specified (e.g., Telebirr, CBE)",
+      });
+    }
+    const ref = data.transactionRef || data.transactionReference;
+    if (!ref || ref.length < 3) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["transactionRef"],
+        message: "Transaction reference or confirmation code is required",
+      });
+    }
+  })
+  .transform((data) => ({
+    packageId: data.packageId,
+    channel: (data.channel || data.paymentMethod)!,
+    transactionRef: (data.transactionRef || data.transactionReference)!,
+  }));
 
 export const approvePaymentSchema = z.object({
   decisionNote: z.string().trim().max(500).optional(),

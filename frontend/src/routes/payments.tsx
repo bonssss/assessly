@@ -87,7 +87,9 @@ function Payments() {
     setSubmitting(true);
     const formData = new FormData();
     formData.append("packageId", selectedPackageId);
+    formData.append("channel", paymentMethod);
     formData.append("paymentMethod", paymentMethod);
+    formData.append("transactionRef", transactionRef);
     formData.append("transactionReference", transactionRef);
     formData.append("receipt", receiptFile);
 
