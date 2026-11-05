@@ -68,7 +68,16 @@ function LoginComponent() {
           placeholder="you@university.edu.et"
         />
       </Field>
-      <Field label="Password">
+      <div>
+        <div className="flex items-center justify-between mb-1.5">
+          <span className="text-xs sm:text-sm font-medium text-slate-700">Password</span>
+          <Link
+            to="/forgot-password"
+            className="text-xs font-semibold text-emerald-600 hover:text-emerald-700 hover:underline"
+          >
+            Forgot password?
+          </Link>
+        </div>
         <input
           type="password"
           required
@@ -77,7 +86,7 @@ function LoginComponent() {
           className="w-full rounded-full border border-slate-200 bg-slate-50/60 px-4 py-2.5 text-xs sm:text-sm outline-none focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 transition-all placeholder:text-slate-400"
           placeholder="••••••••"
         />
-      </Field>
+      </div>
     </AuthCard>
   );
 }

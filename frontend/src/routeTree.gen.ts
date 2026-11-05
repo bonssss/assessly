@@ -13,11 +13,13 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ExamRouteImport } from './routes/exam'
 import { Route as ExamsRouteImport } from './routes/exams'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as PaymentsRouteImport } from './routes/payments'
 import { Route as PracticeRouteImport } from './routes/practice'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as RegisterRouteImport } from './routes/register'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminSectionRouteImport } from './routes/admin.$section'
@@ -40,6 +42,11 @@ const ExamRoute = ExamRouteImport.update({
 const ExamsRoute = ExamsRouteImport.update({
   id: '/exams',
   path: '/exams',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -67,6 +74,11 @@ const RegisterRoute = RegisterRouteImport.update({
   path: '/register',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResourcesRoute = ResourcesRouteImport.update({
   id: '/resources',
   path: '/resources',
@@ -88,11 +100,13 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/exam': typeof ExamRoute
   '/exams': typeof ExamsRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/payments': typeof PaymentsRoute
   '/practice': typeof PracticeRoute
   '/profile': typeof ProfileRoute
   '/register': typeof RegisterRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/resources': typeof ResourcesRoute
   '/admin/$section': typeof AdminSectionRoute
   '/admin/': typeof AdminIndexRoute
@@ -102,11 +116,13 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/exam': typeof ExamRoute
   '/exams': typeof ExamsRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/payments': typeof PaymentsRoute
   '/practice': typeof PracticeRoute
   '/profile': typeof ProfileRoute
   '/register': typeof RegisterRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/resources': typeof ResourcesRoute
   '/admin/$section': typeof AdminSectionRoute
   '/admin': typeof AdminIndexRoute
@@ -117,11 +133,13 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/exam': typeof ExamRoute
   '/exams': typeof ExamsRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/payments': typeof PaymentsRoute
   '/practice': typeof PracticeRoute
   '/profile': typeof ProfileRoute
   '/register': typeof RegisterRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/resources': typeof ResourcesRoute
   '/admin/$section': typeof AdminSectionRoute
   '/admin/': typeof AdminIndexRoute
@@ -133,11 +151,13 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/exam'
     | '/exams'
+    | '/forgot-password'
     | '/login'
     | '/payments'
     | '/practice'
     | '/profile'
     | '/register'
+    | '/reset-password'
     | '/resources'
     | '/admin/$section'
     | '/admin/'
@@ -147,11 +167,13 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/exam'
     | '/exams'
+    | '/forgot-password'
     | '/login'
     | '/payments'
     | '/practice'
     | '/profile'
     | '/register'
+    | '/reset-password'
     | '/resources'
     | '/admin/$section'
     | '/admin'
@@ -161,11 +183,13 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/exam'
     | '/exams'
+    | '/forgot-password'
     | '/login'
     | '/payments'
     | '/practice'
     | '/profile'
     | '/register'
+    | '/reset-password'
     | '/resources'
     | '/admin/$section'
     | '/admin/'
@@ -176,11 +200,13 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   ExamRoute: typeof ExamRoute
   ExamsRoute: typeof ExamsRoute
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
   PaymentsRoute: typeof PaymentsRoute
   PracticeRoute: typeof PracticeRoute
   ProfileRoute: typeof ProfileRoute
   RegisterRoute: typeof RegisterRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   ResourcesRoute: typeof ResourcesRoute
   AdminSectionRoute: typeof AdminSectionRoute
   AdminIndexRoute: typeof AdminIndexRoute
@@ -214,6 +240,13 @@ declare module '@tanstack/react-router' {
       path: '/exams'
       fullPath: '/exams'
       preLoaderRoute: typeof ExamsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -251,6 +284,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/resources': {
       id: '/resources'
       path: '/resources'
@@ -280,11 +320,13 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   ExamRoute: ExamRoute,
   ExamsRoute: ExamsRoute,
+  ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
   PaymentsRoute: PaymentsRoute,
   PracticeRoute: PracticeRoute,
   ProfileRoute: ProfileRoute,
   RegisterRoute: RegisterRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   ResourcesRoute: ResourcesRoute,
   AdminSectionRoute: AdminSectionRoute,
   AdminIndexRoute: AdminIndexRoute,

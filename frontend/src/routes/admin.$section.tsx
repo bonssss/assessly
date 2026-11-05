@@ -16,6 +16,7 @@ import {
   X,
   Shield,
   FileText,
+  KeyRound,
 } from "lucide-react";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { toast } from "sonner";
@@ -320,6 +321,46 @@ function AdminSectionComponent() {
     cbeInstructions: "Transfer to CBE account and attach receipt.",
     passMarkPercentage: 50,
   });
+
+  const [adminPasswordForm, setAdminPasswordForm] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [passwordUpdating, setPasswordUpdating] = useState(false);
+
+  const handleAdminChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!adminPasswordForm.currentPassword) {
+      toast.error("Please enter your current administrator password.");
+      return;
+    }
+    if (adminPasswordForm.newPassword.length < 6) {
+      toast.error("New password must be at least 6 characters long.");
+      return;
+    }
+    if (adminPasswordForm.newPassword !== adminPasswordForm.confirmPassword) {
+      toast.error("New password and confirmation do not match.");
+      return;
+    }
+    setPasswordUpdating(true);
+    try {
+      const res = await api.auth.changePassword({
+        currentPassword: adminPasswordForm.currentPassword,
+        newPassword: adminPasswordForm.newPassword,
+      });
+      toast.success(res.message || "Administrator password updated successfully!");
+      setAdminPasswordForm({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+    } catch (err: any) {
+      toast.error(err.message || "Failed to update administrator password.");
+    } finally {
+      setPasswordUpdating(false);
+    }
+  };
 
   const [submitting, setSubmitting] = useState(false);
 
@@ -1197,7 +1238,8 @@ function AdminSectionComponent() {
 
     case "settings":
       body = (
-        <Section title="System Settings & Payment Gateway" className="max-w-2xl">
+        <div className="space-y-6 max-w-2xl">
+        <Section title="System Settings & Payment Gateway">
           <form className="grid gap-5 p-5" onSubmit={handleSaveSettings}>
             <div>
               <label className="block text-sm font-semibold mb-1">
@@ -1295,6 +1337,82 @@ function AdminSectionComponent() {
             </div>
           </form>
         </Section>
+
+        <Section
+          title="Security & Administrator Credentials"
+          action={
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Shield className="size-4 text-emerald-600" />
+              <span>Privileged Account</span>
+            </div>
+          }
+        >
+          <form className="space-y-4 p-5" onSubmit={handleAdminChangePassword}>
+            <div>
+              <label className="block text-sm font-semibold mb-1">Current Password</label>
+              <input
+                type="password"
+                required
+                value={adminPasswordForm.currentPassword}
+                onChange={(e) =>
+                  setAdminPasswordForm({ ...adminPasswordForm, currentPassword: e.target.value })
+                }
+                className={input}
+                placeholder="Enter current password"
+              />
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label className="block text-sm font-semibold mb-1">New Password</label>
+                <input
+                  type="password"
+                  required
+                  value={adminPasswordForm.newPassword}
+                  onChange={(e) =>
+                    setAdminPasswordForm({ ...adminPasswordForm, newPassword: e.target.value })
+                  }
+                  className={input}
+                  placeholder="Min 6 characters"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold mb-1">Confirm New Password</label>
+                <input
+                  type="password"
+                  required
+                  value={adminPasswordForm.confirmPassword}
+                  onChange={(e) =>
+                    setAdminPasswordForm({ ...adminPasswordForm, confirmPassword: e.target.value })
+                  }
+                  className={input}
+                  placeholder="Re-enter new password"
+                />
+              </div>
+            </div>
+
+            <div className="pt-2 flex justify-end">
+              <button
+                type="submit"
+                disabled={passwordUpdating}
+                className={btn.primary}
+              >
+                {passwordUpdating ? (
+                  <>
+                    <Loader2 className="size-4 animate-spin" /> Updating...
+                  </>
+                ) : (
+                  <span className="inline-flex items-center gap-1.5">
+                    <KeyRound className="size-4" />
+                    Update Password
+                  </span>
+                )}
+              </button>
+            </div>
+          </form>
+        </Section>
+        </div>
       );
       break;
 

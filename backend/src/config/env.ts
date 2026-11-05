@@ -25,4 +25,13 @@ export const config = {
   s3Endpoint: process.env.S3_ENDPOINT || "", // e.g. Cloudflare R2: https://<account_id>.r2.cloudflarestorage.com
   s3AccessKeyId: process.env.S3_ACCESS_KEY_ID || "",
   s3SecretAccessKey: process.env.S3_SECRET_ACCESS_KEY || "",
+
+  // Email Configuration (SMTP / Gmail)
+  emailHost: process.env.EMAIL_HOST || "smtp.gmail.com",
+  emailPort: Number(process.env.EMAIL_PORT) || 465,
+  emailSecure: process.env.EMAIL_SECURE !== "false",
+  emailUser: process.env.EMAIL_USER || "",
+  emailPass: process.env.EMAIL_PASS || "",
+  emailFrom: process.env.EMAIL_FROM || "Assessly <noreply@assessly.com>",
+  clientUrl: process.env.CLIENT_URL || "http://localhost:8080",
 };

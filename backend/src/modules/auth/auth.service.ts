@@ -1,7 +1,9 @@
+import crypto from "crypto";
 import prisma from "../../prisma.js";
 import { config } from "../../config/env.js";
 import { hashPassword, comparePassword } from "../../common/utils/password.js";
 import { signToken } from "../../common/utils/jwt.js";
+import { sendPasswordResetEmail } from "../../common/utils/email.js";
 import {
   BadRequestError,
   ConflictError,
@@ -13,6 +15,9 @@ import type {
   RegisterInput,
   LoginInput,
   UpdateProfileInput,
+  ForgotPasswordInput,
+  ResetPasswordInput,
+  ChangePasswordInput,
 } from "./auth.schema.js";
 import type { UserRole } from "../../common/types/index.js";
 
@@ -225,7 +230,173 @@ export class AuthService {
 
     return this.getMe(userId);
   }
+
+  /**
+   * Request Password Reset (Dispatches secure reset token)
+   */
+  async forgotPassword(data: ForgotPasswordInput) {
+    const { email } = data;
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    // To prevent email enumeration, return consistent response even if email is unknown
+    const genericResponse = {
+      message:
+        "If an account is associated with this email address, password reset instructions have been dispatched.",
+    };
+
+    if (!user || user.status !== "ACTIVE") {
+      return genericResponse;
+    }
+
+    // Generate cryptographically secure reset token
+    const token = crypto.randomBytes(32).toString("hex");
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1-hour expiration window
+
+    // Invalidate any previously unused tokens for this user
+    await prisma.passwordResetToken.updateMany({
+      where: { userId: user.id, used: false },
+      data: { used: true },
+    });
+
+    // Create the active reset token
+    await prisma.passwordResetToken.create({
+      data: {
+        userId: user.id,
+        token,
+        expiresAt,
+      },
+    });
+
+    // Audit log request
+    await prisma.auditLog.create({
+      data: {
+        actorId: user.id,
+        action: "USER_PASSWORD_RESET_REQUESTED",
+        entityType: "USER",
+        entityId: user.id,
+        metadata: { email: user.email },
+      },
+    });
+
+    console.log(`[AUTH] Password reset requested for ${user.email}. Token: ${token}`);
+
+    // Dispatch branded password reset email via SMTP (FR-AUTH)
+    await sendPasswordResetEmail(user.email, user.fullName, token);
+
+    return {
+      ...genericResponse,
+      resetToken: token, // Exposed for development & direct testing
+    };
+  }
+
+  /**
+   * Reset Password with valid token
+   */
+  async resetPassword(data: ResetPasswordInput) {
+    const { token, newPassword } = data;
+
+    const resetRecord = await prisma.passwordResetToken.findUnique({
+      where: { token },
+      include: { user: true },
+    });
+
+    if (
+      !resetRecord ||
+      resetRecord.used ||
+      new Date() > resetRecord.expiresAt
+    ) {
+      throw new BadRequestError("Invalid or expired password reset token. Please request a new link.");
+    }
+
+    if (resetRecord.user.status !== "ACTIVE") {
+      throw new ForbiddenError("Your account has been deactivated or suspended");
+    }
+
+    const passwordHash = await hashPassword(newPassword);
+
+    await prisma.$transaction(async (tx) => {
+      // 1. Update user password
+      await tx.user.update({
+        where: { id: resetRecord.userId },
+        data: { passwordHash },
+      });
+
+      // 2. Mark this token as consumed
+      await tx.passwordResetToken.update({
+        where: { id: resetRecord.id },
+        data: { used: true },
+      });
+
+      // 3. Invalidate any other tokens for this user
+      await tx.passwordResetToken.updateMany({
+        where: { userId: resetRecord.userId, used: false },
+        data: { used: true },
+      });
+
+      // 4. Record audit log
+      await tx.auditLog.create({
+        data: {
+          actorId: resetRecord.userId,
+          action: "USER_PASSWORD_RESET_COMPLETED",
+          entityType: "USER",
+          entityId: resetRecord.userId,
+        },
+      });
+    });
+
+    return {
+      message: "Password has been successfully reset. You can now log in with your new password.",
+    };
+  }
+
+  /**
+   * Change Password for authenticated user
+   */
+  async changePassword(userId: string, data: ChangePasswordInput) {
+    const { currentPassword, newPassword } = data;
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundError("User not found");
+    }
+
+    // Verify current password
+    const isMatch = await comparePassword(currentPassword, user.passwordHash);
+    if (!isMatch) {
+      throw new BadRequestError("Current password is incorrect");
+    }
+
+    if (currentPassword === newPassword) {
+      throw new BadRequestError("New password must be different from your current password");
+    }
+
+    const passwordHash = await hashPassword(newPassword);
+
+    await prisma.$transaction(async (tx) => {
+      await tx.user.update({
+        where: { id: userId },
+        data: { passwordHash },
+      });
+
+      await tx.auditLog.create({
+        data: {
+          actorId: userId,
+          action: "USER_PASSWORD_CHANGED",
+          entityType: "USER",
+          entityId: userId,
+        },
+      });
+    });
+
+    return {
+      message: "Password has been changed successfully.",
+    };
+  }
 }
 
 export const authService = new AuthService();
-
