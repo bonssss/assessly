@@ -10,6 +10,7 @@ import {
   RefreshCw,
   Search,
   Trash2,
+  Upload,
   UserCheck,
   UserX,
   X,
@@ -249,10 +250,16 @@ function AdminSectionComponent() {
 
   // Modals state
   const [showQuestionModal, setShowQuestionModal] = useState(false);
+  const [showBulkImportModal, setShowBulkImportModal] = useState(false);
   const [showDeptModal, setShowDeptModal] = useState(false);
   const [showResourceModal, setShowResourceModal] = useState(false);
   const [showExamModal, setShowExamModal] = useState(false);
   const [previewReceiptUrl, setPreviewReceiptUrl] = useState<string | null>(null);
+
+  // Bulk Import Questions State
+  const [importDeptId, setImportDeptId] = useState("");
+  const [importCsvText, setImportCsvText] = useState("");
+  const [importing, setImporting] = useState(false);
 
   // Question Form State
   const [newQ, setNewQ] = useState({
@@ -459,6 +466,60 @@ function AdminSectionComponent() {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handleBulkImport = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const targetDept = importDeptId || departments[0]?.id;
+    if (!targetDept) {
+      toast.error("Please select a target department");
+      return;
+    }
+    if (!importCsvText.trim()) {
+      toast.error("Please provide CSV content or upload a file");
+      return;
+    }
+    setImporting(true);
+    try {
+      const res = await api.questions.bulkImport({
+        departmentId: targetDept,
+        csvText: importCsvText,
+      });
+      toast.success(res.message || `Successfully imported ${res.importedCount} questions!`);
+      setShowBulkImportModal(false);
+      setImportCsvText("");
+      loadSectionData();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to import questions");
+    } finally {
+      setImporting(false);
+    }
+  };
+
+  const downloadCsvTemplate = () => {
+    const template = `Body,Topic,Difficulty,Marks,Explanation,OptionA,OptionB,OptionC,OptionD,CorrectOption
+"What is the time complexity of binary search on a sorted array of size n?","Algorithms","EASY",1,"Binary search divides the search space in half each step.","O(n)","O(log n)","O(n log n)","O(1)","B"
+"Which layer of the OSI model is responsible for end-to-end packet routing?","Networking","MEDIUM",1,"The Network layer handles logical addressing and routing.","Data Link","Transport","Network","Physical","C"`;
+    const blob = new Blob([template], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "assessly_questions_template.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const content = event.target?.result as string;
+      if (content) {
+        setImportCsvText(content);
+      }
+    };
+    reader.readAsText(file);
   };
 
   const handleCreateDepartment = async (e: React.FormEvent) => {
@@ -1236,9 +1297,22 @@ function AdminSectionComponent() {
     switch (section) {
       case "questions":
         return (
-          <button onClick={() => setShowQuestionModal(true)} className={btn.primary}>
-            <Plus className="size-4" /> New Question
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                if (departments.length > 0 && !importDeptId) {
+                  setImportDeptId(departments[0].id);
+                }
+                setShowBulkImportModal(true);
+              }}
+              className={btn.secondary}
+            >
+              <Upload className="size-4" /> Bulk Import
+            </button>
+            <button onClick={() => setShowQuestionModal(true)} className={btn.primary}>
+              <Plus className="size-4" /> New Question
+            </button>
+          </div>
         );
       case "departments":
         return (
@@ -1394,6 +1468,96 @@ function AdminSectionComponent() {
             </button>
             <button type="submit" disabled={submitting} className={btn.primary}>
               {submitting ? "Saving..." : "Create Question"}
+            </button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* MODAL: Bulk Import Questions */}
+      <Modal
+        title="Bulk Import Questions (CSV / Excel)"
+        isOpen={showBulkImportModal}
+        onClose={() => setShowBulkImportModal(false)}
+      >
+        <form onSubmit={handleBulkImport} className="space-y-4">
+          <div>
+            <label className="block text-xs font-semibold mb-1">Target Department</label>
+            <select
+              value={importDeptId || (departments[0]?.id ?? "")}
+              onChange={(e) => setImportDeptId(e.target.value)}
+              className={input}
+              required
+            >
+              {departments.map((d) => (
+                <option key={d.id} value={d.id}>
+                  {d.name} ({d.code})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3 text-xs space-y-1.5">
+            <div className="flex items-center justify-between">
+              <span className="font-semibold text-slate-700">Need the CSV template?</span>
+              <button
+                type="button"
+                onClick={downloadCsvTemplate}
+                className="text-xs font-bold text-brand hover:underline inline-flex items-center gap-1 cursor-pointer"
+              >
+                <Download className="size-3.5" /> Download Sample CSV
+              </button>
+            </div>
+            <p className="text-slate-500 text-[11px] leading-relaxed">
+              Format: <code>Body, Topic, Difficulty, Marks, Explanation, OptionA, OptionB, OptionC, OptionD, CorrectOption</code> (where CorrectOption is A, B, C, or D).
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold mb-1">Upload CSV File</label>
+            <input
+              type="file"
+              accept=".csv,text/csv"
+              onChange={handleFileUpload}
+              className="text-xs file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 cursor-pointer"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold mb-1">Or Paste CSV Text</label>
+            <textarea
+              value={importCsvText}
+              onChange={(e) => setImportCsvText(e.target.value)}
+              placeholder={'Body,Topic,Difficulty,Marks,Explanation,OptionA,OptionB,OptionC,OptionD,CorrectOption\n"Sample Question?","General","MEDIUM",1,"Explanation","Choice A","Choice B","Choice C","Choice D","A"'}
+              className={`${input} min-h-32 font-mono text-xs`}
+              required
+            />
+          </div>
+
+          <div className="flex items-center justify-end gap-2 pt-3 border-t">
+            <button
+              type="button"
+              onClick={() => setShowBulkImportModal(false)}
+              className={btn.ghost}
+              disabled={importing}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className={btn.primary}
+              disabled={importing}
+            >
+              {importing ? (
+                <>
+                  <Loader2 className="size-4 animate-spin" />
+                  <span>Importing...</span>
+                </>
+              ) : (
+                <>
+                  <Upload className="size-4" />
+                  <span>Import Questions</span>
+                </>
+              )}
             </button>
           </div>
         </form>

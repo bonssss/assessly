@@ -1,5 +1,6 @@
 
 import prisma from "../../prisma.js";
+import { AttemptStatus } from "@prisma/client";
 import {
   BadRequestError,
   NotFoundError,
@@ -818,9 +819,67 @@ export class ExamService {
   }
 
   /**
+   * Background Worker / Auto-Timeout: Automatically close and grade attempts whose deadline has passed (FR-EXAM-08)
+   */
+  async closeExpiredAttempts(): Promise<number> {
+    const graceBufferMs = 30 * 1000;
+    const threshold = new Date(Date.now() - graceBufferMs);
+
+    const expiredAttempts = await prisma.examAttempt.findMany({
+      where: {
+        status: AttemptStatus.IN_PROGRESS,
+        deadlineAt: { lt: threshold },
+      },
+      include: {
+        answers: {
+          include: {
+            question: {
+              include: { options: true },
+            },
+          },
+        },
+      },
+    });
+
+    if (expiredAttempts.length === 0) return 0;
+
+    for (const attempt of expiredAttempts) {
+      let totalScore = 0;
+      for (const ans of attempt.answers) {
+        if (ans.selectedOptionId && ans.question) {
+          const correctOption = ans.question.options.find((opt) => opt.isCorrect);
+          const isCorrect = Boolean(correctOption && ans.selectedOptionId === correctOption.id);
+          const questionMarks = Number(ans.question.marks || 1);
+          const awardedMarks = isCorrect ? questionMarks : 0;
+          totalScore += awardedMarks;
+
+          await prisma.studentAnswer.update({
+            where: { id: ans.id },
+            data: { isCorrect, awardedMarks },
+          });
+        }
+      }
+
+      await prisma.examAttempt.update({
+        where: { id: attempt.id },
+        data: {
+          status: AttemptStatus.TIMED_OUT,
+          submittedAt: attempt.deadlineAt || new Date(),
+          score: totalScore,
+        },
+      });
+    }
+
+    return expiredAttempts.length;
+  }
+
+  /**
    * Student: List previous exam attempts history (FR-EXAM-10)
    */
   async listStudentExamHistory(userId: string) {
+    // Automatically close any expired in-progress attempts first
+    await this.closeExpiredAttempts().catch(() => {});
+
     const attempts = await prisma.examAttempt.findMany({
       where: {
         userId,

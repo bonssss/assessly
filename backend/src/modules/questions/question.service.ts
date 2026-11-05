@@ -10,6 +10,7 @@ import type {
   UpdateQuestionInput,
   SubmitAnswerInput,
   ListQuestionsQuery,
+  BulkImportInput,
 } from "./question.schema.js";
 
 export class QuestionService {
@@ -51,6 +52,55 @@ export class QuestionService {
         },
       },
     });
+  }
+
+  /**
+   * Admin: Bulk import questions into a department
+   */
+  async bulkImportQuestions(data: BulkImportInput) {
+    const { departmentId, questions } = data;
+
+    const dept = await prisma.department.findUnique({
+      where: { id: departmentId },
+    });
+    if (!dept) {
+      throw new NotFoundError("Department not found");
+    }
+
+    const createdQuestions = await prisma.$transaction(async (tx) => {
+      const results = [];
+      for (const q of questions) {
+        const created = await tx.question.create({
+          data: {
+            departmentId,
+            body: q.body,
+            topic: q.topic || "General",
+            difficulty: q.difficulty || "MEDIUM",
+            marks: q.marks || 1.0,
+            explanation: q.explanation || null,
+            status: q.status || "PUBLISHED",
+            options: {
+              create: q.options.map((opt, idx) => ({
+                optionText: opt.optionText,
+                isCorrect: opt.isCorrect,
+                sortOrder: opt.sortOrder ?? idx,
+              })),
+            },
+          },
+          include: { options: true },
+        });
+        results.push(created);
+      }
+      return results;
+    });
+
+    return {
+      success: true,
+      departmentId,
+      departmentName: dept.name,
+      importedCount: createdQuestions.length,
+      questions: createdQuestions,
+    };
   }
 
   /**

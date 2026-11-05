@@ -186,6 +186,13 @@ export const api = {
       });
     },
 
+    async bulkImport(data: { departmentId: string; questions?: any[]; csvText?: string }): Promise<any> {
+      return request("/questions/bulk-import", {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+    },
+
     async updateQuestion(id: string, data: any): Promise<any> {
       return request(`/questions/${id}`, {
         method: "PATCH",

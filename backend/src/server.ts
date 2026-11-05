@@ -1,14 +1,23 @@
 import app from "./app.js";
 import { config } from "./config/env.js";
 import prisma from "./prisma.js";
+import { examService } from "./modules/exams/exam.service.js";
 
 const server = app.listen(config.port, () => {
   console.log(`🚀 Exam Management Backend running on http://localhost:${config.port}`);
   console.log(`🌱 Environment: ${config.nodeEnv}`);
 });
 
+// Periodic background worker: sweep expired exam attempts every 60 seconds (FR-EXAM-08)
+const sweepInterval = setInterval(() => {
+  examService.closeExpiredAttempts().catch((err) => {
+    console.error("Auto-timeout worker error:", err);
+  });
+}, 60 * 1000);
+
 const handleShutdown = async (signal: string) => {
   console.log(`\nReceived ${signal}. Shutting down gracefully...`);
+  clearInterval(sweepInterval);
   server.close(async () => {
     console.log("HTTP server closed.");
     try {
