@@ -445,12 +445,19 @@ export class AdminService {
       const existing = await prisma.paymentSetting.findFirst({
         where: { method: "TELEBIRR" },
       });
+      let instructions = data.telebirrInstructions ?? existing?.instructions ?? "";
+      if (existing?.accountDetails && instructions.includes(existing.accountDetails)) {
+        instructions = instructions.split(existing.accountDetails).join(data.telebirrNumber);
+      }
+      if (!instructions) {
+        instructions = `1. Open Telebirr app.\n2. Send money to merchant/phone ${data.telebirrNumber}.\n3. Take a screenshot of the confirmation receipt.\n4. Submit receipt image and transaction code here.`;
+      }
       if (existing) {
         await prisma.paymentSetting.update({
           where: { id: existing.id },
           data: {
             accountDetails: data.telebirrNumber,
-            instructions: data.telebirrInstructions ?? existing.instructions,
+            instructions,
           },
         });
       } else {
@@ -459,7 +466,7 @@ export class AdminService {
             method: "TELEBIRR",
             displayName: "Telebirr",
             accountDetails: data.telebirrNumber,
-            instructions: data.telebirrInstructions || "Pay via Telebirr and submit receipt.",
+            instructions,
             active: true,
           },
         });
@@ -470,12 +477,19 @@ export class AdminService {
       const existing = await prisma.paymentSetting.findFirst({
         where: { method: "BANK_TRANSFER" },
       });
+      let instructions = data.cbeInstructions ?? existing?.instructions ?? "";
+      if (existing?.accountDetails && instructions.includes(existing.accountDetails)) {
+        instructions = instructions.split(existing.accountDetails).join(data.cbeAccount);
+      }
+      if (!instructions) {
+        instructions = `1. Transfer to CBE account ${data.cbeAccount}.\n2. Upload mobile banking transfer receipt or bank slip.\n3. Enter the transaction reference number.`;
+      }
       if (existing) {
         await prisma.paymentSetting.update({
           where: { id: existing.id },
           data: {
             accountDetails: data.cbeAccount,
-            instructions: data.cbeInstructions ?? existing.instructions,
+            instructions,
           },
         });
       } else {
@@ -484,7 +498,7 @@ export class AdminService {
             method: "BANK_TRANSFER",
             displayName: "Commercial Bank of Ethiopia (CBE)",
             accountDetails: data.cbeAccount,
-            instructions: data.cbeInstructions || "Transfer to CBE and submit receipt.",
+            instructions,
             active: true,
           },
         });
