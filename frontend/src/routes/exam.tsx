@@ -82,6 +82,25 @@ function ExamRunner() {
         const attempt = await api.exams.start(activeExamId);
         setExamData(attempt);
         setLeft(attempt.remainingSeconds || attempt.durationMinutes * 60);
+
+        // Auto-recover saved answers from localStorage if available
+        if (attempt.attemptId && typeof window !== "undefined") {
+          try {
+            const saved = localStorage.getItem(`assessly_attempt_${attempt.attemptId}`);
+            if (saved) {
+              const parsed = JSON.parse(saved);
+              if (parsed.answers && Object.keys(parsed.answers).length > 0) {
+                setAnswers(parsed.answers);
+              }
+              if (parsed.flags) {
+                setFlags(parsed.flags);
+              }
+              toast.info("Restored your previous answer selections from this session.");
+            }
+          } catch {
+            // Ignore parse errors
+          }
+        }
       } catch (err: any) {
         if (err.code === "PAYWALL_REQUIRED") {
           toast.error("An active package subscription is required to take this exam.");
@@ -117,6 +136,20 @@ function ExamRunner() {
     };
   }, [examData, result]);
 
+  // Auto-save answers and flags to localStorage on changes
+  useEffect(() => {
+    if (!examData?.attemptId || result || typeof window === "undefined") return;
+    if (Object.keys(answers).length === 0 && Object.keys(flags).length === 0) return;
+    try {
+      localStorage.setItem(
+        `assessly_attempt_${examData.attemptId}`,
+        JSON.stringify({ answers, flags })
+      );
+    } catch {
+      // Ignore storage quota errors
+    }
+  }, [examData?.attemptId, answers, flags, result]);
+
   const handleSelectOption = (questionId: string, optionId: string) => {
     if (result) return;
     setAnswers((prev) => ({ ...prev, [questionId]: optionId }));
@@ -143,6 +176,13 @@ function ExamRunner() {
 
       const res = await api.exams.submitAttempt(examData.attemptId, answerPayload);
       setResult(res);
+      if (examData.attemptId && typeof window !== "undefined") {
+        try {
+          localStorage.removeItem(`assessly_attempt_${examData.attemptId}`);
+        } catch {
+          // Ignore
+        }
+      }
       toast.success("Exam submitted and scored successfully!");
     } catch (err: any) {
       toast.error(err.message || "Failed to submit exam");

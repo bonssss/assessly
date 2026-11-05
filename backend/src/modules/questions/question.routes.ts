@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   createQuestionHandler,
+  bulkImportQuestionsHandler,
   updateQuestionHandler,
   deleteQuestionHandler,
   listQuestionsHandler,
@@ -35,6 +36,14 @@ router.post(
   requireRoles("ADMIN", "SUPER_ADMIN"),
   validateBody(createQuestionSchema),
   createQuestionHandler
+);
+
+// Admin only: bulk import questions (JSON array or CSV text)
+router.post(
+  "/bulk-import",
+  requireAuth,
+  requireRoles("ADMIN", "SUPER_ADMIN"),
+  bulkImportQuestionsHandler
 );
 
 // Admin only: edit an existing question
