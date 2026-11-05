@@ -1119,9 +1119,16 @@ function AdminSectionComponent() {
               r: (r) => {
                 const count = r.questionCount ?? r.questions?.length ?? 0;
                 return (
-                  <span className="text-xs font-semibold">
-                    {count} {count === 1 ? "question" : "questions"}
-                  </span>
+                  <div>
+                    <div className="text-xs font-semibold">
+                      {count} {count === 1 ? "question" : "questions"}
+                    </div>
+                    {r.bankQuestionCount !== undefined && r.bankQuestionCount > 0 && (
+                      <div className="text-[10px] text-muted-foreground">
+                        {r.bankQuestionCount} in dept pool
+                      </div>
+                    )}
+                  </div>
                 );
               },
             },
@@ -1757,9 +1764,36 @@ function AdminSectionComponent() {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold mb-1">
-              Select Questions ({newExam.selectedQuestionIds.length} selected)
-            </label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-xs font-semibold">
+                Select Questions ({newExam.selectedQuestionIds.length} selected)
+              </label>
+              {(() => {
+                const deptQuestions = questions.filter(
+                  (q) => !newExam.departmentId || q.departmentId === newExam.departmentId
+                );
+                if (deptQuestions.length === 0) return null;
+                const allSelected = deptQuestions.every((q) =>
+                  newExam.selectedQuestionIds.includes(q.id)
+                );
+                return (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNewExam({
+                        ...newExam,
+                        selectedQuestionIds: allSelected
+                          ? []
+                          : deptQuestions.map((q) => q.id),
+                      });
+                    }}
+                    className="text-[11px] font-semibold text-brand hover:underline cursor-pointer"
+                  >
+                    {allSelected ? "Deselect All" : `Select All (${deptQuestions.length})`}
+                  </button>
+                );
+              })()}
+            </div>
             <div className="max-h-48 overflow-y-auto rounded border p-2 space-y-2 bg-muted/20">
               {questions
                 .filter((q) => !newExam.departmentId || q.departmentId === newExam.departmentId)

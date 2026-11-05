@@ -143,6 +143,7 @@ export function AdminAnalyticsChart({
                       }}
                     />
                     <Tooltip
+                      cursor={false}
                       content={({ active, payload }) => {
                         if (active && payload && payload.length) {
                           const data = payload[0].payload as DepartmentReport;
@@ -234,6 +235,7 @@ export function AdminAnalyticsChart({
                       tick={{ fill: "#64748b", fontSize: 11 }}
                     />
                     <Tooltip
+                      cursor={false}
                       content={({ active, payload }) => {
                         if (active && payload && payload.length) {
                           const data = payload[0].payload as DailyActivityItem;
@@ -321,6 +323,7 @@ export function AdminAnalyticsChart({
                       tick={{ fill: "#64748b", fontSize: 11 }}
                     />
                     <Tooltip
+                      cursor={false}
                       content={({ active, payload }) => {
                         if (active && payload && payload.length) {
                           const data = payload[0].payload as DepartmentReport;
