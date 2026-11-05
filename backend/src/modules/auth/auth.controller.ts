@@ -61,3 +61,44 @@ export const updateProfileHandler = async (
   }
 };
 
+export const forgotPasswordHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const result = await authService.forgotPassword(req.body);
+    sendSuccess(res, result, result.message);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const resetPasswordHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const result = await authService.resetPassword(req.body);
+    sendSuccess(res, result, result.message);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const changePasswordHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    if (!req.user) {
+      throw new UnauthorizedError();
+    }
+    const result = await authService.changePassword(req.user.id, req.body);
+    sendSuccess(res, result, result.message);
+  } catch (error) {
+    next(error);
+  }
+};

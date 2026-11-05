@@ -100,3 +100,63 @@ describe("Auth Input Validation Schemas", () => {
   });
 });
 
+
+import {
+  forgotPasswordSchema,
+  resetPasswordSchema,
+  changePasswordSchema,
+} from "../../src/modules/auth/auth.schema.js";
+
+describe("Password Recovery & Management Schemas", () => {
+  test("validates forgot-password schema", () => {
+    const valid = { email: "STUDENT@example.com " };
+    const res = forgotPasswordSchema.safeParse(valid);
+    assert.equal(res.success, true);
+    if (res.success) {
+      assert.equal(res.data.email, "student@example.com");
+    }
+
+    const invalid = { email: "not-an-email" };
+    const invalidRes = forgotPasswordSchema.safeParse(invalid);
+    assert.equal(invalidRes.success, false);
+  });
+
+  test("validates reset-password schema", () => {
+    const valid = {
+      token: "a1b2c3d4e5f678901234567890abcdef1234567890abcdef1234567890abcdef",
+      newPassword: "NewSecretPassword123!",
+    };
+    const res = resetPasswordSchema.safeParse(valid);
+    assert.equal(res.success, true);
+
+    const tooShort = {
+      token: "valid-token",
+      newPassword: "123", // too short
+    };
+    const shortRes = resetPasswordSchema.safeParse(tooShort);
+    assert.equal(shortRes.success, false);
+
+    const emptyToken = {
+      token: "",
+      newPassword: "ValidPassword123",
+    };
+    const emptyTokenRes = resetPasswordSchema.safeParse(emptyToken);
+    assert.equal(emptyTokenRes.success, false);
+  });
+
+  test("validates change-password schema", () => {
+    const valid = {
+      currentPassword: "OldPassword123",
+      newPassword: "BrandNewPassword456!",
+    };
+    const res = changePasswordSchema.safeParse(valid);
+    assert.equal(res.success, true);
+
+    const invalid = {
+      currentPassword: "",
+      newPassword: "123",
+    };
+    const invalidRes = changePasswordSchema.safeParse(invalid);
+    assert.equal(invalidRes.success, false);
+  });
+});

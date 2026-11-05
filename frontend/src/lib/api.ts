@@ -125,6 +125,27 @@ export const api = {
     logout() {
       authStorage.clear();
     },
+
+    async forgotPassword(email: string): Promise<{ message: string; resetToken?: string }> {
+      return request<{ message: string; resetToken?: string }>("/auth/forgot-password", {
+        method: "POST",
+        body: JSON.stringify({ email }),
+      });
+    },
+
+    async resetPassword(data: { token: string; newPassword: string }): Promise<{ message: string }> {
+      return request<{ message: string }>("/auth/reset-password", {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+    },
+
+    async changePassword(data: { currentPassword: string; newPassword: string }): Promise<{ message: string }> {
+      return request<{ message: string }>("/auth/change-password", {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+    },
   },
 
   // Academic Departments (FR-DEPT)
