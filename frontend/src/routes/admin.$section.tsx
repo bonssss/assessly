@@ -1116,11 +1116,14 @@ function AdminSectionComponent() {
             },
             {
               h: "Questions",
-              r: (r) => (
-                <span className="text-xs font-semibold">
-                  {r.questions?.length ?? 0} questions
-                </span>
-              ),
+              r: (r) => {
+                const count = r.questionCount ?? r.questions?.length ?? 0;
+                return (
+                  <span className="text-xs font-semibold">
+                    {count} {count === 1 ? "question" : "questions"}
+                  </span>
+                );
+              },
             },
             {
               h: "Status",
