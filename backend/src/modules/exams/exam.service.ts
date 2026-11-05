@@ -195,7 +195,14 @@ export class ExamService {
           instructions: true,
           durationMinutes: true,
           feedbackPolicy: true,
-          department: { select: { id: true, name: true, code: true } },
+          department: {
+            select: {
+              id: true,
+              name: true,
+              code: true,
+              _count: { select: { questions: true } },
+            },
+          },
           _count: { select: { questions: true } },
           createdAt: true,
         },
@@ -208,16 +215,23 @@ export class ExamService {
       page,
       limit,
       totalPages: Math.ceil(total / limit),
-      exams: exams.map((e) => ({
-        id: e.id,
-        title: e.title,
-        instructions: e.instructions,
-        durationMinutes: e.durationMinutes,
-        questionCount: e._count.questions,
-        feedbackPolicy: e.feedbackPolicy,
-        department: e.department,
-        createdAt: e.createdAt,
-      })),
+      exams: exams.map((e) => {
+        const bankCount = e.department?._count?.questions ?? 0;
+        const linkedCount = e._count.questions;
+        const questionCount = Math.max(linkedCount, bankCount);
+        return {
+          id: e.id,
+          title: e.title,
+          instructions: e.instructions,
+          durationMinutes: e.durationMinutes,
+          questionCount,
+          linkedQuestionCount: linkedCount,
+          bankQuestionCount: bankCount,
+          feedbackPolicy: e.feedbackPolicy,
+          department: e.department,
+          createdAt: e.createdAt,
+        };
+      }),
     };
   }
 
@@ -239,7 +253,14 @@ export class ExamService {
         skip,
         take: limit,
         include: {
-          department: { select: { id: true, name: true, code: true } },
+          department: {
+            select: {
+              id: true,
+              name: true,
+              code: true,
+              _count: { select: { questions: true } },
+            },
+          },
           _count: { select: { questions: true, attempts: true } },
         },
         orderBy: { createdAt: "desc" },
@@ -251,20 +272,27 @@ export class ExamService {
       page,
       limit,
       totalPages: Math.ceil(total / limit),
-      exams: exams.map((e) => ({
-        id: e.id,
-        title: e.title,
-        instructions: e.instructions,
-        durationMinutes: e.durationMinutes,
-        questionCount: e._count.questions,
-        questionsCount: e._count.questions,
-        questions: Array.from({ length: e._count.questions }),
-        attemptsCount: e._count.attempts,
-        feedbackPolicy: e.feedbackPolicy,
-        status: e.status,
-        department: e.department,
-        createdAt: e.createdAt,
-      })),
+      exams: exams.map((e) => {
+        const bankCount = e.department?._count?.questions ?? 0;
+        const linkedCount = e._count.questions;
+        const questionCount = Math.max(linkedCount, bankCount);
+        return {
+          id: e.id,
+          title: e.title,
+          instructions: e.instructions,
+          durationMinutes: e.durationMinutes,
+          questionCount,
+          linkedQuestionCount: linkedCount,
+          bankQuestionCount: bankCount,
+          questionsCount: questionCount,
+          questions: Array.from({ length: questionCount }),
+          attemptsCount: e._count.attempts,
+          feedbackPolicy: e.feedbackPolicy,
+          status: e.status,
+          department: e.department,
+          createdAt: e.createdAt,
+        };
+      }),
     };
   }
 

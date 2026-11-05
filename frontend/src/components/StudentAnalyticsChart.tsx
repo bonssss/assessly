@@ -232,6 +232,7 @@ export function StudentAnalyticsChart({ examHistory }: StudentAnalyticsChartProp
                     }}
                   />
                   <Tooltip
+                    cursor={false}
                     content={({ active, payload }) => {
                       if (active && payload && payload.length) {
                         const data = payload[0].payload;
@@ -295,6 +296,7 @@ export function StudentAnalyticsChart({ examHistory }: StudentAnalyticsChartProp
                     ))}
                   </Pie>
                   <Tooltip
+                    cursor={false}
                     content={({ active, payload }) => {
                       if (active && payload && payload.length) {
                         const item = payload[0];
