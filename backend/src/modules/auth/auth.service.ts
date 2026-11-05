@@ -3,6 +3,7 @@ import prisma from "../../prisma.js";
 import { config } from "../../config/env.js";
 import { hashPassword, comparePassword } from "../../common/utils/password.js";
 import { signToken } from "../../common/utils/jwt.js";
+import { sendPasswordResetEmail } from "../../common/utils/email.js";
 import {
   BadRequestError,
   ConflictError,
@@ -280,6 +281,9 @@ export class AuthService {
     });
 
     console.log(`[AUTH] Password reset requested for ${user.email}. Token: ${token}`);
+
+    // Dispatch branded password reset email via SMTP (FR-AUTH)
+    await sendPasswordResetEmail(user.email, user.fullName, token);
 
     return {
       ...genericResponse,
