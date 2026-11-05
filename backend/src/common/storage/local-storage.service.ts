@@ -23,7 +23,17 @@ export class LocalStorageProvider implements IStorageProvider {
 
     if (file.path) {
       // If multer already wrote a temp file, move it
-      await fs.rename(file.path, targetPath);
+      // Handle cross-device link error (EXDEV) when /tmp is on a different filesystem
+      try {
+        await fs.rename(file.path, targetPath);
+      } catch (err: any) {
+        if (err.code === "EXDEV") {
+          await fs.copyFile(file.path, targetPath);
+          await fs.unlink(file.path).catch(() => {});
+        } else {
+          throw err;
+        }
+      }
     } else if (file.buffer) {
       // If multer memory storage
       await fs.writeFile(targetPath, file.buffer);
@@ -57,5 +67,3 @@ export class LocalStorageProvider implements IStorageProvider {
     }
   }
 }
-
-

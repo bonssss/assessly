@@ -15,7 +15,7 @@ export const storageProvider: IStorageProvider =
     : new LocalStorageProvider();
 
 // Multer upload middleware with temporary disk buffering
-const tempDir = path.join(os.tmpdir(), "assessly-uploads");
+const tempDir = path.join(process.cwd(), "uploads", ".tmp");
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => {
     cb(null, tempDir);
