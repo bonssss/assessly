@@ -257,6 +257,8 @@ export class ExamService {
         instructions: e.instructions,
         durationMinutes: e.durationMinutes,
         questionCount: e._count.questions,
+        questionsCount: e._count.questions,
+        questions: Array.from({ length: e._count.questions }),
         attemptsCount: e._count.attempts,
         feedbackPolicy: e.feedbackPolicy,
         status: e.status,
