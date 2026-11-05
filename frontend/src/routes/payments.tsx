@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Building2, Info, Smartphone, Upload, CheckCircle2 } from "lucide-react";
+import { Building2, Info, Smartphone, Upload, CheckCircle2, Copy, Check } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Field } from "@/components/AuthCard";
@@ -30,6 +30,7 @@ function Payments() {
   const [paymentMethod, setPaymentMethod] = useState("TELEBIRR");
   const [transactionRef, setTransactionRef] = useState("");
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const loadData = async () => {
     try {
@@ -40,10 +41,13 @@ function Payments() {
       ]);
 
       setPackages(pkgs);
-      if (pkgs.length > 0) {
+      if (pkgs.length > 0 && !selectedPackageId) {
         setSelectedPackageId(pkgs[0].id);
       }
       setInstructions(instrs);
+      if (instrs.length > 0) {
+        setPaymentMethod((prev) => (instrs.some((i: any) => i.method === prev) ? prev : instrs[0].method));
+      }
       setHistory(myPayments);
     } catch (err: any) {
       toast.error(err.message || "Failed to load payment options");
@@ -57,6 +61,16 @@ function Payments() {
   }, []);
 
   const selectedPkg = packages.find((p) => p.id === selectedPackageId) || packages[0];
+  const activeInstruction = instructions.find((i) => i.method === paymentMethod) || instructions[0];
+
+  const handleCopy = (text: string, id: string, label: string) => {
+    // Strip parenthetical text for clean account number copy
+    const cleanNumber = text.split("(")[0].trim();
+    navigator.clipboard.writeText(cleanNumber);
+    setCopiedId(id);
+    toast.success(`${label} copied to clipboard!`);
+    setTimeout(() => setCopiedId(null), 2500);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,7 +87,9 @@ function Payments() {
     setSubmitting(true);
     const formData = new FormData();
     formData.append("packageId", selectedPackageId);
+    formData.append("channel", paymentMethod);
     formData.append("paymentMethod", paymentMethod);
+    formData.append("transactionRef", transactionRef);
     formData.append("transactionReference", transactionRef);
     formData.append("receipt", receiptFile);
 
@@ -97,8 +113,8 @@ function Payments() {
         description="Choose a qualification package, transfer via Telebirr or CBE, and upload your receipt."
       />
 
-      <div className="mb-6 flex gap-3 rounded-lg border border-brand/30 bg-accent px-4 py-3 text-sm">
-        <Info className="mt-0.5 size-4 shrink-0 text-brand" />
+      <div className="mb-6 flex gap-3 rounded-xl border border-brand/30 bg-accent/60 p-4 text-sm text-slate-700">
+        <Info className="mt-0.5 size-5 shrink-0 text-brand" />
         <span>
           Payments are verified manually by administrators. <strong>Full departmental access is automatically activated once approved</strong>, typically within 2 to 12 hours.
         </span>
@@ -106,63 +122,137 @@ function Payments() {
 
       {/* Package Selection Cards */}
       <div className="grid gap-4 md:grid-cols-3">
-        {packages.map((p) => (
-          <button
-            key={p.id}
-            onClick={() => setSelectedPackageId(p.id)}
-            className={cn(
-              "rounded-lg border bg-card p-4 text-left transition-all",
-              selectedPackageId === p.id ? "border-brand ring-2 ring-brand" : "hover:border-border"
-            )}
-          >
-            <div className="text-sm font-semibold">{p.name}</div>
-            <div className="mt-2">
-              <span className="text-2xl font-bold">{Number(p.price).toLocaleString()}</span>{" "}
-              <span className="text-sm text-muted-foreground">{p.currency || "ETB"}</span>
-            </div>
-            <div className="mt-1 text-xs text-muted-foreground">
-              Validity: {p.durationDays} days · Scope: {p.scope}
-            </div>
-          </button>
-        ))}
+        {packages.map((p) => {
+          const isSelected = selectedPackageId === p.id;
+          return (
+            <button
+              key={p.id}
+              type="button"
+              onClick={() => setSelectedPackageId(p.id)}
+              className={cn(
+                "rounded-2xl border p-5 text-left transition-all cursor-pointer relative",
+                isSelected
+                  ? "border-brand bg-brand/5 ring-2 ring-brand shadow-sm"
+                  : "bg-card hover:border-slate-300"
+              )}
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-bold text-slate-900">{p.name}</span>
+                {isSelected && (
+                  <CheckCircle2 className="size-4 text-brand" />
+                )}
+              </div>
+              <div className="mt-3">
+                <span className="text-3xl font-extrabold text-slate-900">
+                  {Number(p.price).toLocaleString()}
+                </span>{" "}
+                <span className="text-xs font-semibold text-slate-500">{p.currency || "ETB"}</span>
+              </div>
+              <div className="mt-2 text-xs text-slate-500 font-medium">
+                Validity: <strong className="text-slate-700">{p.durationDays} days</strong> · Scope: <strong className="text-slate-700">{p.scope.replace("_", " ")}</strong>
+              </div>
+            </button>
+          );
+        })}
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
         {/* Dynamic Bank & Telebirr Instructions */}
-        <Section title="Payment Instructions">
+        <Section
+          title="Payment Instructions"
+          action={
+            <span className="text-xs text-muted-foreground">Click a method to select</span>
+          }
+        >
           <div className="divide-y text-sm">
-            {instructions.map((inst) => (
-              <div key={inst.id} className="p-4">
-                <div className="flex items-center gap-2 font-semibold">
-                  {inst.method === "TELEBIRR" ? (
-                    <Smartphone className="size-4 text-brand" />
-                  ) : (
-                    <Building2 className="size-4 text-brand" />
-                  )}
-                  {inst.displayName}
-                </div>
-                <div className="mt-2 text-xs font-mono bg-muted p-2 rounded">
-                  Account / Phone: <strong>{inst.accountDetails}</strong>
-                </div>
-                <pre className="mt-2 text-xs text-muted-foreground font-sans whitespace-pre-wrap leading-relaxed">
-                  {inst.instructions}
-                </pre>
-              </div>
-            ))}
+            {instructions.length === 0 ? (
+              <p className="p-4 text-xs text-muted-foreground">No active payment channels configured.</p>
+            ) : (
+              instructions.map((inst) => {
+                const isActive = inst.method === paymentMethod;
+                return (
+                  <div
+                    key={inst.id}
+                    onClick={() => setPaymentMethod(inst.method)}
+                    className={cn(
+                      "p-4 transition-colors cursor-pointer",
+                      isActive ? "bg-brand/5" : "hover:bg-slate-50/60"
+                    )}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 font-bold text-slate-900">
+                        {inst.method === "TELEBIRR" ? (
+                          <Smartphone className="size-4.5 text-emerald-600" />
+                        ) : (
+                          <Building2 className="size-4.5 text-blue-600" />
+                        )}
+                        <span>{inst.displayName}</span>
+                      </div>
+                      {isActive && (
+                        <span className="text-[11px] font-semibold text-brand px-2 py-0.5 rounded-full bg-brand/10">
+                          Active Channel
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="mt-3 flex items-center justify-between gap-2 bg-slate-100/80 border border-slate-200/80 px-3 py-2 rounded-xl text-xs font-mono">
+                      <div className="truncate">
+                        <span className="text-slate-500 font-sans font-medium">Account: </span>
+                        <strong className="text-slate-900">{inst.accountDetails}</strong>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleCopy(inst.accountDetails, inst.id, inst.displayName);
+                        }}
+                        className="shrink-0 p-1.5 rounded-lg hover:bg-white text-slate-600 hover:text-slate-900 border border-transparent hover:border-slate-200 transition-all cursor-pointer"
+                        title="Copy account number"
+                      >
+                        {copiedId === inst.id ? (
+                          <Check className="size-3.5 text-emerald-600" />
+                        ) : (
+                          <Copy className="size-3.5" />
+                        )}
+                      </button>
+                    </div>
+
+                    <pre className="mt-2.5 text-xs text-slate-600 font-sans whitespace-pre-wrap leading-relaxed">
+                      {inst.instructions}
+                    </pre>
+                  </div>
+                );
+              })
+            )}
           </div>
         </Section>
 
         {/* Upload Receipt Form */}
         <Section title="Upload Payment Receipt">
-          <form className="space-y-4 p-4" onSubmit={handleSubmit}>
+          <form className="space-y-4 p-5" onSubmit={handleSubmit}>
+            {selectedPkg && (
+              <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-3 text-xs flex items-center justify-between">
+                <div>
+                  <span className="text-slate-500">Selected Package: </span>
+                  <span className="font-bold text-slate-800">{selectedPkg.name}</span>
+                </div>
+                <div className="text-right">
+                  <span className="font-extrabold text-slate-900">{Number(selectedPkg.price).toLocaleString()} {selectedPkg.currency || "ETB"}</span>
+                </div>
+              </div>
+            )}
+
             <Field label="Payment Method Used">
               <select
                 value={paymentMethod}
                 onChange={(e) => setPaymentMethod(e.target.value)}
                 className={input}
               >
-                <option value="TELEBIRR">Telebirr</option>
-                <option value="BANK_TRANSFER">Commercial Bank of Ethiopia (CBE)</option>
+                {instructions.map((inst) => (
+                  <option key={inst.id} value={inst.method}>
+                    {inst.displayName} ({inst.accountDetails})
+                  </option>
+                ))}
               </select>
             </Field>
 
@@ -177,9 +267,12 @@ function Payments() {
             </Field>
 
             <Field label="Receipt Screenshot or PDF (Max 5 MB)">
-              <label className="flex cursor-pointer flex-col items-center gap-2 rounded-md border border-dashed bg-background px-4 py-6 text-center text-sm text-muted-foreground hover:border-brand">
-                <Upload className="size-5" />
-                <span>{receiptFile ? receiptFile.name : "Click to select JPG, PNG, or PDF receipt"}</span>
+              <label className="flex cursor-pointer flex-col items-center gap-2 rounded-xl border border-dashed border-slate-300 bg-slate-50/40 px-4 py-6 text-center text-xs sm:text-sm text-slate-500 hover:border-brand hover:bg-slate-50 transition-colors">
+                <Upload className="size-5 text-slate-400" />
+                <span className="font-medium text-slate-700">
+                  {receiptFile ? receiptFile.name : "Click to select JPG, PNG, or PDF receipt"}
+                </span>
+                <span className="text-[11px] text-slate-400">Accepted formats: JPG, PNG, PDF up to 5 MB</span>
                 <input
                   type="file"
                   required
@@ -197,7 +290,7 @@ function Payments() {
             <button
               type="submit"
               disabled={submitting}
-              className={`${btn.primary} w-full flex items-center justify-center gap-2`}
+              className={`${btn.primary} w-full flex items-center justify-center gap-2 py-3 rounded-full shadow-md cursor-pointer`}
             >
               {submitting ? "Uploading Receipt..." : "Submit Receipt for Verification"}
             </button>
@@ -209,7 +302,7 @@ function Payments() {
       <Section title="My Payment History" className="mt-6">
         <div className="overflow-x-auto">
           {history.length === 0 ? (
-            <p className="p-4 text-sm text-muted-foreground">No payment submissions yet.</p>
+            <p className="p-5 text-xs text-muted-foreground">No payment submissions recorded yet.</p>
           ) : (
             <table className="w-full">
               <thead className="border-b">

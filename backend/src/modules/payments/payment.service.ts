@@ -147,7 +147,7 @@ export class PaymentService {
    * Student: View personal payment history and approval feedback
    */
   async listStudentPayments(userId: string) {
-    return prisma.payment.findMany({
+    const list = await prisma.payment.findMany({
       where: { userId },
       include: {
         package: {
@@ -156,6 +156,12 @@ export class PaymentService {
       },
       orderBy: { createdAt: "desc" },
     });
+    return list.map((p) => ({
+      ...p,
+      paymentMethod: p.channel,
+      transactionReference: p.transactionRef,
+      adminNote: p.decisionNote,
+    }));
   }
 
   /**
