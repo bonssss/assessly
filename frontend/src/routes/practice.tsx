@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Lock, CheckCircle, XCircle, ArrowRight } from "lucide-react";
+import { Lock, CheckCircle, XCircle, ArrowRight, Shuffle } from "lucide-react";
 import { toast } from "sonner";
 import { StudentShell } from "@/components/StudentShell";
 import { PageHeader, Section, btn } from "@/components/ui-kit";
@@ -32,14 +32,25 @@ function PracticeComponent() {
   const [results, setResults] = useState<Record<string, any>>({});
   const [submitting, setSubmitting] = useState<string | null>(null);
 
-  const loadData = async () => {
+  const loadData = async (isRefresh = false) => {
+    if (isRefresh) {
+      setLoading(true);
+      setSelectedOptions({});
+      setResults({});
+    }
     try {
       const [qData, entData] = await Promise.all([
-        api.questions.list({ limit: 50 }).catch(() => ({ questions: [] })),
+        api.questions.list({ limit: 5, random: true }).catch(() => ({ questions: [] })),
         api.entitlements.getStatus().catch(() => null),
       ]);
 
-      setQuestions(qData?.questions || []);
+      const rawQuestions = qData?.questions || [];
+      // Ensure exactly 5 dynamic questions are selected
+      const sampled = [...rawQuestions]
+        .sort(() => 0.5 - Math.random())
+        .slice(0, 5);
+
+      setQuestions(sampled);
 
       if (entData?.trialUsage) {
         setTrialQuota({
@@ -47,6 +58,9 @@ function PracticeComponent() {
           limit: entData.trialUsage.quotaLimit,
           isPaid: entData.hasActiveEntitlement,
         });
+      }
+      if (isRefresh) {
+        toast.success("Loaded 5 new dynamic questions from the question bank!");
       }
     } catch (err: any) {
       toast.error(err.message || "Failed to load questions");
@@ -103,11 +117,21 @@ function PracticeComponent() {
     <StudentShell>
       <PageHeader
         title="Practice Arena"
-        description="Self-assessment practice mode with instant explanations"
+        description="Dynamic 5-question practice set sampled from your department's question bank."
         action={
-          <Link to="/exams" className={btn.primary}>
-            Take Full Timed Exam <ArrowRight className="size-4 ml-1 inline" />
-          </Link>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => loadData(true)}
+              disabled={loading}
+              className={`${btn.secondary} text-xs flex items-center gap-1.5`}
+              title="Draw 5 new random questions from the department bank"
+            >
+              <Shuffle className="size-3.5" /> Shuffle New 5 Questions
+            </button>
+            <Link to="/exams" className={btn.primary}>
+              Take Full Timed Exam <ArrowRight className="size-4 ml-1 inline" />
+            </Link>
+          </div>
         }
       />
 
@@ -119,7 +143,7 @@ function PracticeComponent() {
             </strong>
             <span>
               You have completed all 5 free practice questions. Purchase an access package to unlock
-              the full question bank.
+              unlimited question access.
             </span>
           </div>
           <Link to="/payments" className={btn.primary}>
@@ -128,9 +152,18 @@ function PracticeComponent() {
         </div>
       )}
 
-      <Section title="Questions">
+      <Section
+        title={`Practice Set (5 Dynamic Questions)`}
+        action={
+          <span className="text-xs font-normal text-muted-foreground">
+            {trialQuota.isPaid
+              ? "All-Access Active"
+              : `Trial Balance: ${Math.max(0, trialQuota.limit - trialQuota.used)} free answers remaining`}
+          </span>
+        }
+      >
         {loading ? (
-          <p className="p-4 text-sm text-muted-foreground">Loading questions...</p>
+          <p className="p-4 text-sm text-muted-foreground">Drawing 5 questions from the bank...</p>
         ) : questions.length === 0 ? (
           <p className="p-4 text-sm text-muted-foreground">
             No questions found for your enrolled departments.
@@ -145,7 +178,7 @@ function PracticeComponent() {
                 <div key={q.id} className="p-5">
                   <div className="flex items-start justify-between gap-4">
                     <span className="font-semibold text-sm text-muted-foreground">
-                      Question {i + 1}
+                      Question {i + 1} of 5
                     </span>
                     <span className="text-xs rounded bg-muted px-2 py-0.5 text-muted-foreground font-medium">
                       {q.topic || "General"} · {q.difficulty}

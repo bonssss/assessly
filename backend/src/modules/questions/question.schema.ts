@@ -74,6 +74,7 @@ export const listQuestionsQuerySchema = z.object({
   difficulty: z.enum(["EASY", "MEDIUM", "HARD"]).optional(),
   status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]).optional(),
   search: z.string().optional(),
+  random: z.coerce.boolean().optional(),
   page: z.coerce.number().int().positive().default(1),
   limit: z.coerce.number().int().positive().max(100).default(20),
 });
