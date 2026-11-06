@@ -253,8 +253,8 @@ export class QuestionService {
       prisma.question.count({ where }),
       prisma.question.findMany({
         where,
-        skip,
-        take: limit,
+        skip: query.random ? 0 : skip,
+        take: query.random ? Math.max(limit * 3, 20) : limit,
         select: {
           id: true,
           departmentId: true,
@@ -277,16 +277,26 @@ export class QuestionService {
             select: { id: true, name: true, code: true },
           },
         },
-        orderBy: { createdAt: "desc" },
+        orderBy: query.random ? undefined : { createdAt: "desc" },
       }),
     ]);
+
+    let finalQuestions = questions;
+    if (query.random) {
+      // Dynamic random shuffle
+      for (let i = finalQuestions.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [finalQuestions[i], finalQuestions[j]] = [finalQuestions[j], finalQuestions[i]];
+      }
+      finalQuestions = finalQuestions.slice(0, limit);
+    }
 
     return {
       total,
       page,
       limit,
       totalPages: Math.ceil(total / limit),
-      questions,
+      questions: finalQuestions,
     };
   }
 
