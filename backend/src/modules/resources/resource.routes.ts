@@ -9,9 +9,13 @@ import {
   serveLocalResourceFileHandler,
 } from "./resource.controller.js";
 import { requireAuth, requireRoles } from "../../common/middlewares/auth.middleware.js";
+import { resourceRateLimiter } from "../../common/middlewares/rate-limiter.middleware.js";
 import { uploadResourceFile } from "../../common/storage/index.js";
 
 const router = Router();
+
+// Apply learning resources rate limiter
+router.use(resourceRateLimiter);
 
 // ==========================================
 // FILE STREAMING ENDPOINT (Local Storage, Authenticated with Paywall Guard)

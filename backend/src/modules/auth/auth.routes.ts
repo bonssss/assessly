@@ -22,14 +22,17 @@ import {
 
 const router = Router();
 
-router.post("/register", authRateLimiter, validateBody(registerSchema), registerHandler);
-router.post("/login", authRateLimiter, validateBody(loginSchema), loginHandler);
+// Rate limit all auth and credential endpoints against brute-force attacks
+router.use(authRateLimiter);
+
+router.post("/register", validateBody(registerSchema), registerHandler);
+router.post("/login", validateBody(loginSchema), loginHandler);
 router.get("/me", requireAuth, getMeHandler);
 router.patch("/me", requireAuth, validateBody(updateProfileSchema), updateProfileHandler);
 
 // Password recovery & credential management
-router.post("/forgot-password", authRateLimiter, validateBody(forgotPasswordSchema), forgotPasswordHandler);
-router.post("/reset-password", authRateLimiter, validateBody(resetPasswordSchema), resetPasswordHandler);
+router.post("/forgot-password", validateBody(forgotPasswordSchema), forgotPasswordHandler);
+router.post("/reset-password", validateBody(resetPasswordSchema), resetPasswordHandler);
 router.post("/change-password", requireAuth, validateBody(changePasswordSchema), changePasswordHandler);
 
 export default router;

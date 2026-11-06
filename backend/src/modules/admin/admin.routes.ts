@@ -1,4 +1,3 @@
-
 import { Router } from "express";
 import {
   getOverviewKPIsHandler,
@@ -11,10 +10,12 @@ import {
   getDepartmentReportsHandler,
 } from "./admin.controller.js";
 import { requireAuth, requireRoles } from "../../common/middlewares/auth.middleware.js";
+import { adminRateLimiter } from "../../common/middlewares/rate-limiter.middleware.js";
 
 const router = Router();
 
-// Protect all admin routes with authentication and ADMIN / SUPER_ADMIN role check
+// Protect all admin routes with authentication, role checks, and administrative rate limiting
+router.use(adminRateLimiter);
 router.use(requireAuth, requireRoles("ADMIN", "SUPER_ADMIN"));
 
 // System Overview & Real-Time Performance Analytics (FR-ADMIN)

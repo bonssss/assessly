@@ -10,6 +10,7 @@ import {
   listStudentExamHistoryHandler,
 } from "./exam.controller.js";
 import { requireAuth, requireRoles } from "../../common/middlewares/auth.middleware.js";
+import { examRateLimiter } from "../../common/middlewares/rate-limiter.middleware.js";
 import {
   validateBody,
   validateQuery,
@@ -22,6 +23,9 @@ import {
 } from "./exam.schema.js";
 
 const router = Router();
+
+// Apply exam operations rate limiter across all exam routes
+router.use(examRateLimiter);
 
 // ==========================================
 // EXAM DISCOVERY & STUDENT WORKFLOW

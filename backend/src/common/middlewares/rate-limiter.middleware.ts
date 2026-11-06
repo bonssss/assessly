@@ -1,76 +1,111 @@
-import type { Request, Response, NextFunction } from "express";
-
-interface RateLimitRecord {
-  count: number;
-  resetTime: number;
-}
+import rateLimit from "express-rate-limit";
 
 /**
- * Creates an in-memory sliding-window / fixed-window rate limiter
- * @param windowMs Time window in milliseconds
- * @param max Max allowed requests per window
- * @param message Custom message on 429
+ * Standard response payload on 429 Too Many Requests
+ */
+const rateLimitResponse = (message: string) => ({
+  success: false,
+  code: "RATE_LIMIT_EXCEEDED",
+  message,
+});
+
+/**
+ * Global rate limiter: applied to all general API endpoints
+ * 300 requests per 15 minutes per IP
+ */
+export const globalRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 300,
+  standardHeaders: "draft-7",
+  legacyHeaders: false,
+  message: rateLimitResponse("Too many requests from this client. Please retry after 15 minutes."),
+});
+
+/**
+ * Auth rate limiter: applied to login, register, password reset, and recovery
+ * 25 requests per 15 minutes per IP to mitigate credential brute-force attacks
+ */
+export const authRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 25,
+  standardHeaders: "draft-7",
+  legacyHeaders: false,
+  message: rateLimitResponse("Too many authentication attempts. Please retry after 15 minutes."),
+});
+
+/**
+ * Exam operations rate limiter: applied to exam attempts and answer submissions
+ * 120 requests per 15 minutes per IP
+ */
+export const examRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 120,
+  standardHeaders: "draft-7",
+  legacyHeaders: false,
+  message: rateLimitResponse("Too many exam requests. Please slow down and try again shortly."),
+});
+
+/**
+ * Payment and receipt upload rate limiter
+ * 30 requests per 15 minutes per IP
+ */
+export const paymentRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 30,
+  standardHeaders: "draft-7",
+  legacyHeaders: false,
+  message: rateLimitResponse("Too many payment submission attempts. Please try again later."),
+});
+
+/**
+ * Question bank and practice rate limiter
+ * 150 requests per 15 minutes per IP
+ */
+export const questionRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 150,
+  standardHeaders: "draft-7",
+  legacyHeaders: false,
+  message: rateLimitResponse("Too many practice question requests. Please try again shortly."),
+});
+
+/**
+ * Learning resources rate limiter
+ * 60 requests per 15 minutes per IP
+ */
+export const resourceRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 60,
+  standardHeaders: "draft-7",
+  legacyHeaders: false,
+  message: rateLimitResponse("Too many resource requests. Please try again later."),
+});
+
+/**
+ * Admin operations rate limiter
+ * 100 requests per 15 minutes per IP
+ */
+export const adminRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 100,
+  standardHeaders: "draft-7",
+  legacyHeaders: false,
+  message: rateLimitResponse("Too many administrative requests. Please try again later."),
+});
+
+/**
+ * Factory helper for custom rate limiters
  */
 export const createRateLimiter = (
   windowMs: number = 60 * 1000,
   max: number = 20,
   message: string = "Too many requests. Please try again later."
 ) => {
-  const ipStore = new Map<string, RateLimitRecord>();
-
-  // Cleanup expired entries periodically every 5 minutes
-  setInterval(() => {
-    const now = Date.now();
-    for (const [ip, record] of ipStore.entries()) {
-      if (now > record.resetTime) {
-        ipStore.delete(ip);
-      }
-    }
-  }, 5 * 60 * 1000).unref();
-
-  return (req: Request, res: Response, next: NextFunction): void => {
-    // Determine client IP (considering standard reverse proxies)
-    const forwarded = req.headers["x-forwarded-for"];
-    const ip =
-      (typeof forwarded === "string" ? forwarded.split(",")[0].trim() : undefined) ||
-      req.socket.remoteAddress ||
-      "unknown-ip";
-
-    const now = Date.now();
-    const existing = ipStore.get(ip);
-
-    if (!existing || now > existing.resetTime) {
-      ipStore.set(ip, {
-        count: 1,
-        resetTime: now + windowMs,
-      });
-      res.setHeader("X-RateLimit-Limit", max);
-      res.setHeader("X-RateLimit-Remaining", max - 1);
-      return next();
-    }
-
-    if (existing.count >= max) {
-      const retryAfterSeconds = Math.ceil((existing.resetTime - now) / 1000);
-      res.setHeader("Retry-After", retryAfterSeconds);
-      res.setHeader("X-RateLimit-Limit", max);
-      res.setHeader("X-RateLimit-Remaining", 0);
-      res.status(429).json({
-        success: false,
-        message,
-        retryAfterSeconds,
-      });
-      return;
-    }
-
-    existing.count += 1;
-    res.setHeader("X-RateLimit-Limit", max);
-    res.setHeader("X-RateLimit-Remaining", max - existing.count);
-    return next();
-  };
+  return rateLimit({
+    windowMs,
+    limit: max,
+    standardHeaders: "draft-7",
+    legacyHeaders: false,
+    message: rateLimitResponse(message),
+  });
 };
-
-export const authRateLimiter = createRateLimiter(
-  60 * 1000, // 1 minute window
-  15, // max 15 requests per minute (covers registration & login brute force)
-  "Too many authentication attempts. Please wait 60 seconds before trying again."
-);

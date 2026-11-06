@@ -8,6 +8,7 @@ import {
   submitPracticeAnswerHandler,
 } from "./question.controller.js";
 import { requireAuth, requireRoles } from "../../common/middlewares/auth.middleware.js";
+import { questionRateLimiter } from "../../common/middlewares/rate-limiter.middleware.js";
 import {
   validateBody,
   validateQuery,
@@ -20,6 +21,9 @@ import {
 } from "./question.schema.js";
 
 const router = Router();
+
+// Apply question rate limiter across practice and question bank routes
+router.use(questionRateLimiter);
 
 // Both students and admins can list questions (filtered & sanitized per role)
 router.get(
@@ -43,6 +47,7 @@ router.post(
   "/bulk-import",
   requireAuth,
   requireRoles("ADMIN", "SUPER_ADMIN"),
+  validateBody(createQuestionSchema.partial()), // optional validation wrapper for outer structure
   bulkImportQuestionsHandler
 );
 
