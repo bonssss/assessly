@@ -12,7 +12,10 @@ export const Route = createFileRoute("/payments")({
   head: () => ({
     meta: [
       { title: "Payments & Verification — Assessly" },
-      { name: "description", content: "Pay via Telebirr or CBE bank transfer and upload your receipt." },
+      {
+        name: "description",
+        content: "Pay via Telebirr or CBE bank transfer and upload your receipt.",
+      },
       { property: "og:title", content: "Payments — Assessly" },
     ],
   }),
@@ -46,7 +49,9 @@ function Payments() {
       }
       setInstructions(instrs);
       if (instrs.length > 0) {
-        setPaymentMethod((prev) => (instrs.some((i: any) => i.method === prev) ? prev : instrs[0].method));
+        setPaymentMethod((prev) =>
+          instrs.some((i: any) => i.method === prev) ? prev : instrs[0].method,
+        );
       }
       setHistory(myPayments);
     } catch (err: any) {
@@ -116,7 +121,9 @@ function Payments() {
       <div className="mb-6 flex gap-3 rounded-xl border border-brand/30 bg-accent/60 p-4 text-sm text-slate-700">
         <Info className="mt-0.5 size-5 shrink-0 text-brand" />
         <span>
-          Payments are verified manually by administrators. <strong>Full departmental access is automatically activated once approved</strong>, typically within 2 to 12 hours.
+          Payments are verified manually by administrators.{" "}
+          <strong>Full departmental access is automatically activated once approved</strong>,
+          typically within 2 to 12 hours.
         </span>
       </div>
 
@@ -133,14 +140,12 @@ function Payments() {
                 "rounded-2xl border p-5 text-left transition-all cursor-pointer relative",
                 isSelected
                   ? "border-brand bg-brand/5 ring-2 ring-brand shadow-sm"
-                  : "bg-card hover:border-slate-300"
+                  : "bg-card hover:border-slate-300",
               )}
             >
               <div className="flex items-center justify-between">
                 <span className="text-sm font-bold text-slate-900">{p.name}</span>
-                {isSelected && (
-                  <CheckCircle2 className="size-4 text-brand" />
-                )}
+                {isSelected && <CheckCircle2 className="size-4 text-brand" />}
               </div>
               <div className="mt-3">
                 <span className="text-3xl font-extrabold text-slate-900">
@@ -149,7 +154,8 @@ function Payments() {
                 <span className="text-xs font-semibold text-slate-500">{p.currency || "ETB"}</span>
               </div>
               <div className="mt-2 text-xs text-slate-500 font-medium">
-                Validity: <strong className="text-slate-700">{p.durationDays} days</strong> · Scope: <strong className="text-slate-700">{p.scope.replace("_", " ")}</strong>
+                Validity: <strong className="text-slate-700">{p.durationDays} days</strong> · Scope:{" "}
+                <strong className="text-slate-700">{p.scope.replace("_", " ")}</strong>
               </div>
             </button>
           );
@@ -160,13 +166,13 @@ function Payments() {
         {/* Dynamic Bank & Telebirr Instructions */}
         <Section
           title="Payment Instructions"
-          action={
-            <span className="text-xs text-muted-foreground">Click a method to select</span>
-          }
+          action={<span className="text-xs text-muted-foreground">Click a method to select</span>}
         >
           <div className="divide-y text-sm">
             {instructions.length === 0 ? (
-              <p className="p-4 text-xs text-muted-foreground">No active payment channels configured.</p>
+              <p className="p-4 text-xs text-muted-foreground">
+                No active payment channels configured.
+              </p>
             ) : (
               instructions.map((inst) => {
                 const isActive = inst.method === paymentMethod;
@@ -176,7 +182,7 @@ function Payments() {
                     onClick={() => setPaymentMethod(inst.method)}
                     className={cn(
                       "p-4 transition-colors cursor-pointer",
-                      isActive ? "bg-brand/5" : "hover:bg-slate-50/60"
+                      isActive ? "bg-brand/5" : "hover:bg-slate-50/60",
                     )}
                   >
                     <div className="flex items-center justify-between">
@@ -237,7 +243,9 @@ function Payments() {
                   <span className="font-bold text-slate-800">{selectedPkg.name}</span>
                 </div>
                 <div className="text-right">
-                  <span className="font-extrabold text-slate-900">{Number(selectedPkg.price).toLocaleString()} {selectedPkg.currency || "ETB"}</span>
+                  <span className="font-extrabold text-slate-900">
+                    {Number(selectedPkg.price).toLocaleString()} {selectedPkg.currency || "ETB"}
+                  </span>
                 </div>
               </div>
             )}
@@ -272,7 +280,9 @@ function Payments() {
                 <span className="font-medium text-slate-700">
                   {receiptFile ? receiptFile.name : "Click to select JPG, PNG, or PDF receipt"}
                 </span>
-                <span className="text-[11px] text-slate-400">Accepted formats: JPG, PNG, PDF up to 5 MB</span>
+                <span className="text-[11px] text-slate-400">
+                  Accepted formats: JPG, PNG, PDF up to 5 MB
+                </span>
                 <input
                   type="file"
                   required
@@ -302,7 +312,9 @@ function Payments() {
       <Section title="My Payment History" className="mt-6">
         <div className="overflow-x-auto">
           {history.length === 0 ? (
-            <p className="p-5 text-xs text-muted-foreground">No payment submissions recorded yet.</p>
+            <p className="p-5 text-xs text-muted-foreground">
+              No payment submissions recorded yet.
+            </p>
           ) : (
             <table className="w-full">
               <thead className="border-b">
@@ -326,10 +338,18 @@ function Payments() {
                     <td className={`${td} font-mono text-xs`}>{p.transactionReference}</td>
                     <td className={td}>
                       <StatusBadge
-                        status={p.status === "APPROVED" ? "Approved" : p.status === "REJECTED" ? "Rejected" : "Pending"}
+                        status={
+                          p.status === "APPROVED"
+                            ? "Approved"
+                            : p.status === "REJECTED"
+                              ? "Rejected"
+                              : "Pending"
+                        }
                       />
                       {p.adminNote && (
-                        <div className="mt-1 text-xs text-muted-foreground">Note: {p.adminNote}</div>
+                        <div className="mt-1 text-xs text-muted-foreground">
+                          Note: {p.adminNote}
+                        </div>
                       )}
                     </td>
                   </tr>

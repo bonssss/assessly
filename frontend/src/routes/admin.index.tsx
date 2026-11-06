@@ -144,7 +144,9 @@ function AdminDashboardComponent() {
           }
         >
           {pendingPayments.length === 0 ? (
-            <p className="p-4 text-sm text-muted-foreground">Queue is clean! No payments currently pending review.</p>
+            <p className="p-4 text-sm text-muted-foreground">
+              Queue is clean! No payments currently pending review.
+            </p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">

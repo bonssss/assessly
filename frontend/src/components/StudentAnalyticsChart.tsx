@@ -13,7 +13,15 @@ import {
   Pie,
   Cell,
 } from "recharts";
-import { TrendingUp, Target, Award, ArrowUpRight, CheckCircle2, AlertTriangle, FileText } from "lucide-react";
+import {
+  TrendingUp,
+  Target,
+  Award,
+  ArrowUpRight,
+  CheckCircle2,
+  AlertTriangle,
+  FileText,
+} from "lucide-react";
 import { Section, btn } from "@/components/ui-kit";
 
 interface ExamAttempt {
@@ -45,30 +53,26 @@ export function StudentAnalyticsChart({ examHistory }: StudentAnalyticsChartProp
   }, []);
 
   const completedExams = examHistory.filter(
-    (h) => h.status === "COMPLETED" || h.status === "TIMED_OUT"
+    (h) => h.status === "COMPLETED" || h.status === "TIMED_OUT",
   );
 
   // Chronological score history (oldest first for line/area chart progression)
-  const scoreHistoryData = [...completedExams]
-    .reverse()
-    .map((att, idx) => {
-      const scoreVal =
-        typeof att.percentage === "number"
-          ? att.percentage
-          : Math.round(Number(att.score || 0));
-      const dateFormatted = new Date(att.startedAt).toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-      });
-      return {
-        id: att.id || att.attemptId || String(idx),
-        attemptNumber: `Test #${idx + 1}`,
-        date: dateFormatted,
-        score: scoreVal,
-        examTitle: att.exam?.title || att.examTitle || "Timed Exam",
-        passed: scoreVal >= 50,
-      };
+  const scoreHistoryData = [...completedExams].reverse().map((att, idx) => {
+    const scoreVal =
+      typeof att.percentage === "number" ? att.percentage : Math.round(Number(att.score || 0));
+    const dateFormatted = new Date(att.startedAt).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
     });
+    return {
+      id: att.id || att.attemptId || String(idx),
+      attemptNumber: `Test #${idx + 1}`,
+      date: dateFormatted,
+      score: scoreVal,
+      examTitle: att.exam?.title || att.examTitle || "Timed Exam",
+      passed: scoreVal >= 50,
+    };
+  });
 
   const passedCount = completedExams.filter((e) => {
     const s = typeof e.percentage === "number" ? e.percentage : Number(e.score || 0);
@@ -80,7 +84,7 @@ export function StudentAnalyticsChart({ examHistory }: StudentAnalyticsChartProp
     completedExams.length > 0 ? Math.round((passedCount / completedExams.length) * 100) : 0;
 
   const scores = completedExams.map((e) =>
-    typeof e.percentage === "number" ? e.percentage : Number(e.score || 0)
+    typeof e.percentage === "number" ? e.percentage : Number(e.score || 0),
   );
   const highestScore = scores.length > 0 ? Math.max(...scores) : 0;
   const latestScore = scores.length > 0 ? scores[0] : 0;
@@ -166,7 +170,9 @@ export function StudentAnalyticsChart({ examHistory }: StudentAnalyticsChartProp
           </div>
           <div className="mt-1 flex items-baseline gap-1.5">
             <span className="text-xl font-extrabold text-slate-800">{avgScore}%</span>
-            <span className={`text-[11px] font-medium ${avgScore >= 50 ? "text-emerald-600" : "text-amber-600"}`}>
+            <span
+              className={`text-[11px] font-medium ${avgScore >= 50 ? "text-emerald-600" : "text-amber-600"}`}
+            >
               {avgScore >= 50 ? "Passing" : "Below 50%"}
             </span>
           </div>
@@ -243,7 +249,9 @@ export function StudentAnalyticsChart({ examHistory }: StudentAnalyticsChartProp
                               {data.attemptNumber} &bull; {data.date}
                             </div>
                             <div className="mt-1 flex items-center gap-2 pt-1 border-t border-slate-100">
-                              <span className="font-bold text-slate-900 text-sm">{data.score}%</span>
+                              <span className="font-bold text-slate-900 text-sm">
+                                {data.score}%
+                              </span>
                               <span
                                 className={`rounded px-1.5 py-0.5 text-[10px] font-bold ${
                                   data.passed
@@ -315,7 +323,9 @@ export function StudentAnalyticsChart({ examHistory }: StudentAnalyticsChartProp
               {/* Center Pass Rate Display */}
               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                 <span className="text-2xl font-extrabold text-slate-800">{passRate}%</span>
-                <span className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">Pass Rate</span>
+                <span className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">
+                  Pass Rate
+                </span>
               </div>
             </div>
 
@@ -335,27 +345,38 @@ export function StudentAnalyticsChart({ examHistory }: StudentAnalyticsChartProp
               </div>
             </div>
 
-            <div className={`mt-4 w-full rounded-xl p-3 text-xs leading-relaxed ${
-              passRate >= 70
-                ? "bg-emerald-50/80 text-emerald-900 border border-emerald-200/50"
-                : passRate >= 50
-                ? "bg-blue-50/80 text-blue-900 border border-blue-200/50"
-                : "bg-amber-50/80 text-amber-900 border border-amber-200/50"
-            }`}>
+            <div
+              className={`mt-4 w-full rounded-xl p-3 text-xs leading-relaxed ${
+                passRate >= 70
+                  ? "bg-emerald-50/80 text-emerald-900 border border-emerald-200/50"
+                  : passRate >= 50
+                    ? "bg-blue-50/80 text-blue-900 border border-blue-200/50"
+                    : "bg-amber-50/80 text-amber-900 border border-amber-200/50"
+              }`}
+            >
               {passRate >= 70 ? (
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="size-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Strong trajectory! Your average score demonstrates high readiness for the university exit exam.</span>
+                  <span>
+                    Strong trajectory! Your average score demonstrates high readiness for the
+                    university exit exam.
+                  </span>
                 </div>
               ) : passRate >= 50 ? (
                 <div className="flex items-start gap-2">
                   <Award className="size-4 text-blue-600 shrink-0 mt-0.5" />
-                  <span>Above pass mark. Continue testing randomized question sets to solidify weak topics.</span>
+                  <span>
+                    Above pass mark. Continue testing randomized question sets to solidify weak
+                    topics.
+                  </span>
                 </div>
               ) : (
                 <div className="flex items-start gap-2">
                   <AlertTriangle className="size-4 text-amber-600 shrink-0 mt-0.5" />
-                  <span>Pass mark is 50%. Focus on untimed practice questions with detailed solution reviews.</span>
+                  <span>
+                    Pass mark is 50%. Focus on untimed practice questions with detailed solution
+                    reviews.
+                  </span>
                 </div>
               )}
             </div>

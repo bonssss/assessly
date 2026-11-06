@@ -143,7 +143,7 @@ function ExamRunner() {
     try {
       localStorage.setItem(
         `assessly_attempt_${examData.attemptId}`,
-        JSON.stringify({ answers, flags })
+        JSON.stringify({ answers, flags }),
       );
     } catch {
       // Ignore storage quota errors
@@ -249,7 +249,6 @@ function ExamRunner() {
     return (
       <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-4xl space-y-8">
-          
           {/* Header Score & Pass Summary Card */}
           <div className="rounded-[28px] border border-slate-200/80 bg-white p-6 sm:p-8 shadow-sm">
             <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-6">
@@ -271,7 +270,7 @@ function ExamRunner() {
                     "rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wider",
                     passed
                       ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
-                      : "bg-rose-100 text-rose-800 border border-rose-200"
+                      : "bg-rose-100 text-rose-800 border border-rose-200",
                   )}
                 >
                   {passed ? "Passed" : "Needs Practice"}
@@ -280,7 +279,8 @@ function ExamRunner() {
                   {result.percentage}%
                 </div>
                 <div className="text-xs text-slate-500 font-medium">
-                  Score: {result.obtainedMarks ?? result.score} / {result.totalMarks ?? result.maxPossibleScore} marks
+                  Score: {result.obtainedMarks ?? result.score} /{" "}
+                  {result.totalMarks ?? result.maxPossibleScore} marks
                 </div>
               </div>
             </div>
@@ -305,7 +305,12 @@ function ExamRunner() {
               </div>
               <div className="p-3 rounded-2xl bg-slate-50">
                 <div className="text-xs text-slate-500 font-medium">Outcome</div>
-                <div className={cn("text-xl font-bold mt-0.5", passed ? "text-emerald-600" : "text-rose-600")}>
+                <div
+                  className={cn(
+                    "text-xl font-bold mt-0.5",
+                    passed ? "text-emerald-600" : "text-rose-600",
+                  )}
+                >
                   {passed ? "Pass" : "Fail"}
                 </div>
               </div>
@@ -350,7 +355,8 @@ function ExamRunner() {
                     Question Review & Explanations
                   </h2>
                   <p className="text-xs text-slate-500">
-                    Review each question, your selected answer, the correct choice, and in-depth explanation.
+                    Review each question, your selected answer, the correct choice, and in-depth
+                    explanation.
                   </p>
                 </div>
                 <span className="text-xs font-semibold text-slate-500 bg-white px-3 py-1 rounded-full border border-slate-200">
@@ -381,7 +387,7 @@ function ExamRunner() {
                           "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold",
                           isCorrect
                             ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                            : "bg-rose-50 text-rose-700 border border-rose-200"
+                            : "bg-rose-50 text-rose-700 border border-rose-200",
                         )}
                       >
                         {isCorrect ? (
@@ -411,9 +417,11 @@ function ExamRunner() {
 
                         let cardStyle = "border-slate-100 bg-slate-50/50 text-slate-700";
                         if (isTheCorrectOption) {
-                          cardStyle = "border-emerald-500 bg-emerald-50/70 text-emerald-950 font-semibold ring-1 ring-emerald-500/30";
+                          cardStyle =
+                            "border-emerald-500 bg-emerald-50/70 text-emerald-950 font-semibold ring-1 ring-emerald-500/30";
                         } else if (isStudentChoice && !isTheCorrectOption) {
-                          cardStyle = "border-rose-400 bg-rose-50/70 text-rose-950 ring-1 ring-rose-400/30";
+                          cardStyle =
+                            "border-rose-400 bg-rose-50/70 text-rose-950 ring-1 ring-rose-400/30";
                         }
 
                         return (
@@ -421,7 +429,7 @@ function ExamRunner() {
                             key={opt.id || optIdx}
                             className={cn(
                               "flex items-center justify-between rounded-2xl border p-3.5 text-xs sm:text-sm transition-all",
-                              cardStyle
+                              cardStyle,
                             )}
                           >
                             <div className="flex items-center gap-3">
@@ -431,8 +439,8 @@ function ExamRunner() {
                                   isTheCorrectOption
                                     ? "bg-emerald-500 text-white"
                                     : isStudentChoice
-                                    ? "bg-rose-500 text-white"
-                                    : "bg-slate-200 text-slate-600"
+                                      ? "bg-rose-500 text-white"
+                                      : "bg-slate-200 text-slate-600",
                                 )}
                               >
                                 {String.fromCharCode(65 + optIdx)}
@@ -493,7 +501,9 @@ function ExamRunner() {
             <span
               className={cn(
                 "flex items-center gap-1.5 rounded-md border px-3 py-1.5 font-mono text-sm tabular-nums",
-                left < 120 ? "border-destructive text-destructive font-bold animate-pulse" : "border-border"
+                left < 120
+                  ? "border-destructive text-destructive font-bold animate-pulse"
+                  : "border-border",
               )}
             >
               <Clock className="size-4" />
@@ -535,7 +545,7 @@ function ExamRunner() {
               onClick={() => handleToggleFlag(currentQ.id)}
               className={cn(
                 "flex items-center gap-1.5 text-xs font-medium",
-                flags[currentQ.id] ? "text-warning" : "text-muted-foreground hover:text-foreground"
+                flags[currentQ.id] ? "text-warning" : "text-muted-foreground hover:text-foreground",
               )}
             >
               <Flag className="size-3.5" />
@@ -556,7 +566,7 @@ function ExamRunner() {
                     "flex w-full items-center justify-between rounded-md border p-3.5 text-left text-sm transition-colors",
                     selected
                       ? "border-primary bg-primary/5 font-medium text-foreground ring-1 ring-primary"
-                      : "hover:bg-muted/60"
+                      : "hover:bg-muted/60",
                   )}
                 >
                   <span>{opt.optionText}</span>
@@ -603,8 +613,10 @@ function ExamRunner() {
                   className={cn(
                     "relative grid size-9 place-items-center rounded text-xs font-medium transition-colors",
                     isCurrent && "ring-2 ring-primary ring-offset-2",
-                    isAnswered ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground",
-                    isFlagged && "border-2 border-warning"
+                    isAnswered
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground",
+                    isFlagged && "border-2 border-warning",
                   )}
                 >
                   {i + 1}

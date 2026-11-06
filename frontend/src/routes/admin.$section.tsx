@@ -28,12 +28,30 @@ import { useAuth } from "@/lib/auth-context";
 const titles: Record<string, [string, string]> = {
   questions: ["Question Bank", "Create, manage, and assign examination questions by department."],
   departments: ["Academic Departments", "Manage university faculties, curricula, and enrollments."],
-  resources: ["Learning Resources", "Upload lecture notes, past papers, worksheets, and study guides."],
-  students: ["Student Directory", "Manage registered candidate accounts, access levels, and trial quotas."],
-  payments: ["Payment Verification", "Review submitted bank receipts, approve transactions, and grant access."],
-  exams: ["Timed Examinations", "Configure exam durations, question sets, and evaluation policies."],
-  reports: ["Performance Reports", "Department-level analytics, student completion metrics, and pass rates."],
-  settings: ["Platform Settings", "Configure payment gateway credentials, pass marks, and trial policies."],
+  resources: [
+    "Learning Resources",
+    "Upload lecture notes, past papers, worksheets, and study guides.",
+  ],
+  students: [
+    "Student Directory",
+    "Manage registered candidate accounts, access levels, and trial quotas.",
+  ],
+  payments: [
+    "Payment Verification",
+    "Review submitted bank receipts, approve transactions, and grant access.",
+  ],
+  exams: [
+    "Timed Examinations",
+    "Configure exam durations, question sets, and evaluation policies.",
+  ],
+  reports: [
+    "Performance Reports",
+    "Department-level analytics, student completion metrics, and pass rates.",
+  ],
+  settings: [
+    "Platform Settings",
+    "Configure payment gateway credentials, pass marks, and trial policies.",
+  ],
 };
 
 export const Route = createFileRoute("/admin/$section")({
@@ -80,7 +98,7 @@ function DataTable<T extends { id: string }>({
     return rows.filter(
       (r) =>
         search(r).toLowerCase().includes(q.toLowerCase()) &&
-        (f === "All" || filters?.key(r).toUpperCase() === f.toUpperCase())
+        (f === "All" || filters?.key(r).toUpperCase() === f.toUpperCase()),
     );
   }, [rows, q, f, search, filters]);
 
@@ -646,7 +664,7 @@ function AdminSectionComponent() {
       await api.admin.updateUserStatus(userItem.id, nextStatus);
       toast.success(`User ${userItem.fullName} marked as ${nextStatus}`);
       setStudents((prev) =>
-        prev.map((s) => (s.id === userItem.id ? { ...s, status: nextStatus } : s))
+        prev.map((s) => (s.id === userItem.id ? { ...s, status: nextStatus } : s)),
       );
     } catch (err: any) {
       toast.error(err.message || "Failed to update user status");
@@ -657,16 +675,14 @@ function AdminSectionComponent() {
     const nextRole = userItem.role === "STUDENT" ? "ADMIN" : "STUDENT";
     if (
       !confirm(
-        `Are you sure you want to change ${userItem.fullName}'s role from ${userItem.role} to ${nextRole}?`
+        `Are you sure you want to change ${userItem.fullName}'s role from ${userItem.role} to ${nextRole}?`,
       )
     )
       return;
     try {
       await api.admin.updateUserRole(userItem.id, nextRole);
       toast.success(`Role updated to ${nextRole}`);
-      setStudents((prev) =>
-        prev.map((s) => (s.id === userItem.id ? { ...s, role: nextRole } : s))
-      );
+      setStudents((prev) => prev.map((s) => (s.id === userItem.id ? { ...s, role: nextRole } : s)));
     } catch (err: any) {
       toast.error(err.message || "Failed to update user role");
     }
@@ -799,8 +815,7 @@ function AdminSectionComponent() {
                 <div className="max-w-md">
                   <div className="line-clamp-2 font-medium">{r.body}</div>
                   <div className="mt-0.5 text-xs text-muted-foreground">
-                    {r.options?.length ?? 0} options · {r.marks} marks ·{" "}
-                    {r.difficulty}
+                    {r.options?.length ?? 0} options · {r.marks} marks · {r.difficulty}
                   </div>
                 </div>
               ),
@@ -855,9 +870,7 @@ function AdminSectionComponent() {
             },
             {
               h: "Questions",
-              r: (r) => (
-                <span className="font-medium">{r._count?.questions ?? "—"}</span>
-              ),
+              r: (r) => <span className="font-medium">{r._count?.questions ?? "—"}</span>,
             },
             {
               h: "Resources",
@@ -906,9 +919,7 @@ function AdminSectionComponent() {
             },
             {
               h: "Access Tier",
-              r: (r) => (
-                <StatusBadge status={r.accessLevel === "PAID" ? "Trial" : "Available"} />
-              ),
+              r: (r) => <StatusBadge status={r.accessLevel === "PAID" ? "Trial" : "Available"} />,
             },
             {
               h: "Uploaded",
@@ -970,8 +981,8 @@ function AdminSectionComponent() {
                     r.role === "SUPER_ADMIN"
                       ? "text-purple-600"
                       : r.role === "ADMIN"
-                      ? "text-brand"
-                      : "text-muted-foreground"
+                        ? "text-brand"
+                        : "text-muted-foreground"
                   }`}
                 >
                   <Shield className="size-3" />
@@ -991,9 +1002,7 @@ function AdminSectionComponent() {
             },
             {
               h: "Status",
-              r: (r) => (
-                <StatusBadge status={r.status === "ACTIVE" ? "Active" : "Rejected"} />
-              ),
+              r: (r) => <StatusBadge status={r.status === "ACTIVE" ? "Active" : "Rejected"} />,
             },
             {
               h: "Registered",
@@ -1085,8 +1094,8 @@ function AdminSectionComponent() {
                     r.status === "APPROVED"
                       ? "Approved"
                       : r.status === "REJECTED"
-                      ? "Rejected"
-                      : "Pending"
+                        ? "Rejected"
+                        : "Pending"
                   }
                 />
               ),
@@ -1135,9 +1144,7 @@ function AdminSectionComponent() {
               r: (r) => (
                 <div>
                   <div className="font-medium">{r.title}</div>
-                  <div className="text-xs text-muted-foreground">
-                    Policy: {r.feedbackPolicy}
-                  </div>
+                  <div className="text-xs text-muted-foreground">Policy: {r.feedbackPolicy}</div>
                 </div>
               ),
             },
@@ -1151,9 +1158,7 @@ function AdminSectionComponent() {
             },
             {
               h: "Duration",
-              r: (r) => (
-                <span className="font-mono text-xs">{r.durationMinutes} min</span>
-              ),
+              r: (r) => <span className="font-mono text-xs">{r.durationMinutes} min</span>,
             },
             {
               h: "Questions",
@@ -1175,9 +1180,7 @@ function AdminSectionComponent() {
             },
             {
               h: "Status",
-              r: (r) => (
-                <StatusBadge status={r.status === "PUBLISHED" ? "Published" : "Draft"} />
-              ),
+              r: (r) => <StatusBadge status={r.status === "PUBLISHED" ? "Published" : "Draft"} />,
             },
           ]}
           actions={(r) => (
@@ -1215,17 +1218,13 @@ function AdminSectionComponent() {
             { h: "Exams Taken", r: (r) => <span>{r.examsTaken}</span> },
             {
               h: "Avg Score",
-              r: (r) => (
-                <span className="font-semibold text-brand">{r.avgScore}%</span>
-              ),
+              r: (r) => <span className="font-semibold text-brand">{r.avgScore}%</span>,
             },
             {
               h: "Pass Rate",
               r: (r) => (
                 <span
-                  className={`font-semibold ${
-                    r.passRate >= 60 ? "text-success" : "text-warning"
-                  }`}
+                  className={`font-semibold ${r.passRate >= 60 ? "text-success" : "text-warning"}`}
                 >
                   {r.passRate}%
                 </span>
@@ -1239,179 +1238,176 @@ function AdminSectionComponent() {
     case "settings":
       body = (
         <div className="space-y-6 max-w-2xl">
-        <Section title="System Settings & Payment Gateway">
-          <form className="grid gap-5 p-5" onSubmit={handleSaveSettings}>
-            <div>
-              <label className="block text-sm font-semibold mb-1">
-                Free Trial Questions Quota
-              </label>
-              <p className="text-xs text-muted-foreground mb-2">
-                Number of practice questions granted free to newly registered candidates.
-              </p>
-              <input
-                type="number"
-                min="0"
-                max="50"
-                value={settingsForm.freeTrialQuestions}
-                onChange={(e) =>
-                  setSettingsForm({ ...settingsForm, freeTrialQuestions: Number(e.target.value) })
-                }
-                className={input}
-                required
-              />
-            </div>
-
-            <div className="border-t pt-4">
-              <label className="block text-sm font-semibold mb-1">Telebirr Account Number</label>
-              <input
-                type="text"
-                value={settingsForm.telebirrNumber}
-                onChange={(e) =>
-                  setSettingsForm({ ...settingsForm, telebirrNumber: e.target.value })
-                }
-                className={input}
-                required
-              />
-              <label className="block text-xs font-medium text-muted-foreground mt-2 mb-1">
-                Telebirr Instructions
-              </label>
-              <textarea
-                value={settingsForm.telebirrInstructions}
-                onChange={(e) =>
-                  setSettingsForm({ ...settingsForm, telebirrInstructions: e.target.value })
-                }
-                className={`${input} min-h-20`}
-              />
-            </div>
-
-            <div className="border-t pt-4">
-              <label className="block text-sm font-semibold mb-1">
-                Commercial Bank of Ethiopia (CBE) Account
-              </label>
-              <input
-                type="text"
-                value={settingsForm.cbeAccount}
-                onChange={(e) =>
-                  setSettingsForm({ ...settingsForm, cbeAccount: e.target.value })
-                }
-                className={input}
-                required
-              />
-              <label className="block text-xs font-medium text-muted-foreground mt-2 mb-1">
-                CBE Transfer Instructions
-              </label>
-              <textarea
-                value={settingsForm.cbeInstructions}
-                onChange={(e) =>
-                  setSettingsForm({ ...settingsForm, cbeInstructions: e.target.value })
-                }
-                className={`${input} min-h-20`}
-              />
-            </div>
-
-            <div className="border-t pt-4">
-              <label className="block text-sm font-semibold mb-1">Exam Pass Mark (%)</label>
-              <input
-                type="number"
-                min="1"
-                max="100"
-                value={settingsForm.passMarkPercentage}
-                onChange={(e) =>
-                  setSettingsForm({ ...settingsForm, passMarkPercentage: Number(e.target.value) })
-                }
-                className={input}
-                required
-              />
-            </div>
-
-            <div className="border-t pt-4">
-              <button type="submit" disabled={submitting} className={btn.primary}>
-                {submitting ? (
-                  <>
-                    <Loader2 className="size-4 animate-spin" /> Saving...
-                  </>
-                ) : (
-                  "Save Platform Settings"
-                )}
-              </button>
-            </div>
-          </form>
-        </Section>
-
-        <Section
-          title="Security & Administrator Credentials"
-          action={
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <Shield className="size-4 text-emerald-600" />
-              <span>Privileged Account</span>
-            </div>
-          }
-        >
-          <form className="space-y-4 p-5" onSubmit={handleAdminChangePassword}>
-            <div>
-              <label className="block text-sm font-semibold mb-1">Current Password</label>
-              <input
-                type="password"
-                required
-                value={adminPasswordForm.currentPassword}
-                onChange={(e) =>
-                  setAdminPasswordForm({ ...adminPasswordForm, currentPassword: e.target.value })
-                }
-                className={input}
-                placeholder="Enter current password"
-              />
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
+          <Section title="System Settings & Payment Gateway">
+            <form className="grid gap-5 p-5" onSubmit={handleSaveSettings}>
               <div>
-                <label className="block text-sm font-semibold mb-1">New Password</label>
+                <label className="block text-sm font-semibold mb-1">
+                  Free Trial Questions Quota
+                </label>
+                <p className="text-xs text-muted-foreground mb-2">
+                  Number of practice questions granted free to newly registered candidates.
+                </p>
                 <input
-                  type="password"
-                  required
-                  value={adminPasswordForm.newPassword}
+                  type="number"
+                  min="0"
+                  max="50"
+                  value={settingsForm.freeTrialQuestions}
                   onChange={(e) =>
-                    setAdminPasswordForm({ ...adminPasswordForm, newPassword: e.target.value })
+                    setSettingsForm({ ...settingsForm, freeTrialQuestions: Number(e.target.value) })
                   }
                   className={input}
-                  placeholder="Min 6 characters"
+                  required
                 />
               </div>
 
+              <div className="border-t pt-4">
+                <label className="block text-sm font-semibold mb-1">Telebirr Account Number</label>
+                <input
+                  type="text"
+                  value={settingsForm.telebirrNumber}
+                  onChange={(e) =>
+                    setSettingsForm({ ...settingsForm, telebirrNumber: e.target.value })
+                  }
+                  className={input}
+                  required
+                />
+                <label className="block text-xs font-medium text-muted-foreground mt-2 mb-1">
+                  Telebirr Instructions
+                </label>
+                <textarea
+                  value={settingsForm.telebirrInstructions}
+                  onChange={(e) =>
+                    setSettingsForm({ ...settingsForm, telebirrInstructions: e.target.value })
+                  }
+                  className={`${input} min-h-20`}
+                />
+              </div>
+
+              <div className="border-t pt-4">
+                <label className="block text-sm font-semibold mb-1">
+                  Commercial Bank of Ethiopia (CBE) Account
+                </label>
+                <input
+                  type="text"
+                  value={settingsForm.cbeAccount}
+                  onChange={(e) => setSettingsForm({ ...settingsForm, cbeAccount: e.target.value })}
+                  className={input}
+                  required
+                />
+                <label className="block text-xs font-medium text-muted-foreground mt-2 mb-1">
+                  CBE Transfer Instructions
+                </label>
+                <textarea
+                  value={settingsForm.cbeInstructions}
+                  onChange={(e) =>
+                    setSettingsForm({ ...settingsForm, cbeInstructions: e.target.value })
+                  }
+                  className={`${input} min-h-20`}
+                />
+              </div>
+
+              <div className="border-t pt-4">
+                <label className="block text-sm font-semibold mb-1">Exam Pass Mark (%)</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="100"
+                  value={settingsForm.passMarkPercentage}
+                  onChange={(e) =>
+                    setSettingsForm({ ...settingsForm, passMarkPercentage: Number(e.target.value) })
+                  }
+                  className={input}
+                  required
+                />
+              </div>
+
+              <div className="border-t pt-4">
+                <button type="submit" disabled={submitting} className={btn.primary}>
+                  {submitting ? (
+                    <>
+                      <Loader2 className="size-4 animate-spin" /> Saving...
+                    </>
+                  ) : (
+                    "Save Platform Settings"
+                  )}
+                </button>
+              </div>
+            </form>
+          </Section>
+
+          <Section
+            title="Security & Administrator Credentials"
+            action={
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <Shield className="size-4 text-emerald-600" />
+                <span>Privileged Account</span>
+              </div>
+            }
+          >
+            <form className="space-y-4 p-5" onSubmit={handleAdminChangePassword}>
               <div>
-                <label className="block text-sm font-semibold mb-1">Confirm New Password</label>
+                <label className="block text-sm font-semibold mb-1">Current Password</label>
                 <input
                   type="password"
                   required
-                  value={adminPasswordForm.confirmPassword}
+                  value={adminPasswordForm.currentPassword}
                   onChange={(e) =>
-                    setAdminPasswordForm({ ...adminPasswordForm, confirmPassword: e.target.value })
+                    setAdminPasswordForm({ ...adminPasswordForm, currentPassword: e.target.value })
                   }
                   className={input}
-                  placeholder="Re-enter new password"
+                  placeholder="Enter current password"
                 />
               </div>
-            </div>
 
-            <div className="pt-2 flex justify-end">
-              <button
-                type="submit"
-                disabled={passwordUpdating}
-                className={btn.primary}
-              >
-                {passwordUpdating ? (
-                  <>
-                    <Loader2 className="size-4 animate-spin" /> Updating...
-                  </>
-                ) : (
-                  <span className="inline-flex items-center gap-1.5">
-                    <KeyRound className="size-4" />
-                    Update Password
-                  </span>
-                )}
-              </button>
-            </div>
-          </form>
-        </Section>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="block text-sm font-semibold mb-1">New Password</label>
+                  <input
+                    type="password"
+                    required
+                    value={adminPasswordForm.newPassword}
+                    onChange={(e) =>
+                      setAdminPasswordForm({ ...adminPasswordForm, newPassword: e.target.value })
+                    }
+                    className={input}
+                    placeholder="Min 6 characters"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold mb-1">Confirm New Password</label>
+                  <input
+                    type="password"
+                    required
+                    value={adminPasswordForm.confirmPassword}
+                    onChange={(e) =>
+                      setAdminPasswordForm({
+                        ...adminPasswordForm,
+                        confirmPassword: e.target.value,
+                      })
+                    }
+                    className={input}
+                    placeholder="Re-enter new password"
+                  />
+                </div>
+              </div>
+
+              <div className="pt-2 flex justify-end">
+                <button type="submit" disabled={passwordUpdating} className={btn.primary}>
+                  {passwordUpdating ? (
+                    <>
+                      <Loader2 className="size-4 animate-spin" /> Updating...
+                    </>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5">
+                      <KeyRound className="size-4" />
+                      Update Password
+                    </span>
+                  )}
+                </button>
+              </div>
+            </form>
+          </Section>
         </div>
       );
       break;
@@ -1587,11 +1583,7 @@ function AdminSectionComponent() {
           </div>
 
           <div className="flex justify-end gap-2 border-t pt-4">
-            <button
-              type="button"
-              onClick={() => setShowQuestionModal(false)}
-              className={btn.ghost}
-            >
+            <button type="button" onClick={() => setShowQuestionModal(false)} className={btn.ghost}>
               Cancel
             </button>
             <button type="submit" disabled={submitting} className={btn.primary}>
@@ -1636,7 +1628,12 @@ function AdminSectionComponent() {
               </button>
             </div>
             <p className="text-slate-500 text-[11px] leading-relaxed">
-              Format: <code>Body, Topic, Difficulty, Marks, Explanation, OptionA, OptionB, OptionC, OptionD, CorrectOption</code> (where CorrectOption is A, B, C, or D).
+              Format:{" "}
+              <code>
+                Body, Topic, Difficulty, Marks, Explanation, OptionA, OptionB, OptionC, OptionD,
+                CorrectOption
+              </code>{" "}
+              (where CorrectOption is A, B, C, or D).
             </p>
           </div>
 
@@ -1655,7 +1652,9 @@ function AdminSectionComponent() {
             <textarea
               value={importCsvText}
               onChange={(e) => setImportCsvText(e.target.value)}
-              placeholder={'Body,Topic,Difficulty,Marks,Explanation,OptionA,OptionB,OptionC,OptionD,CorrectOption\n"Sample Question?","General","MEDIUM",1,"Explanation","Choice A","Choice B","Choice C","Choice D","A"'}
+              placeholder={
+                'Body,Topic,Difficulty,Marks,Explanation,OptionA,OptionB,OptionC,OptionD,CorrectOption\n"Sample Question?","General","MEDIUM",1,"Explanation","Choice A","Choice B","Choice C","Choice D","A"'
+              }
               className={`${input} min-h-32 font-mono text-xs`}
               required
             />
@@ -1670,11 +1669,7 @@ function AdminSectionComponent() {
             >
               Cancel
             </button>
-            <button
-              type="submit"
-              className={btn.primary}
-              disabled={importing}
-            >
+            <button type="submit" className={btn.primary} disabled={importing}>
               {importing ? (
                 <>
                   <Loader2 className="size-4 animate-spin" />
@@ -1730,11 +1725,7 @@ function AdminSectionComponent() {
             />
           </div>
           <div className="flex justify-end gap-2 border-t pt-4">
-            <button
-              type="button"
-              onClick={() => setShowDeptModal(false)}
-              className={btn.ghost}
-            >
+            <button type="button" onClick={() => setShowDeptModal(false)} className={btn.ghost}>
               Cancel
             </button>
             <button type="submit" disabled={submitting} className={btn.primary}>
@@ -1767,9 +1758,7 @@ function AdminSectionComponent() {
               <label className="block text-xs font-semibold mb-1">Department</label>
               <select
                 value={newResource.departmentId}
-                onChange={(e) =>
-                  setNewResource({ ...newResource, departmentId: e.target.value })
-                }
+                onChange={(e) => setNewResource({ ...newResource, departmentId: e.target.value })}
                 className={input}
                 required
               >
@@ -1784,9 +1773,7 @@ function AdminSectionComponent() {
               <label className="block text-xs font-semibold mb-1">Access Level</label>
               <select
                 value={newResource.accessLevel}
-                onChange={(e) =>
-                  setNewResource({ ...newResource, accessLevel: e.target.value })
-                }
+                onChange={(e) => setNewResource({ ...newResource, accessLevel: e.target.value })}
                 className={input}
               >
                 <option value="FREE">FREE</option>
@@ -1809,11 +1796,7 @@ function AdminSectionComponent() {
             />
           </div>
           <div className="flex justify-end gap-2 border-t pt-4">
-            <button
-              type="button"
-              onClick={() => setShowResourceModal(false)}
-              className={btn.ghost}
-            >
+            <button type="button" onClick={() => setShowResourceModal(false)} className={btn.ghost}>
               Cancel
             </button>
             <button type="submit" disabled={submitting} className={btn.primary}>
@@ -1888,11 +1871,11 @@ function AdminSectionComponent() {
               </label>
               {(() => {
                 const deptQuestions = questions.filter(
-                  (q) => !newExam.departmentId || q.departmentId === newExam.departmentId
+                  (q) => !newExam.departmentId || q.departmentId === newExam.departmentId,
                 );
                 if (deptQuestions.length === 0) return null;
                 const allSelected = deptQuestions.every((q) =>
-                  newExam.selectedQuestionIds.includes(q.id)
+                  newExam.selectedQuestionIds.includes(q.id),
                 );
                 return (
                   <button
@@ -1900,9 +1883,7 @@ function AdminSectionComponent() {
                     onClick={() => {
                       setNewExam({
                         ...newExam,
-                        selectedQuestionIds: allSelected
-                          ? []
-                          : deptQuestions.map((q) => q.id),
+                        selectedQuestionIds: allSelected ? [] : deptQuestions.map((q) => q.id),
                       });
                     }}
                     className="text-[11px] font-semibold text-brand hover:underline cursor-pointer"
@@ -1943,7 +1924,7 @@ function AdminSectionComponent() {
                   );
                 })}
               {questions.filter(
-                (q) => !newExam.departmentId || q.departmentId === newExam.departmentId
+                (q) => !newExam.departmentId || q.departmentId === newExam.departmentId,
               ).length === 0 && (
                 <p className="text-center text-xs text-muted-foreground py-4">
                   No questions found for this department. Create questions first.
@@ -1953,11 +1934,7 @@ function AdminSectionComponent() {
           </div>
 
           <div className="flex justify-end gap-2 border-t pt-4">
-            <button
-              type="button"
-              onClick={() => setShowExamModal(false)}
-              className={btn.ghost}
-            >
+            <button type="button" onClick={() => setShowExamModal(false)} className={btn.ghost}>
               Cancel
             </button>
             <button

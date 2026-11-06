@@ -25,7 +25,7 @@ export function PublicHeader() {
           "sticky top-0 z-40 transition-all duration-300",
           scrolled
             ? "border-b bg-card/85 backdrop-blur-md shadow-xs border-border/80"
-            : "border-b border-transparent bg-card"
+            : "border-b border-transparent bg-card",
         )}
       >
         <div className="mx-auto flex h-16 max-w-6xl items-center gap-8 px-6">
@@ -33,15 +33,29 @@ export function PublicHeader() {
             <Logo />
           </Link>
           <nav className="hidden gap-6 text-sm text-muted-foreground md:flex">
-            <Link to="/" className="transition-colors hover:text-foreground">Home</Link>
-            <a href="#about" className="transition-colors hover:text-foreground">How it Works</a>
-            <a href="#departments" className="transition-colors hover:text-foreground">Departments</a>
-            <a href="#pricing" className="transition-colors hover:text-foreground">Pricing</a>
-            <a href="#faq" className="transition-colors hover:text-foreground">FAQ</a>
+            <Link to="/" className="transition-colors hover:text-foreground">
+              Home
+            </Link>
+            <a href="#about" className="transition-colors hover:text-foreground">
+              How it Works
+            </a>
+            <a href="#departments" className="transition-colors hover:text-foreground">
+              Departments
+            </a>
+            <a href="#pricing" className="transition-colors hover:text-foreground">
+              Pricing
+            </a>
+            <a href="#faq" className="transition-colors hover:text-foreground">
+              FAQ
+            </a>
           </nav>
           <div className="ml-auto flex items-center gap-2.5">
-            <Link to="/login" className={btn.ghost}>Login</Link>
-            <Link to="/register" className={btn.primary}>Register</Link>
+            <Link to="/login" className={btn.ghost}>
+              Login
+            </Link>
+            <Link to="/register" className={btn.primary}>
+              Register
+            </Link>
           </div>
         </div>
       </header>

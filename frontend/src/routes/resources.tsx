@@ -10,7 +10,10 @@ export const Route = createFileRoute("/resources")({
   head: () => ({
     meta: [
       { title: "Learning Resources — Assessly" },
-      { name: "description", content: "Department learning materials, syllabi, and lecture notes." },
+      {
+        name: "description",
+        content: "Department learning materials, syllabi, and lecture notes.",
+      },
       { property: "og:title", content: "Resources — Assessly" },
     ],
   }),
@@ -56,9 +59,10 @@ function ResourcesComponent() {
     }
   };
 
-  const filtered = resources.filter((r) =>
-    r.title.toLowerCase().includes(search.toLowerCase()) ||
-    (r.topic && r.topic.toLowerCase().includes(search.toLowerCase()))
+  const filtered = resources.filter(
+    (r) =>
+      r.title.toLowerCase().includes(search.toLowerCase()) ||
+      (r.topic && r.topic.toLowerCase().includes(search.toLowerCase())),
   );
 
   return (
@@ -85,7 +89,9 @@ function ResourcesComponent() {
           {loading ? (
             <p className="p-4 text-sm text-muted-foreground">Loading resources...</p>
           ) : filtered.length === 0 ? (
-            <p className="p-4 text-sm text-muted-foreground">No resources available matching your search.</p>
+            <p className="p-4 text-sm text-muted-foreground">
+              No resources available matching your search.
+            </p>
           ) : (
             <table className="w-full">
               <thead className="border-b">
@@ -116,15 +122,17 @@ function ResourcesComponent() {
                     <td className={`${td} text-muted-foreground text-xs`}>
                       {r.department?.name || r.department?.code}
                     </td>
-                    <td className={`${td} text-muted-foreground text-xs`}>{r.topic || "General"}</td>
+                    <td className={`${td} text-muted-foreground text-xs`}>
+                      {r.topic || "General"}
+                    </td>
                     <td className={td}>
                       <span
                         className={`text-xs px-2 py-0.5 rounded font-medium ${
                           r.accessLevel === "PAID"
                             ? "bg-brand/10 text-brand"
                             : r.accessLevel === "FREE"
-                            ? "bg-success/10 text-success"
-                            : "bg-muted text-muted-foreground"
+                              ? "bg-success/10 text-success"
+                              : "bg-muted text-muted-foreground"
                         }`}
                       >
                         {r.accessLevel}

@@ -24,7 +24,6 @@ export function AuthCard({
     <div className="min-h-screen bg-gradient-to-br from-[#cffafe] via-[#a7f3d0]/35 to-[#bae6fd]/50 flex items-center justify-center p-4 sm:p-6 md:p-10 selection:bg-brand/10 selection:text-brand">
       {/* Main Floating Rounded Card */}
       <div className="w-full max-w-4xl bg-white rounded-[32px] md:rounded-[40px] shadow-2xl shadow-cyan-950/10 border border-white/80 overflow-hidden grid md:grid-cols-2 animate-in fade-in zoom-in-95 duration-200">
-        
         {/* Left Side: Friendly Education Vector & Welcome */}
         <div className="hidden md:flex flex-col justify-between items-center bg-gradient-to-b from-[#f0fdfa] to-[#e0f2fe]/70 p-8 lg:p-12 border-r border-slate-100 text-center select-none">
           <div className="w-full flex justify-start">
@@ -39,7 +38,8 @@ export function AuthCard({
               Prepare Smart. Succeed Confidently.
             </h2>
             <p className="mt-2 text-xs text-slate-500 max-w-xs leading-relaxed">
-              Access university exit exam questions, mock tests, and curated learning resources at home.
+              Access university exit exam questions, mock tests, and curated learning resources at
+              home.
             </p>
           </div>
 
@@ -61,7 +61,9 @@ export function AuthCard({
           </div>
 
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">{title}</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
+              {title}
+            </h1>
             <p className="mt-1.5 text-xs sm:text-sm text-slate-500">{subtitle}</p>
           </div>
 
