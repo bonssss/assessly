@@ -1,3 +1,4 @@
+
 import { Router } from "express";
 import {
   createQuestionHandler,
@@ -67,11 +68,12 @@ router.delete(
   deleteQuestionHandler
 );
 
-// Student: submit practice answer (with atomic trial decrement & scoring)
+// Student and Admin: submit practice answer (with atomic trial decrement & scoring)
+// Accepts both /:id/answer and /:id/practice
 router.post(
-  "/:id/answer",
+  ["/:id/answer", "/:id/practice"],
   requireAuth,
-  requireRoles("STUDENT"),
+  requireRoles("STUDENT", "ADMIN", "SUPER_ADMIN"),
   validateBody(submitAnswerSchema),
   submitPracticeAnswerHandler
 );

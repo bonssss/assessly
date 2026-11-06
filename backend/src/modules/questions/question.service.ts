@@ -316,18 +316,27 @@ export class QuestionService {
       throw new BadRequestError("Question is not currently published for practice");
     }
 
-    // 2. Verify student enrollment in this question's department (BR-13)
-    const enrollment = await prisma.userDepartment.findUnique({
-      where: {
-        userId_departmentId: {
-          userId,
-          departmentId: question.departmentId,
-        },
-      },
+    // 2. Verify student enrollment or admin privileges (BR-13)
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { role: true },
     });
 
-    if (!enrollment || enrollment.status !== "ACTIVE") {
-      throw new ForbiddenError("You are not enrolled in this department");
+    const isAdmin = user?.role === "ADMIN" || user?.role === "SUPER_ADMIN";
+
+    if (!isAdmin) {
+      const enrollment = await prisma.userDepartment.findUnique({
+        where: {
+          userId_departmentId: {
+            userId,
+            departmentId: question.departmentId,
+          },
+        },
+      });
+
+      if (!enrollment || enrollment.status !== "ACTIVE") {
+        throw new ForbiddenError("You are not enrolled in this department");
+      }
     }
 
     // 3. Verify selected option belongs to question
@@ -360,14 +369,20 @@ export class QuestionService {
 
     let trialRemaining: number | null = null;
 
-    // If user has no active paid entitlement, enforce free-trial quota
-    if (!activeEntitlement) {
-      const trialUsage = await prisma.trialUsage.findUnique({
+    // If user has no active paid entitlement and is not admin, enforce free-trial quota
+    if (!isAdmin && !activeEntitlement) {
+      let trialUsage = await prisma.trialUsage.findUnique({
         where: { userId },
       });
 
       if (!trialUsage) {
-        throw new NotFoundError("Trial usage ledger not found for user");
+        trialUsage = await prisma.trialUsage.create({
+          data: {
+            userId,
+            usedCount: 0,
+            quotaLimit: 5,
+          },
+        });
       }
 
       if (trialUsage.usedCount >= trialUsage.quotaLimit) {
@@ -422,11 +437,14 @@ export class QuestionService {
       isCorrect,
       awardedMarks,
       totalMarks: marksValue,
+      score: awardedMarks,
       selectedOptionId: selectedOption.id,
       correctOptionId: correctOption?.id ?? null,
       explanation: question.explanation,
       trialRemaining,
+      quotaRemaining: trialRemaining ?? 999,
       hasActiveEntitlement: Boolean(activeEntitlement),
+      hasActiveSubscription: Boolean(activeEntitlement),
     };
   }
 }
