@@ -14,6 +14,7 @@ import {
 } from "./payment.controller.js";
 import { requireAuth, requireRoles } from "../../common/middlewares/auth.middleware.js";
 import { validateBody } from "../../common/middlewares/validate.middleware.js";
+import { paymentRateLimiter } from "../../common/middlewares/rate-limiter.middleware.js";
 import { uploadReceipt } from "../../common/storage/index.js";
 import {
   submitPaymentSchema,
@@ -24,6 +25,9 @@ import {
 } from "./payment.schema.js";
 
 const router = Router();
+
+// Apply payment operations rate limiter across all payment endpoints
+router.use(paymentRateLimiter);
 
 // ==========================================
 // PUBLIC ENDPOINTS
