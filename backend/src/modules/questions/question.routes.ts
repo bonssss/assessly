@@ -47,7 +47,6 @@ router.post(
   "/bulk-import",
   requireAuth,
   requireRoles("ADMIN", "SUPER_ADMIN"),
-  validateBody(createQuestionSchema.partial()), // optional validation wrapper for outer structure
   bulkImportQuestionsHandler
 );
 

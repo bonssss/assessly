@@ -1,6 +1,5 @@
 import fs from "fs/promises";
 import path from "path";
-import os from "os";
 import crypto from "crypto";
 import type { IStorageProvider, StoredFileResult } from "./storage.interface.js";
 
@@ -21,29 +20,6 @@ export class LocalStorageProvider implements IStorageProvider {
     return allowed.includes(rawExt) ? rawExt : ".bin";
   }
 
-  private getSafeSourcePath(sourcePath: string): string {
-    // Extract base name to eliminate any directory traversal sequences
-    const safeFilename = path.basename(sourcePath);
-    const sourceDir = path.dirname(path.resolve(sourcePath));
-    const safeResolved = path.resolve(sourceDir, safeFilename);
-
-    const allowedRoots = [
-      path.resolve(process.cwd(), "uploads"),
-      path.resolve(os.tmpdir()),
-      path.resolve("/tmp"),
-    ];
-
-    const isContained = allowedRoots.some(
-      (root) => safeResolved.startsWith(root + path.sep) || safeResolved === root
-    );
-
-    if (!isContained) {
-      throw new Error("Security exception: Invalid source file path location.");
-    }
-
-    return safeResolved;
-  }
-
   async uploadFile(
     file: Express.Multer.File,
     folder: string = "receipts"
@@ -61,30 +37,19 @@ export class LocalStorageProvider implements IStorageProvider {
       throw new Error("Security exception: Target path traversal detected.");
     }
 
-    if (file.path) {
-      const safeSourcePath = this.getSafeSourcePath(file.path);
-      try {
-        await fs.rename(safeSourcePath, targetPath);
-      } catch (err: any) {
-        if (err.code === "EXDEV") {
-          await fs.copyFile(safeSourcePath, targetPath);
-          await fs.unlink(safeSourcePath).catch(() => {});
-        } else {
-          throw err;
-        }
-      }
-    } else if (file.buffer) {
-      await fs.writeFile(targetPath, file.buffer);
-    }
+    // Direct buffer write from memory storage — no temporary file path manipulation
+    const fileBuffer = file.buffer || Buffer.alloc(0);
+    await fs.writeFile(targetPath, fileBuffer);
 
     const key = `${safeFolder}/${safeTargetFilename}`;
-    const endpointPrefix = safeFolder === "resources" ? "/api/v1/resources/files" : "/api/v1/payments/receipts";
+    const endpointPrefix =
+      safeFolder === "resources" ? "/api/v1/resources/files" : "/api/v1/payments/receipts";
 
     return {
       key,
       url: `${endpointPrefix}/${encodeURIComponent(safeTargetFilename)}`,
       mimeType: file.mimetype,
-      size: file.size,
+      size: fileBuffer.length,
     };
   }
 
@@ -92,7 +57,8 @@ export class LocalStorageProvider implements IStorageProvider {
     const safeFilename = path.basename(key);
     const rawFolder = key.split("/")[0] || "receipts";
     const safeFolder = this.sanitizeFolder(rawFolder);
-    const endpointPrefix = safeFolder === "resources" ? "/api/v1/resources/files" : "/api/v1/payments/receipts";
+    const endpointPrefix =
+      safeFolder === "resources" ? "/api/v1/resources/files" : "/api/v1/payments/receipts";
     return `${endpointPrefix}/${encodeURIComponent(safeFilename)}`;
   }
 
