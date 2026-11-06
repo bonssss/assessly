@@ -1,24 +1,32 @@
-# Assessly API — Complete End-to-End Testing Guide & Flow
+# Assessly API — Complete End-to-End Testing Guide & Flow (v2.0)
 
-This guide walks you through testing the entire Assessly examination platform from initial administrative setup to student practice, payment verification, and timed exam execution.
+This guide walks you through testing the entire Assessly examination platform from initial administrative setup and password recovery to student practice, payment verification, and timed exam execution.
 
 ---
 
 ## 🚀 Prerequisites & Environment
 
-1. **Start the API Server**:
-   ```bash
-   cd backend
-   npm run dev
-   ```
-   *Expected output*: `🚀 Exam Management Backend running on http://localhost:3000`
+### 1. Launch the API Server (Local or Docker)
 
-2. **Setup Postman**:
-   - Open Postman $\rightarrow$ **Import** $\rightarrow$ select:
-     - `postman/Assessly_API.postman_collection.json`
-     - `postman/Assessly_Local.postman_environment.json`
-   - In Postman (top right), switch active environment to: **`Assessly Local Environment`**.
-   - Confirm `baseUrl` is set to `http://localhost:3000/api/v1`.
+**Option A — Local Development**:
+```bash
+cd backend
+npm run dev
+```
+*Expected output*: `🚀 Exam Management Backend running on http://localhost:3000`
+
+**Option B — Docker Compose**:
+```bash
+docker compose up -d
+```
+*Available at*: `http://localhost:3000` (API) and `http://localhost:8080` (Client)
+
+### 2. Postman Setup
+1. Open **Postman** $\rightarrow$ **Import** $\rightarrow$ select:
+   - `postman/Assessly_API.postman_collection.json`
+   - `postman/Assessly_Local.postman_environment.json`
+2. In Postman (top right), switch the active environment to: **`Assessly Local Environment`**.
+3. Verify `baseUrl` is set to `http://localhost:3000`.
 
 ---
 
@@ -26,17 +34,18 @@ This guide walks you through testing the entire Assessly examination platform fr
 
 ```mermaid
 flowchart TD
-    Step1[1. Admin Login] --> Step2[2. View Departments & Seed Questions]
-    Step2 --> Step3[3. Create & Publish Timed Exam]
-    Step3 --> Step4[4. Register New Student]
-    Step4 --> Step5[5. Free Trial Practice Quota 5 Questions]
-    Step5 --> Step6[6. Hit Paywall on 6th Attempt]
-    Step6 --> Step7[7. Submit Payment CBE / Telebirr]
-    Step7 --> Step8[8. Admin Reviews & Approves Payment]
-    Step8 --> Step9[9. Student Starts Timed Exam]
-    Step9 --> Step10[10. Submit Exam & Receive Grade]
-    Step10 --> Step11[11. Download Paid Study Guide]
-    Step11 --> Step12[12. Admin Inspects Overview KPIs]
+    Step1[1. Admin Login & AuthToken Auto-Set] --> Step2[2. View 5 Academic Departments]
+    Step2 --> Step3[3. Author & Bulk Import Questions]
+    Step3 --> Step4[4. Create & Publish Timed Exam]
+    Step4 --> Step5[5. Student Register, Login & Password Reset Test]
+    Step5 --> Step6[6. Free Trial Practice Quota 5 Questions]
+    Step6 --> Step7[7. Hit Paywall on 6th Attempt]
+    Step7 --> Step8[8. Submit Payment Receipt Telebirr / CBE]
+    Step8 --> Step9[9. Admin Approves Payment & Unlocks Access]
+    Step9 --> Step10[10. Student Starts Timed Exam Countdown]
+    Step10 --> Step11[11. Submit Exam & Receive Graded Score]
+    Step11 --> Step12[12. Download Entitlement-Gated Study Guide]
+    Step12 --> Step13[13. Admin Inspects Overview & Department Pass Rates]
 ```
 
 ---
@@ -44,7 +53,7 @@ flowchart TD
 ### Step 1: Administrator Authentication
 Log in with the pre-seeded Super Admin account to obtain an administrative JWT token.
 
-- **Request**: `POST {{baseUrl}}/auth/login`
+- **Request**: `POST {{baseUrl}}/api/v1/auth/login`
 - **Body**:
   ```json
   {
@@ -65,26 +74,34 @@ Log in with the pre-seeded Super Admin account to obtain an administrative JWT t
     }
   }
   ```
-- **Postman Action**: Copy the `token` value and save it in your environment variable `admin_token`.
+- **Postman Action**: The collection automatically extracts `token` and stores it into `{{adminToken}}`.
 
 ---
 
-### Step 2: Retrieve Departments & Create Question
-Fetch active departments to obtain a valid `departmentId`.
+### Step 2: Retrieve Departments
+Fetch active departments to inspect the 5 seeded exit exam fields:
+- `CS-101`: Computer Science & Software Engineering
+- `BUS-101`: Business & Economics
+- `ENG-101`: Civil & Environmental Engineering
+- `LAW-101`: Jurisprudence & Legal Studies
+- `MED-101`: Clinical Medicine & Health Sciences
 
-#### 2.1 List Departments
-- **Request**: `GET {{baseUrl}}/departments`
-- **Response**: Returns seeded departments (`CS-101`, `MED-101`, `BUS-101`, `LAW-101`).
-- **Action**: Copy the `id` of `CS-101` and save it as `department_id`.
+- **Request**: `GET {{baseUrl}}/api/v1/departments`
+- **Response** (`200 OK`): Returns array of department objects.
+- **Postman Action**: The script automatically assigns the first department's `id` to `{{departmentId}}`.
 
-#### 2.2 Create Multiple-Choice Question (Admin)
-- **Request**: `POST {{baseUrl}}/questions`
-- **Header**: `Authorization: Bearer {{admin_token}}`
+---
+
+### Step 3: Question Bank Management
+
+#### 3.1 Create Question (Admin)
+- **Request**: `POST {{baseUrl}}/api/v1/questions`
+- **Header**: `Authorization: Bearer {{adminToken}}`
 - **Body**:
   ```json
   {
-    "departmentId": "{{department_id}}",
-    "topic": "Algorithms",
+    "departmentId": "{{departmentId}}",
+    "topic": "Algorithms & Complexity",
     "difficulty": "MEDIUM",
     "marks": 2.0,
     "body": "What is the worst-case time complexity of QuickSort?",
@@ -98,226 +115,232 @@ Fetch active departments to obtain a valid `departmentId`.
     ]
   }
   ```
-- **Response** (`201 Created`): Returns created question with options. Save question `id` as `question_id`.
+- **Postman Action**: Stores question `id` into `{{questionId}}`.
 
----
-
-### Step 3: Author & Publish Timed Exam (Admin)
-Create an exam associated with the department and assign questions.
-
-- **Request**: `POST {{baseUrl}}/exams`
-- **Header**: `Authorization: Bearer {{admin_token}}`
+#### 3.2 Bulk Import Questions (Admin)
+- **Request**: `POST {{baseUrl}}/api/v1/questions/bulk-import`
+- **Header**: `Authorization: Bearer {{adminToken}}`
 - **Body**:
   ```json
   {
-    "departmentId": "{{department_id}}",
-    "title": "Computer Science Midterm 2026",
-    "instructions": "Answer all questions. The timer begins immediately upon starting.",
-    "durationMinutes": 45,
-    "feedbackPolicy": "IMMEDIATE",
-    "status": "PUBLISHED",
-    "questionIds": ["{{question_id}}"]
-  }
-  ```
-- **Response** (`201 Created`): Save exam `id` as `exam_id`.
-
----
-
-### Step 4: Student Registration & Login
-Register a new student enrolled in Computer Science.
-
-- **Request**: `POST {{baseUrl}}/auth/register`
-- **Body**:
-  ```json
-  {
-    "fullName": "Dawit Bekele",
-    "email": "dawit.test@assessly.com",
-    "password": "StudentPass@123",
-    "departmentIds": ["{{department_id}}"]
-  }
-  ```
-- **Response** (`201 Created`): Returns student profile and token.
-- **Action**: Save student's token in `student_token` and user `id` in `student_user_id`.
-
----
-
-### Step 5: Self-Assessment Practice & Trial Quota Exhaustion
-
-#### 5.1 Browse Sanitized Questions
-- **Request**: `GET {{baseUrl}}/questions?departmentId={{department_id}}&page=1&limit=20`
-- **Header**: `Authorization: Bearer {{student_token}}`
-- **Security Verification**: Notice that `isCorrect` and `explanation` are **not** present in the options or question payload!
-
-#### 5.2 Submit Practice Answer (Free Trial Usage)
-- **Request**: `POST {{baseUrl}}/questions/{{question_id}}/practice`
-- **Header**: `Authorization: Bearer {{student_token}}`
-- **Body**:
-  ```json
-  {
-    "selectedOptionId": "OPTION_ID_FROM_STEP_5.1"
-  }
-  ```
-- **Response** (`200 OK`): Returns `isCorrect: true`, score, and trial quota:
-  ```json
-  {
-    "quotaRemaining": 4
-  }
-  ```
-- **Quota Test**: Submit 4 more practice answers until `quotaRemaining` reaches 0. On the 6th attempt, the API returns:
-  - **Status**: `403 Forbidden`
-  - **Code**: `"PAYWALL_REQUIRED"`
-  - **Message**: *"Free trial quota exhausted (5/5 questions used). Please purchase a package to continue practicing."*
-
----
-
-### Step 6: Payment Submission (Student)
-
-#### 6.1 View Payment Instructions & Packages
-- **Request**: `GET {{baseUrl}}/payments/instructions` (Returns Telebirr and CBE bank account numbers).
-- **Request**: `GET {{baseUrl}}/payments/packages` (Returns purchasable semester & annual passes). Save the package `id` as `package_id`.
-
-#### 6.2 Upload Payment Receipt
-- **Request**: `POST {{baseUrl}}/payments`
-- **Header**: `Authorization: Bearer {{student_token}}`
-- **Body** (`form-data`):
-  - `packageId`: `{{package_id}}`
-  - `departmentId`: `{{department_id}}`
-  - `amount`: `399.00`
-  - `paymentMethod`: `TELEBIRR`
-  - `transactionReference`: `TXN-TB-98234190`
-  - `receipt`: `[Attach receipt image or PDF file]`
-- **Response** (`201 Created`): Returns payment status `PENDING`. Save payment `id` as `payment_id`.
-
----
-
-### Step 7: Admin Payment Verification & Entitlement Activation
-
-#### 7.1 Inspect Pending Payments Queue
-- **Request**: `GET {{baseUrl}}/payments/admin/pending?page=1&limit=10`
-- **Header**: `Authorization: Bearer {{admin_token}}`
-
-#### 7.2 Approve Payment
-- **Request**: `POST {{baseUrl}}/payments/{{payment_id}}/approve`
-- **Header**: `Authorization: Bearer {{admin_token}}`
-- **Body**:
-  ```json
-  {
-    "note": "Verified against Telebirr merchant transaction record"
-  }
-  ```
-- **Response** (`200 OK`): Confirms payment `APPROVED` and shows created `Entitlement` with active validity.
-
-#### 7.3 Student Checks Entitlement Status
-- **Request**: `GET {{baseUrl}}/entitlements/status`
-- **Header**: `Authorization: Bearer {{student_token}}`
-- **Response**: `hasActiveEntitlement: true` for the department!
-
----
-
-### Step 8: Timed Exam Engine Execution
-
-#### 8.1 Start Exam Attempt
-- **Request**: `POST {{baseUrl}}/exams/{{exam_id}}/start`
-- **Header**: `Authorization: Bearer {{student_token}}`
-- **Response** (`200 OK`):
-  ```json
-  {
-    "attemptId": "ATTEMPT_UUID",
-    "durationMinutes": 45,
-    "deadlineAt": "2026-11-03T21:45:00.000Z",
-    "remainingSeconds": 2700,
-    "questions": [...]
-  }
-  ```
-- **Action**: Save `attemptId` as `attempt_id`.
-
-#### 8.2 Submit Exam Answers
-- **Request**: `POST {{baseUrl}}/exams/attempts/{{attempt_id}}/submit`
-- **Header**: `Authorization: Bearer {{student_token}}`
-- **Body**:
-  ```json
-  {
-    "answers": [
+    "departmentId": "{{departmentId}}",
+    "questions": [
       {
-        "questionId": "{{question_id}}",
-        "selectedOptionId": "OPTION_ID_CHOSEN"
+        "topic": "Data Structures",
+        "difficulty": "EASY",
+        "marks": 1.0,
+        "body": "Which data structure follows the LIFO principle?",
+        "explanation": "Stacks operate on Last-In, First-Out (LIFO).",
+        "status": "PUBLISHED",
+        "options": [
+          { "optionText": "Queue", "isCorrect": false },
+          { "optionText": "Stack", "isCorrect": true },
+          { "optionText": "Linked List", "isCorrect": false },
+          { "optionText": "Binary Tree", "isCorrect": false }
+        ]
       }
     ]
+  }
+  ```
+
+---
+
+### Step 4: Create & Publish Timed Exam
+Author an official exit mock exam.
+
+- **Request**: `POST {{baseUrl}}/api/v1/exams`
+- **Header**: `Authorization: Bearer {{adminToken}}`
+- **Body**:
+  ```json
+  {
+    "departmentId": "{{departmentId}}",
+    "title": "Computer Science Exit Examination Simulation",
+    "durationMinutes": 60,
+    "feedbackPolicy": "AFTER_SUBMISSION",
+    "status": "PUBLISHED",
+    "questionIds": ["{{questionId}}"]
+  }
+  ```
+- **Postman Action**: Stores created exam `id` into `{{examId}}`.
+
+---
+
+### Step 5: Student Authentication & Password Recovery
+
+#### 5.1 Register Student
+- **Request**: `POST {{baseUrl}}/api/v1/auth/register`
+- **Body**:
+  ```json
+  {
+    "fullName": "Abebe Bikila",
+    "email": "student@assessly.com",
+    "password": "SecurePassword123!",
+    "departmentIds": ["{{departmentId}}"]
+  }
+  ```
+- **Postman Action**: Automatically saves student `token` into `{{authToken}}`.
+
+#### 5.2 Test Forgot Password Flow
+- **Request**: `POST {{baseUrl}}/api/v1/auth/forgot-password`
+- **Body**:
+  ```json
+  {
+    "email": "student@assessly.com"
   }
   ```
 - **Response** (`200 OK`):
   ```json
   {
     "success": true,
-    "data": {
-      "attemptId": "...",
-      "status": "COMPLETED",
-      "totalQuestions": 1,
-      "correctAnswers": 1,
-      "obtainedMarks": 2,
-      "percentage": 100
-    }
+    "message": "If this email is registered, password reset instructions have been sent."
+  }
+  ```
+- **Security Check**: Generates a 32-byte token, hashes with SHA-256 for the database, and delivers unhashed token via live SMTP.
+
+#### 5.3 Change Password
+- **Request**: `POST {{baseUrl}}/api/v1/auth/change-password`
+- **Header**: `Authorization: Bearer {{authToken}}`
+- **Body**:
+  ```json
+  {
+    "currentPassword": "SecurePassword123!",
+    "newPassword": "NewSecurePassword456!"
   }
   ```
 
 ---
 
-### Step 9: Learning Resources & Paywall Download
+### Step 6: Free Trial Quota & Paywall Enforcement
 
-#### 9.1 Upload Course Syllabus (Admin)
-- **Request**: `POST {{baseUrl}}/resources`
-- **Header**: `Authorization: Bearer {{admin_token}}`
-- **Body** (`form-data`):
-  - `title`: "Computer Science Final Review Packet"
-  - `departmentId`: `{{department_id}}`
-  - `accessLevel`: `PAID`
-  - `status`: `PUBLISHED`
-  - `file`: `[Attach study packet PDF]`
-- **Response**: Save resource `id` as `resource_id`.
+#### 6.1 Check Initial Quota
+- **Request**: `GET {{baseUrl}}/api/v1/entitlements/status`
+- **Header**: `Authorization: Bearer {{authToken}}`
+- **Expected**: `freeTrialQuestionsRemaining: 5`, `hasActiveSubscription: false`.
 
-#### 9.2 Generate Download URL
-- **Request**: `GET {{baseUrl}}/resources/{{resource_id}}/download`
-- **Header**: `Authorization: Bearer {{student_token}}`
-- **Response** (`200 OK`): Unlocks download URL because the student has an active paid entitlement! (Unpaid students receive HTTP `403 PAYWALL_REQUIRED`).
+#### 6.2 Submit 5 Practice Answers
+Submit answers to questions 1 through 5:
+- **Request**: `POST {{baseUrl}}/api/v1/questions/{{questionId}}/answer`
+- **Header**: `Authorization: Bearer {{authToken}}`
+- **Body**: `{ "selectedOptionId": "..." }`
+- **Result**: Each answer submission decrements the remaining quota (`4 -> 3 -> 2 -> 1 -> 0`).
+
+#### 6.3 6th Attempt Triggers Paywall (FR-ACCESS)
+- **Request**: `POST {{baseUrl}}/api/v1/questions/{{questionId}}/answer`
+- **Expected Response** (`403 Forbidden`):
+  ```json
+  {
+    "success": false,
+    "code": "PAYWALL_REQUIRED",
+    "message": "You have exhausted your 5 free trial practice questions."
+  }
+  ```
 
 ---
 
-### Step 10: Admin Dashboard & Audit Trail
+### Step 7: Payment Submission (Telebirr / CBE)
 
-#### 10.1 System Overview KPIs
-- **Request**: `GET {{baseUrl}}/admin/reports/overview`
-- **Header**: `Authorization: Bearer {{admin_token}}`
-- **Response**: Real-time metrics including total revenue (ETB), registered students, completed exam attempts, and average exam scores.
+#### 7.1 View Dynamic Instructions & Packages
+- **Instructions**: `GET {{baseUrl}}/api/v1/payments/instructions`
+- **Packages**: `GET {{baseUrl}}/api/v1/payments/packages` (stores package `id` in `{{packageId}}`).
 
-#### 10.2 Audit Logs
-- **Request**: `GET {{baseUrl}}/admin/audit-logs?page=1&limit=20`
-- **Header**: `Authorization: Bearer {{admin_token}}`
-- **Response**: Paginated audit events verifying `PAYMENT_APPROVED`, `RESOURCE_UPLOADED`, and user actions.
+#### 7.2 Submit Receipt
+- **Request**: `POST {{baseUrl}}/api/v1/payments`
+- **Header**: `Authorization: Bearer {{authToken}}`
+- **Body** (`multipart/form-data`):
+  - `packageId`: `{{packageId}}`
+  - `channel`: `TELEBIRR`
+  - `transactionRef`: `FTX-1029384756`
+  - `receipt`: [Select image or PDF file]
+- **Postman Action**: Stores submission `id` into `{{paymentId}}`.
 
-#### 10.3 Department Performance Analytics & Pass Rates
-- **Request**: `GET {{baseUrl}}/admin/reports/departments`
-- **Header**: `Authorization: Bearer {{admin_token}}`
-- **Response**: Breakdown of active students, question bank size, exam attempts taken, average score percentage, and passing rates per department.
+---
 
-#### 10.4 Platform Settings (Telebirr & CBE)
-- **Get Settings**: `GET {{baseUrl}}/admin/settings`
-- **Update Settings**: `PATCH {{baseUrl}}/admin/settings`
+### Step 8: Administrator Verification & Entitlement Unlock
+
+#### 8.1 Admin Checks Pending Queue
+- **Request**: `GET {{baseUrl}}/api/v1/payments/admin/queue?status=PENDING`
+- **Header**: `Authorization: Bearer {{adminToken}}`
+
+#### 8.2 Admin Approves Payment
+- **Request**: `POST {{baseUrl}}/api/v1/payments/admin/{{paymentId}}/approve`
+- **Header**: `Authorization: Bearer {{adminToken}}`
+- **Body**: `{ "reviewNotes": "Telebirr receipt verified on merchant portal." }`
+- **Result**: Activates student entitlement, marks payment `APPROVED`, and writes to `AuditLog`.
+
+---
+
+### Step 9: Timed Exam Execution
+
+#### 9.1 Start Attempt (Begins Countdown)
+- **Request**: `POST {{baseUrl}}/api/v1/exams/{{examId}}/attempts`
+- **Header**: `Authorization: Bearer {{authToken}}`
+- **Expected Response** (`201 Created`):
+  ```json
+  {
+    "success": true,
+    "data": {
+      "attempt": {
+        "id": "...",
+        "status": "IN_PROGRESS",
+        "deadlineAt": "2026-11-06T22:45:00.000Z"
+      },
+      "questions": [...]
+    }
+  }
+  ```
+- **Postman Action**: Stores attempt `id` into `{{attemptId}}`.
+
+#### 9.2 Submit Exam Answers
+- **Request**: `POST {{baseUrl}}/api/v1/exams/attempts/{{attemptId}}/submit`
+- **Header**: `Authorization: Bearer {{authToken}}`
 - **Body**:
   ```json
   {
-    "telebirrNumber": "0911 234 567",
-    "cbeAccount": "1000 2345 6789 0",
+    "answers": [
+      {
+        "questionId": "{{questionId}}",
+        "selectedOptionId": "..."
+      }
+    ]
+  }
+  ```
+- **Expected Response** (`200 OK`): Returns computed score, percentage, passing status, and answer review breakdown.
+
+---
+
+### Step 10: Learning Resource Paywall & Download
+
+- **Request**: `GET {{baseUrl}}/api/v1/resources/{{resourceId}}/download`
+- **Header**: `Authorization: Bearer {{authToken}}`
+- **Result**: Streams PDF or returns signed URL since student now holds an approved active entitlement!
+
+---
+
+### Step 11: Admin Analytics & Platform Settings
+
+#### 11.1 Real-Time Overview KPIs
+- **Request**: `GET {{baseUrl}}/api/v1/admin/reports/overview`
+- **Header**: `Authorization: Bearer {{adminToken}}`
+- **Metrics**: Total revenue (ETB), registered students, active entitlements, and attempt aggregates.
+
+#### 11.2 Department Pass Rates & Exam Statistics
+- **Request**: `GET {{baseUrl}}/api/v1/admin/reports/departments`
+- **Header**: `Authorization: Bearer {{adminToken}}`
+- **Metrics**: Per-department student count, exam count, attempts, average score percentage, and pass rate.
+
+#### 11.3 Audit Trail
+- **Request**: `GET {{baseUrl}}/api/v1/admin/audit-logs?page=1&limit=20`
+- **Header**: `Authorization: Bearer {{adminToken}}`
+
+#### 11.4 Manage Platform Settings
+- **Get Settings**: `GET {{baseUrl}}/api/v1/admin/settings`
+- **Update Settings**: `PATCH {{baseUrl}}/api/v1/admin/settings`
+- **Body**:
+  ```json
+  {
+    "telebirrNumber": "0938756685",
+    "cbeAccount": "1000126789487",
     "freeTrialQuestions": 5,
     "passMarkPercentage": 50
   }
   ```
-
----
-
-### Step 11: Content Lifecycle & Deletion
-- **Delete Question**: `DELETE {{baseUrl}}/questions/{{question_id}}`
-- **Delete Exam**: `DELETE {{baseUrl}}/exams/{{exam_id}}`
-- **Header**: `Authorization: Bearer {{admin_token}}`
-- **Response** (`200 OK`): Cascade deletion of related options, attempt references, and exam links.
-
-

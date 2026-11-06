@@ -1,25 +1,27 @@
 {
   "info": {
-    "_postman_id": "assessly-api-collection-v1",
+    "_postman_id": "assessly-api-collection-v2",
     "name": "Assessly API",
-    "description": "Postman collection for the Assessly Online Exam Management & Self-Assessment Platform, connected to live Supabase PostgreSQL.",
+    "description": "Production API Collection for the Assessly Higher Education Examination & Assessment Platform. Covers Auth, Password Recovery, Departments, Question Banks, Timed Exams, Entitlements, Offline Payments (Telebirr/CBE), Study Materials, and Admin Analytics.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
     {
       "key": "baseUrl",
-      "value": "http://localhost:3000",
-      "type": "string"
+      "value": "http://localhost:3000"
     },
     {
       "key": "authToken",
-      "value": "",
-      "type": "string"
+      "value": ""
+    },
+    {
+      "key": "adminToken",
+      "value": ""
     }
   ],
   "item": [
     {
-      "name": "Health",
+      "name": "Health & System",
       "item": [
         {
           "name": "API Root Info",
@@ -58,22 +60,22 @@
       ]
     },
     {
-      "name": "Auth",
+      "name": "Auth & Profile",
       "item": [
         {
           "name": "Register Student",
-          "description": "Registers a new student, hashes password, enrolls in selected departments, and initializes the 5-question Free Trial ledger.",
+          "description": "Registers student, hashes password, enrolls in department, and initializes 5-question Free Trial ledger.",
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
-                  "if (pm.response.code === 201) {",
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
                   "    var json = pm.response.json();",
                   "    if (json.data && json.data.token) {",
                   "        pm.environment.set('authToken', json.data.token);",
                   "        pm.collectionVariables.set('authToken', json.data.token);",
-                  "        console.log('authToken automatically stored in environment');",
+                  "        console.log('authToken stored in environment');",
                   "    }",
                   "}"
                 ],
@@ -91,7 +93,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"fullName\": \"Abebe Bikila\",\n  \"email\": \"student@assessly.com\",\n  \"password\": \"SecurePassword123!\",\n  \"departmentIds\": [\"3b43fe3c-5d50-4323-9684-7084af26cfab\"]\n}"
+              "raw": "{\n  \"fullName\": \"Abebe Bikila\",\n  \"email\": \"student@assessly.com\",\n  \"password\": \"SecurePassword123!\",\n  \"departmentIds\": [\n    \"{{departmentId}}\"\n  ]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/register",
@@ -108,18 +110,19 @@
           }
         },
         {
-          "name": "Login User",
+          "name": "Login Student",
+          "description": "Authenticates student and stores authToken.",
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
-                  "if (pm.response.code === 200) {",
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
                   "    var json = pm.response.json();",
                   "    if (json.data && json.data.token) {",
                   "        pm.environment.set('authToken', json.data.token);",
                   "        pm.collectionVariables.set('authToken', json.data.token);",
-                  "        console.log('authToken automatically stored in environment');",
+                  "        console.log('authToken stored in environment');",
                   "    }",
                   "}"
                 ],
@@ -138,6 +141,53 @@
             "body": {
               "mode": "raw",
               "raw": "{\n  \"email\": \"student@assessly.com\",\n  \"password\": \"SecurePassword123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Login Super Admin",
+          "description": "Authenticates default administrator and automatically stores adminToken.",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.data && json.data.token) {",
+                  "        pm.environment.set('adminToken', json.data.token);",
+                  "        pm.collectionVariables.set('adminToken', json.data.token);",
+                  "        console.log('adminToken stored in environment');",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@assessly.com\",\n  \"password\": \"AdminPassword@123\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/login",
@@ -219,6 +269,103 @@
               ]
             }
           }
+        },
+        {
+          "name": "Forgot Password",
+          "description": "Requests a password reset link sent to registered email via live SMTP with SHA-256 token hashing.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"student@assessly.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/forgot-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "forgot-password"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Reset Password",
+          "description": "Submits new password along with the unhashed reset token received via email.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{resetToken}}\",\n  \"newPassword\": \"NewSecurePassword123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/reset-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "reset-password"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Change Password",
+          "description": "Authenticated user changes password by verifying current credentials.",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPassword\": \"SecurePassword123!\",\n  \"newPassword\": \"NewSecurePassword456!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/change-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "change-password"
+              ]
+            }
+          }
         }
       ]
     },
@@ -226,7 +373,28 @@
       "name": "Departments",
       "item": [
         {
-          "name": "List Active Departments (Live from Supabase)",
+          "name": "List Active Departments",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "    var json = pm.response.json();",
+                  "    var list = json.data && json.data.items ? json.data.items : (Array.isArray(json.data) ? json.data : null);",
+                  "    if (list && list.length > 0) {",
+                  "        pm.environment.set('departmentId', list[0].id);",
+                  "        console.log('Set departmentId to:', list[0].id);",
+                  "    } else if (json.data && json.data.id) {",
+                  "        pm.environment.set('departmentId', json.data.id);",
+                  "        console.log('Set departmentId to:', json.data.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -251,7 +419,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{authToken}}",
+                  "value": "{{adminToken}}",
                   "type": "string"
                 }
               ]
@@ -265,7 +433,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"code\": \"ENG-101\",\n  \"name\": \"Civil & Environmental Engineering\",\n  \"description\": \"Structural analysis, hydrology, geotechnical engineering, and materials.\"\n}"
+              "raw": "{\n  \"name\": \"Civil & Environmental Engineering\",\n  \"code\": \"ENG-101\",\n  \"description\": \"Structural engineering, hydrology, transportation systems, and geotechnics.\",\n  \"status\": \"ACTIVE\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/departments",
@@ -287,7 +455,28 @@
       "item": [
         {
           "name": "List Questions",
-          "description": "Returns sanitized questions for students (no isCorrect or explanation) or full view for admins.",
+          "description": "Lists question bank items. Answers are sanitized (stripped of isCorrect and explanation) for students.",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "    var json = pm.response.json();",
+                  "    var list = json.data && json.data.items ? json.data.items : (Array.isArray(json.data) ? json.data : null);",
+                  "    if (list && list.length > 0) {",
+                  "        pm.environment.set('questionId', list[0].id);",
+                  "        console.log('Set questionId to:', list[0].id);",
+                  "    } else if (json.data && json.data.id) {",
+                  "        pm.environment.set('questionId', json.data.id);",
+                  "        console.log('Set questionId to:', json.data.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "auth": {
               "type": "bearer",
@@ -302,7 +491,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/questions?page=1&limit=20",
+              "raw": "{{baseUrl}}/api/v1/questions?departmentId={{departmentId}}&page=1&limit=20",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -313,27 +502,16 @@
               ],
               "query": [
                 {
+                  "key": "departmentId",
+                  "value": "{{departmentId}}"
+                },
+                {
                   "key": "page",
                   "value": "1"
                 },
                 {
                   "key": "limit",
                   "value": "20"
-                },
-                {
-                  "key": "departmentId",
-                  "value": "3b43fe3c-5d50-4323-9684-7084af26cfab",
-                  "disabled": true
-                },
-                {
-                  "key": "difficulty",
-                  "value": "MEDIUM",
-                  "disabled": true
-                },
-                {
-                  "key": "search",
-                  "value": "",
-                  "disabled": true
                 }
               ]
             }
@@ -341,13 +519,35 @@
         },
         {
           "name": "Create Question (Admin)",
+          "description": "Creates an exit exam MCQ with strict single correct answer validation.",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "    var json = pm.response.json();",
+                  "    var list = json.data && json.data.items ? json.data.items : (Array.isArray(json.data) ? json.data : null);",
+                  "    if (list && list.length > 0) {",
+                  "        pm.environment.set('questionId', list[0].id);",
+                  "        console.log('Set questionId to:', list[0].id);",
+                  "    } else if (json.data && json.data.id) {",
+                  "        pm.environment.set('questionId', json.data.id);",
+                  "        console.log('Set questionId to:', json.data.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "auth": {
               "type": "bearer",
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{authToken}}",
+                  "value": "{{adminToken}}",
                   "type": "string"
                 }
               ]
@@ -361,7 +561,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"departmentId\": \"3b43fe3c-5d50-4323-9684-7084af26cfab\",\n  \"body\": \"Which data structure operates on a First-In-First-Out (FIFO) principle?\",\n  \"topic\": \"Data Structures\",\n  \"difficulty\": \"EASY\",\n  \"marks\": 1.0,\n  \"explanation\": \"A Queue processes elements in FIFO order, unlike a Stack which is LIFO.\",\n  \"status\": \"PUBLISHED\",\n  \"options\": [\n    { \"optionText\": \"Stack\", \"isCorrect\": false },\n    { \"optionText\": \"Queue\", \"isCorrect\": true },\n    { \"optionText\": \"Tree\", \"isCorrect\": false },\n    { \"optionText\": \"Graph\", \"isCorrect\": false }\n  ]\n}"
+              "raw": "{\n  \"departmentId\": \"{{departmentId}}\",\n  \"topic\": \"Algorithms & Complexity\",\n  \"difficulty\": \"MEDIUM\",\n  \"marks\": 1,\n  \"body\": \"What is the worst-case time complexity of QuickSort when using deterministic first-element pivot?\",\n  \"explanation\": \"QuickSort degrades to O(n^2) when poor pivot elements are chosen consistently on sorted inputs.\",\n  \"status\": \"PUBLISHED\",\n  \"options\": [\n    {\n      \"optionText\": \"O(n log n)\",\n      \"isCorrect\": false\n    },\n    {\n      \"optionText\": \"O(n^2)\",\n      \"isCorrect\": true\n    },\n    {\n      \"optionText\": \"O(n)\",\n      \"isCorrect\": false\n    },\n    {\n      \"optionText\": \"O(1)\",\n      \"isCorrect\": false\n    }\n  ]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/questions",
@@ -377,6 +577,45 @@
           }
         },
         {
+          "name": "Bulk Import Questions (Admin)",
+          "description": "Bulk imports questions via JSON array or CSV format.",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"departmentId\": \"{{departmentId}}\",\n  \"questions\": [\n    {\n      \"topic\": \"Data Structures\",\n      \"difficulty\": \"EASY\",\n      \"marks\": 1,\n      \"body\": \"Which data structure follows the LIFO principle?\",\n      \"explanation\": \"Stacks operate on Last-In, First-Out (LIFO).\",\n      \"status\": \"PUBLISHED\",\n      \"options\": [\n        {\n          \"optionText\": \"Queue\",\n          \"isCorrect\": false\n        },\n        {\n          \"optionText\": \"Stack\",\n          \"isCorrect\": true\n        },\n        {\n          \"optionText\": \"Linked List\",\n          \"isCorrect\": false\n        },\n        {\n          \"optionText\": \"Binary Tree\",\n          \"isCorrect\": false\n        }\n      ]\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/questions/bulk-import",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "questions",
+                "bulk-import"
+              ]
+            }
+          }
+        },
+        {
           "name": "Update Question (Admin)",
           "request": {
             "auth": {
@@ -384,7 +623,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{authToken}}",
+                  "value": "{{adminToken}}",
                   "type": "string"
                 }
               ]
@@ -398,10 +637,10 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"difficulty\": \"HARD\",\n  \"status\": \"PUBLISHED\"\n}"
+              "raw": "{\n  \"difficulty\": \"HARD\",\n  \"marks\": 2\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/v1/questions/:id",
+              "raw": "{{baseUrl}}/api/v1/questions/{{questionId}}",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -409,20 +648,43 @@
                 "api",
                 "v1",
                 "questions",
-                ":id"
-              ],
-              "variable": [
+                "{{questionId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Question (Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
                 {
-                  "key": "id",
-                  "value": "question-uuid-here"
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
                 }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/questions/{{questionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "questions",
+                "{{questionId}}"
               ]
             }
           }
         },
         {
           "name": "Submit Practice Answer (Student)",
-          "description": "Submits an answer to a question. Atomically checks & decrements trial quota (5 free) or verifies active entitlement. Returns immediate score, correct answer, and explanation.",
+          "description": "Submits answer for practice question. Decrements 5-question trial quota; triggers PAYWALL_REQUIRED after quota limit.",
           "request": {
             "auth": {
               "type": "bearer",
@@ -443,10 +705,10 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"selectedOptionId\": \"option-uuid-here\"\n}"
+              "raw": "{\n  \"selectedOptionId\": \"REPLACE_WITH_OPTION_ID\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/v1/questions/:id/answer",
+              "raw": "{{baseUrl}}/api/v1/questions/{{questionId}}/answer",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -454,14 +716,8 @@
                 "api",
                 "v1",
                 "questions",
-                ":id",
+                "{{questionId}}",
                 "answer"
-              ],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": "question-uuid-here"
-                }
               ]
             }
           }
@@ -472,8 +728,28 @@
       "name": "Timed Exams",
       "item": [
         {
-          "name": "List Available Exams (Student/Admin)",
-          "description": "Lists exams in the student's enrolled department(s).",
+          "name": "List Available Exams",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "    var json = pm.response.json();",
+                  "    var list = json.data && json.data.items ? json.data.items : (Array.isArray(json.data) ? json.data : null);",
+                  "    if (list && list.length > 0) {",
+                  "        pm.environment.set('examId', list[0].id);",
+                  "        console.log('Set examId to:', list[0].id);",
+                  "    } else if (json.data && json.data.id) {",
+                  "        pm.environment.set('examId', json.data.id);",
+                  "        console.log('Set examId to:', json.data.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "auth": {
               "type": "bearer",
@@ -488,7 +764,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/exams?page=1&limit=20",
+              "raw": "{{baseUrl}}/api/v1/exams?departmentId={{departmentId}}&page=1&limit=20",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -499,17 +775,16 @@
               ],
               "query": [
                 {
+                  "key": "departmentId",
+                  "value": "{{departmentId}}"
+                },
+                {
                   "key": "page",
                   "value": "1"
                 },
                 {
                   "key": "limit",
                   "value": "20"
-                },
-                {
-                  "key": "departmentId",
-                  "value": "3b43fe3c-5d50-4323-9684-7084af26cfab",
-                  "disabled": true
                 }
               ]
             }
@@ -517,14 +792,34 @@
         },
         {
           "name": "Create Timed Exam (Admin)",
-          "description": "Admin creates a timed exam and attaches question IDs with specified duration.",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "    var json = pm.response.json();",
+                  "    var list = json.data && json.data.items ? json.data.items : (Array.isArray(json.data) ? json.data : null);",
+                  "    if (list && list.length > 0) {",
+                  "        pm.environment.set('examId', list[0].id);",
+                  "        console.log('Set examId to:', list[0].id);",
+                  "    } else if (json.data && json.data.id) {",
+                  "        pm.environment.set('examId', json.data.id);",
+                  "        console.log('Set examId to:', json.data.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "auth": {
               "type": "bearer",
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{authToken}}",
+                  "value": "{{adminToken}}",
                   "type": "string"
                 }
               ]
@@ -538,7 +833,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"departmentId\": \"3b43fe3c-5d50-4323-9684-7084af26cfab\",\n  \"title\": \"Computer Science Midterm Examination\",\n  \"instructions\": \"Answer all questions within the allocated time. Automatic submission occurs upon deadline expiration.\",\n  \"durationMinutes\": 60,\n  \"feedbackPolicy\": \"AFTER_SUBMISSION\",\n  \"status\": \"PUBLISHED\",\n  \"questionIds\": [\"question-uuid-here\"]\n}"
+              "raw": "{\n  \"departmentId\": \"{{departmentId}}\",\n  \"title\": \"Computer Science Exit Examination Simulation\",\n  \"durationMinutes\": 60,\n  \"feedbackPolicy\": \"AFTER_SUBMISSION\",\n  \"status\": \"PUBLISHED\",\n  \"questionIds\": [\n    \"{{questionId}}\"\n  ]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/exams",
@@ -554,8 +849,96 @@
           }
         },
         {
+          "name": "Update Exam (Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"durationMinutes\": 90\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/exams/{{examId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "exams",
+                "{{examId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Exam (Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/exams/{{examId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "exams",
+                "{{examId}}"
+              ]
+            }
+          }
+        },
+        {
           "name": "Start Timed Exam Attempt (Student)",
-          "description": "Starts the countdown timer, locks server-side deadlineAt, and returns questions sanitized of answer keys.",
+          "description": "Locks server-side deadlineAt timestamp and begins exam countdown timer.",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "    var json = pm.response.json();",
+                  "    var list = json.data && json.data.items ? json.data.items : (Array.isArray(json.data) ? json.data : null);",
+                  "    if (list && list.length > 0) {",
+                  "        pm.environment.set('attemptId', list[0].id);",
+                  "        console.log('Set attemptId to:', list[0].id);",
+                  "    } else if (json.data && json.data.id) {",
+                  "        pm.environment.set('attemptId', json.data.id);",
+                  "        console.log('Set attemptId to:', json.data.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "auth": {
               "type": "bearer",
@@ -570,7 +953,7 @@
             "method": "POST",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/exams/:id/attempts",
+              "raw": "{{baseUrl}}/api/v1/exams/{{examId}}/attempts",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -578,21 +961,15 @@
                 "api",
                 "v1",
                 "exams",
-                ":id",
+                "{{examId}}",
                 "attempts"
-              ],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": "exam-uuid-here"
-                }
               ]
             }
           }
         },
         {
           "name": "Submit Exam Answers (Student)",
-          "description": "Submits the student's answer sheet. Server evaluates answers against stored answer keys and enforces deadlineAt timestamp.",
+          "description": "Grades answers against server answer key, computes percentage, and finalizes attempt status.",
           "request": {
             "auth": {
               "type": "bearer",
@@ -613,10 +990,10 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"answers\": [\n    {\n      \"questionId\": \"question-uuid-here\",\n      \"selectedOptionId\": \"option-uuid-here\"\n    }\n  ]\n}"
+              "raw": "{\n  \"answers\": [\n    {\n      \"questionId\": \"{{questionId}}\",\n      \"selectedOptionId\": \"REPLACE_WITH_OPTION_ID\"\n    }\n  ]\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/v1/exams/attempts/:id/submit",
+              "raw": "{{baseUrl}}/api/v1/exams/attempts/{{attemptId}}/submit",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -625,14 +1002,8 @@
                 "v1",
                 "exams",
                 "attempts",
-                ":id",
+                "{{attemptId}}",
                 "submit"
-              ],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": "attempt-uuid-here"
-                }
               ]
             }
           }
@@ -653,7 +1024,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/exams/attempts/:id",
+              "raw": "{{baseUrl}}/api/v1/exams/attempts/{{attemptId}}",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -662,13 +1033,7 @@
                 "v1",
                 "exams",
                 "attempts",
-                ":id"
-              ],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": "attempt-uuid-here"
-                }
+                "{{attemptId}}"
               ]
             }
           }
@@ -710,7 +1075,7 @@
       "item": [
         {
           "name": "Get Trial Quota & Entitlement Status",
-          "description": "Returns remaining free attempts, usage counter, and active package entitlements for the current student.",
+          "description": "Returns remaining free trial questions and active departmental/platform-wide subscriptions.",
           "request": {
             "auth": {
               "type": "bearer",
@@ -745,7 +1110,7 @@
       "item": [
         {
           "name": "Get Payment Instructions (Public)",
-          "description": "Returns active Telebirr and CBE bank account numbers and instructions.",
+          "description": "Returns dynamic payment instructions for Telebirr and Commercial Bank of Ethiopia (CBE).",
           "request": {
             "method": "GET",
             "header": [],
@@ -765,7 +1130,27 @@
         },
         {
           "name": "Get Purchasable Packages (Public)",
-          "description": "Returns published Semester and Annual access packages seeded in Supabase.",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "    var json = pm.response.json();",
+                  "    var list = json.data && json.data.items ? json.data.items : (Array.isArray(json.data) ? json.data : null);",
+                  "    if (list && list.length > 0) {",
+                  "        pm.environment.set('packageId', list[0].id);",
+                  "        console.log('Set packageId to:', list[0].id);",
+                  "    } else if (json.data && json.data.id) {",
+                  "        pm.environment.set('packageId', json.data.id);",
+                  "        console.log('Set packageId to:', json.data.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -785,7 +1170,28 @@
         },
         {
           "name": "Submit Payment Receipt (Student)",
-          "description": "Student uploads payment receipt image/PDF with transaction reference code. Saved with PENDING status.",
+          "description": "Submits transaction reference code and receipt image (multipart/form-data) via Telebirr or CBE.",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "    var json = pm.response.json();",
+                  "    var list = json.data && json.data.items ? json.data.items : (Array.isArray(json.data) ? json.data : null);",
+                  "    if (list && list.length > 0) {",
+                  "        pm.environment.set('paymentId', list[0].id);",
+                  "        console.log('Set paymentId to:', list[0].id);",
+                  "    } else if (json.data && json.data.id) {",
+                  "        pm.environment.set('paymentId', json.data.id);",
+                  "        console.log('Set paymentId to:', json.data.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "auth": {
               "type": "bearer",
@@ -804,7 +1210,7 @@
               "formdata": [
                 {
                   "key": "packageId",
-                  "value": "601bef8e-7457-4c61-925b-fdd04d833177",
+                  "value": "{{packageId}}",
                   "type": "text"
                 },
                 {
@@ -814,12 +1220,13 @@
                 },
                 {
                   "key": "transactionRef",
-                  "value": "FT123456789",
+                  "value": "FTX-9948271049",
                   "type": "text"
                 },
                 {
                   "key": "receipt",
-                  "type": "file"
+                  "type": "file",
+                  "src": ""
                 }
               ]
             },
@@ -838,6 +1245,27 @@
         },
         {
           "name": "Get My Payment History (Student)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "    var json = pm.response.json();",
+                  "    var list = json.data && json.data.items ? json.data.items : (Array.isArray(json.data) ? json.data : null);",
+                  "    if (list && list.length > 0) {",
+                  "        pm.environment.set('paymentId', list[0].id);",
+                  "        console.log('Set paymentId to:', list[0].id);",
+                  "    } else if (json.data && json.data.id) {",
+                  "        pm.environment.set('paymentId', json.data.id);",
+                  "        console.log('Set paymentId to:', json.data.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "auth": {
               "type": "bearer",
@@ -866,8 +1294,7 @@
           }
         },
         {
-          "name": "Get Receipt Signed Preview URL (Owner/Admin Only)",
-          "description": "Generates a secure 15-minute presigned preview link for the uploaded receipt slip (AC-11).",
+          "name": "Get Receipt Preview URL (Owner/Admin)",
           "request": {
             "auth": {
               "type": "bearer",
@@ -882,7 +1309,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/payments/:id/receipt-url",
+              "raw": "{{baseUrl}}/api/v1/payments/{{paymentId}}/receipt-url",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -890,27 +1317,22 @@
                 "api",
                 "v1",
                 "payments",
-                ":id",
+                "{{paymentId}}",
                 "receipt-url"
-              ],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": "payment-uuid-here"
-                }
               ]
             }
           }
         },
         {
           "name": "Admin: Review Queue",
+          "description": "Fetches pending receipts awaiting verification.",
           "request": {
             "auth": {
               "type": "bearer",
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{authToken}}",
+                  "value": "{{adminToken}}",
                   "type": "string"
                 }
               ]
@@ -940,14 +1362,14 @@
         },
         {
           "name": "Admin: Approve Payment & Unlock Entitlement",
-          "description": "Atomically marks payment APPROVED and creates an active Entitlement for the student.",
+          "description": "Approves payment submission and unlocks full department or platform-wide entitlement.",
           "request": {
             "auth": {
               "type": "bearer",
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{authToken}}",
+                  "value": "{{adminToken}}",
                   "type": "string"
                 }
               ]
@@ -961,10 +1383,10 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"decisionNote\": \"Telebirr transaction verified against merchant statement.\"\n}"
+              "raw": "{\n  \"reviewNotes\": \"Telebirr transaction verified successfully on CBE portal.\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/v1/payments/admin/:id/approve",
+              "raw": "{{baseUrl}}/api/v1/payments/admin/{{paymentId}}/approve",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -973,27 +1395,22 @@
                 "v1",
                 "payments",
                 "admin",
-                ":id",
+                "{{paymentId}}",
                 "approve"
-              ],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": "payment-uuid-here"
-                }
               ]
             }
           }
         },
         {
           "name": "Admin: Reject Payment",
+          "description": "Rejects invalid or unverified receipt with mandatory rejection reason.",
           "request": {
             "auth": {
               "type": "bearer",
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{authToken}}",
+                  "value": "{{adminToken}}",
                   "type": "string"
                 }
               ]
@@ -1007,10 +1424,10 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"decisionNote\": \"Invalid screenshot or transaction code mismatch.\"\n}"
+              "raw": "{\n  \"reason\": \"Transaction reference not found on bank statement.\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/v1/payments/admin/:id/reject",
+              "raw": "{{baseUrl}}/api/v1/payments/admin/{{paymentId}}/reject",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -1019,14 +1436,8 @@
                 "v1",
                 "payments",
                 "admin",
-                ":id",
+                "{{paymentId}}",
                 "reject"
-              ],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": "payment-uuid-here"
-                }
               ]
             }
           }
@@ -1039,7 +1450,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{authToken}}",
+                  "value": "{{adminToken}}",
                   "type": "string"
                 }
               ]
@@ -1053,7 +1464,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Full Academic Year Access\",\n  \"price\": 799.00,\n  \"currency\": \"ETB\",\n  \"scope\": \"ALL_DEPARTMENTS\",\n  \"durationDays\": 365,\n  \"status\": \"PUBLISHED\"\n}"
+              "raw": "{\n  \"name\": \"All-Access Annual Pass\",\n  \"scope\": \"ALL_DEPARTMENTS\",\n  \"price\": 799,\n  \"durationDays\": 365,\n  \"isActive\": true\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/payments/admin/packages",
@@ -1078,7 +1489,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{authToken}}",
+                  "value": "{{adminToken}}",
                   "type": "string"
                 }
               ]
@@ -1092,7 +1503,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"method\": \"TELEBIRR\",\n  \"displayName\": \"Assessly Telebirr Account\",\n  \"accountDetails\": \"+251911223344\",\n  \"instructions\": \"Send payment and submit the transaction confirmation code and screenshot.\",\n  \"active\": true\n}"
+              "raw": "{\n  \"method\": \"TELEBIRR\",\n  \"accountNumber\": \"0938756685\",\n  \"accountName\": \"Assessly Platform Telebirr Merchant\",\n  \"instructions\": \"Send money to merchant number and submit screenshot.\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/payments/admin/settings",
@@ -1116,26 +1527,55 @@
       "item": [
         {
           "name": "List Learning Resources",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{student_token}}"
+          "description": "Returns study resources with paywall indicators (FREE, TRIAL, PAID).",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "    var json = pm.response.json();",
+                  "    var list = json.data && json.data.items ? json.data.items : (Array.isArray(json.data) ? json.data : null);",
+                  "    if (list && list.length > 0) {",
+                  "        pm.environment.set('resourceId', list[0].id);",
+                  "        console.log('Set resourceId to:', list[0].id);",
+                  "    } else if (json.data && json.data.id) {",
+                  "        pm.environment.set('resourceId', json.data.id);",
+                  "        console.log('Set resourceId to:', json.data.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
               }
-            ],
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
             "url": {
-              "raw": "{{base_url}}/resources?departmentId={{department_id}}&page=1&limit=20",
+              "raw": "{{baseUrl}}/api/v1/resources?departmentId={{departmentId}}&page=1&limit=20",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
+                "api",
+                "v1",
                 "resources"
               ],
               "query": [
                 {
                   "key": "departmentId",
-                  "value": "{{department_id}}"
+                  "value": "{{departmentId}}"
                 },
                 {
                   "key": "page",
@@ -1152,43 +1592,58 @@
         {
           "name": "Get Single Resource",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{student_token}}"
-              }
-            ],
+            "header": [],
             "url": {
-              "raw": "{{base_url}}/resources/{{resource_id}}",
+              "raw": "{{baseUrl}}/api/v1/resources/{{resourceId}}",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
+                "api",
+                "v1",
                 "resources",
-                "{{resource_id}}"
+                "{{resourceId}}"
               ]
             }
           }
         },
         {
           "name": "Generate Secure Download URL",
+          "description": "Generates authenticated download stream or presigned URL. Rejects unauthorized requests with 403 PAYWALL_REQUIRED.",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{student_token}}"
-              }
-            ],
+            "header": [],
             "url": {
-              "raw": "{{base_url}}/resources/{{resource_id}}/download",
+              "raw": "{{baseUrl}}/api/v1/resources/{{resourceId}}/download",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
+                "api",
+                "v1",
                 "resources",
-                "{{resource_id}}",
+                "{{resourceId}}",
                 "download"
               ]
             }
@@ -1196,35 +1651,52 @@
         },
         {
           "name": "Upload Learning Resource (Admin)",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{admin_token}}"
+          "description": "Uploads study guides, syllabi, or mock test papers (multipart/form-data).",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "    var json = pm.response.json();",
+                  "    var list = json.data && json.data.items ? json.data.items : (Array.isArray(json.data) ? json.data : null);",
+                  "    if (list && list.length > 0) {",
+                  "        pm.environment.set('resourceId', list[0].id);",
+                  "        console.log('Set resourceId to:', list[0].id);",
+                  "    } else if (json.data && json.data.id) {",
+                  "        pm.environment.set('resourceId', json.data.id);",
+                  "        console.log('Set resourceId to:', json.data.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
               }
-            ],
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
             "body": {
               "mode": "formdata",
               "formdata": [
                 {
-                  "key": "title",
-                  "value": "Comprehensive Computer Science Study Guide",
-                  "type": "text"
-                },
-                {
-                  "key": "description",
-                  "value": "Full semester recap with sample past questions",
-                  "type": "text"
-                },
-                {
-                  "key": "topic",
-                  "value": "Algorithms & Architecture",
-                  "type": "text"
-                },
-                {
                   "key": "departmentId",
-                  "value": "{{department_id}}",
+                  "value": "{{departmentId}}",
+                  "type": "text"
+                },
+                {
+                  "key": "title",
+                  "value": "Exit Examination Comprehensive Blueprint",
                   "type": "text"
                 },
                 {
@@ -1233,23 +1705,25 @@
                   "type": "text"
                 },
                 {
-                  "key": "status",
-                  "value": "PUBLISHED",
+                  "key": "type",
+                  "value": "SYLLABUS",
                   "type": "text"
                 },
                 {
                   "key": "file",
                   "type": "file",
-                  "src": []
+                  "src": ""
                 }
               ]
             },
             "url": {
-              "raw": "{{base_url}}/resources",
+              "raw": "{{baseUrl}}/api/v1/resources",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
+                "api",
+                "v1",
                 "resources"
               ]
             }
@@ -1258,12 +1732,18 @@
         {
           "name": "Update Resource Metadata (Admin)",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "PATCH",
             "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{admin_token}}"
-              },
               {
                 "key": "Content-Type",
                 "value": "application/json"
@@ -1271,16 +1751,18 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Updated CS Study Guide 2026 Edition\",\n  \"accessLevel\": \"FREE\",\n  \"status\": \"PUBLISHED\"\n}"
+              "raw": "{\n  \"accessLevel\": \"FREE\"\n}"
             },
             "url": {
-              "raw": "{{base_url}}/resources/{{resource_id}}",
+              "raw": "{{baseUrl}}/api/v1/resources/{{resourceId}}",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
+                "api",
+                "v1",
                 "resources",
-                "{{resource_id}}"
+                "{{resourceId}}"
               ]
             }
           }
@@ -1288,21 +1770,28 @@
         {
           "name": "Delete Resource (Admin)",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "DELETE",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{admin_token}}"
-              }
-            ],
+            "header": [],
             "url": {
-              "raw": "{{base_url}}/resources/{{resource_id}}",
+              "raw": "{{baseUrl}}/api/v1/resources/{{resourceId}}",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
+                "api",
+                "v1",
                 "resources",
-                "{{resource_id}}"
+                "{{resourceId}}"
               ]
             }
           }
@@ -1314,20 +1803,28 @@
       "item": [
         {
           "name": "Get Overview KPIs & Metrics (FR-ADMIN)",
+          "description": "Provides top-level metrics: revenue, student count, pending payments queue, and exam stats.",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{admin_token}}"
-              }
-            ],
+            "header": [],
             "url": {
-              "raw": "{{base_url}}/admin/reports/overview",
+              "raw": "{{baseUrl}}/api/v1/admin/reports/overview",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
+                "api",
+                "v1",
                 "admin",
                 "reports",
                 "overview"
@@ -1336,21 +1833,60 @@
           }
         },
         {
-          "name": "List Audit Logs (FR-AUD)",
+          "name": "Get Department Reports & Pass Rates",
+          "description": "Departmental breakdown of student enrollments, exam attempts, average marks, and pass percentages.",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{admin_token}}"
-              }
-            ],
+            "header": [],
             "url": {
-              "raw": "{{base_url}}/admin/audit-logs?page=1&limit=20",
+              "raw": "{{baseUrl}}/api/v1/admin/reports/departments",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
+                "api",
+                "v1",
+                "admin",
+                "reports",
+                "departments"
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Audit Logs (FR-AUD)",
+          "description": "Full security audit trail of administrative actions and state modifications.",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/audit-logs?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
                 "admin",
                 "audit-logs"
               ],
@@ -1369,20 +1905,48 @@
         },
         {
           "name": "List Users (Admin)",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{admin_token}}"
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "    var json = pm.response.json();",
+                  "    var list = json.data && json.data.items ? json.data.items : (Array.isArray(json.data) ? json.data : null);",
+                  "    if (list && list.length > 0) {",
+                  "        pm.environment.set('userId', list[0].id);",
+                  "        console.log('Set userId to:', list[0].id);",
+                  "    } else if (json.data && json.data.id) {",
+                  "        pm.environment.set('userId', json.data.id);",
+                  "        console.log('Set userId to:', json.data.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
               }
-            ],
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
             "url": {
-              "raw": "{{base_url}}/admin/users?page=1&limit=20",
+              "raw": "{{baseUrl}}/api/v1/admin/users?page=1&limit=20",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
+                "api",
+                "v1",
                 "admin",
                 "users"
               ],
@@ -1402,12 +1966,18 @@
         {
           "name": "Update User Role (Super Admin)",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "PATCH",
             "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{admin_token}}"
-              },
               {
                 "key": "Content-Type",
                 "value": "application/json"
@@ -1418,28 +1988,36 @@
               "raw": "{\n  \"role\": \"ADMIN\"\n}"
             },
             "url": {
-              "raw": "{{base_url}}/admin/users/{{target_user_id}}/role",
+              "raw": "{{baseUrl}}/api/v1/admin/users/{{userId}}/role",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
+                "api",
+                "v1",
                 "admin",
                 "users",
-                "{{target_user_id}}",
+                "{{userId}}",
                 "role"
               ]
             }
           }
         },
         {
-          "name": "Update User Status (Active/Suspended/Inactive)",
+          "name": "Update User Status",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "PATCH",
             "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{admin_token}}"
-              },
               {
                 "key": "Content-Type",
                 "value": "application/json"
@@ -1450,15 +2028,86 @@
               "raw": "{\n  \"status\": \"SUSPENDED\"\n}"
             },
             "url": {
-              "raw": "{{base_url}}/admin/users/{{target_user_id}}/status",
+              "raw": "{{baseUrl}}/api/v1/admin/users/{{userId}}/status",
               "host": [
-                "{{base_url}}"
+                "{{baseUrl}}"
               ],
               "path": [
+                "api",
+                "v1",
                 "admin",
                 "users",
-                "{{target_user_id}}",
+                "{{userId}}",
                 "status"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get System Settings",
+          "description": "Retrieves global platform settings including Telebirr and CBE account credentials.",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/settings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "settings"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update System Settings",
+          "description": "Updates global platform settings (Telebirr phone number, CBE account, trial quota, pass mark).",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"telebirrNumber\": \"0938756685\",\n  \"cbeAccount\": \"1000126789487\",\n  \"freeTrialQuestions\": 5,\n  \"passMarkPercentage\": 50\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/settings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "settings"
               ]
             }
           }
