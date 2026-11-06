@@ -1,6 +1,5 @@
 // Centralized API Client for Assessly Platform
-const API_BASE_URL =
-  import.meta.env.VITE_API_URL || "http://localhost:3000/api/v1";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api/v1";
 
 export interface ApiUser {
   id: string;
@@ -49,10 +48,7 @@ export const authStorage = {
 };
 
 // Generic Request Wrapper
-export async function request<T>(
-  endpoint: string,
-  options: RequestInit = {}
-): Promise<T> {
+export async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const token = authStorage.getToken();
   const headers: Record<string, string> = {
     ...(options.headers as Record<string, string>),
@@ -114,7 +110,12 @@ export const api = {
       return res;
     },
 
-    async getMe(): Promise<{ user: ApiUser; departments: any[]; trialUsage: any; activeEntitlements: any[] }> {
+    async getMe(): Promise<{
+      user: ApiUser;
+      departments: any[];
+      trialUsage: any;
+      activeEntitlements: any[];
+    }> {
       const res = await request<any>("/auth/me");
       if (res.user) {
         authStorage.setUser(res.user);
@@ -133,14 +134,20 @@ export const api = {
       });
     },
 
-    async resetPassword(data: { token: string; newPassword: string }): Promise<{ message: string }> {
+    async resetPassword(data: {
+      token: string;
+      newPassword: string;
+    }): Promise<{ message: string }> {
       return request<{ message: string }>("/auth/reset-password", {
         method: "POST",
         body: JSON.stringify(data),
       });
     },
 
-    async changePassword(data: { currentPassword: string; newPassword: string }): Promise<{ message: string }> {
+    async changePassword(data: {
+      currentPassword: string;
+      newPassword: string;
+    }): Promise<{ message: string }> {
       return request<{ message: string }>("/auth/change-password", {
         method: "POST",
         body: JSON.stringify(data),
@@ -150,7 +157,15 @@ export const api = {
 
   // Academic Departments (FR-DEPT)
   departments: {
-    async list(): Promise<Array<{ id: string; code: string; name: string; description?: string; _count?: { questions: number; resources: number; exams: number } }>> {
+    async list(): Promise<
+      Array<{
+        id: string;
+        code: string;
+        name: string;
+        description?: string;
+        _count?: { questions: number; resources: number; exams: number };
+      }>
+    > {
       return request("/departments");
     },
 
@@ -171,7 +186,13 @@ export const api = {
       status?: string;
       page?: number;
       limit?: number;
-    }): Promise<{ total: number; page: number; limit: number; totalPages: number; questions: any[] }> {
+    }): Promise<{
+      total: number;
+      page: number;
+      limit: number;
+      totalPages: number;
+      questions: any[];
+    }> {
       const search = new URLSearchParams();
       if (params?.departmentId) search.set("departmentId", params.departmentId);
       if (params?.topic) search.set("topic", params.topic);
@@ -186,7 +207,7 @@ export const api = {
 
     async submitPractice(
       questionId: string,
-      selectedOptionId: string
+      selectedOptionId: string,
     ): Promise<{
       isCorrect: boolean;
       score: number;
@@ -207,7 +228,11 @@ export const api = {
       });
     },
 
-    async bulkImport(data: { departmentId: string; questions?: any[]; csvText?: string }): Promise<any> {
+    async bulkImport(data: {
+      departmentId: string;
+      questions?: any[];
+      csvText?: string;
+    }): Promise<any> {
       return request("/questions/bulk-import", {
         method: "POST",
         body: JSON.stringify(data),
@@ -287,7 +312,7 @@ export const api = {
 
     async submitAttempt(
       attemptId: string,
-      answers: Array<{ questionId: string; selectedOptionId?: string }>
+      answers: Array<{ questionId: string; selectedOptionId?: string }>,
     ): Promise<{
       attemptId: string;
       status: string;
@@ -435,7 +460,12 @@ export const api = {
       return request(`/admin/audit-logs${queryStr ? `?${queryStr}` : ""}`);
     },
 
-    async listUsers(params?: { page?: number; limit?: number; q?: string; role?: string }): Promise<any> {
+    async listUsers(params?: {
+      page?: number;
+      limit?: number;
+      q?: string;
+      role?: string;
+    }): Promise<any> {
       const search = new URLSearchParams();
       if (params?.page) search.set("page", String(params.page));
       if (params?.limit) search.set("limit", String(params.limit));
@@ -460,4 +490,3 @@ export const api = {
     },
   },
 };
-

@@ -85,8 +85,11 @@ function ProfileComponent() {
 
   return (
     <StudentShell>
-      <PageHeader title="Profile & Security" description="Your personal details, department enrollments, and account credentials." />
-      
+      <PageHeader
+        title="Profile & Security"
+        description="Your personal details, department enrollments, and account credentials."
+      />
+
       <div className="space-y-6 max-w-2xl">
         {/* Personal Information */}
         <Section title="Personal Information">
@@ -162,11 +165,7 @@ function ProfileComponent() {
             </div>
 
             <div className="pt-2 flex justify-end">
-              <button
-                type="submit"
-                disabled={passwordLoading}
-                className={btn.primary}
-              >
+              <button type="submit" disabled={passwordLoading} className={btn.primary}>
                 {passwordLoading ? (
                   <span className="inline-flex items-center gap-2">
                     <span className="size-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />

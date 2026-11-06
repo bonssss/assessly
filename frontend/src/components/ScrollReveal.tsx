@@ -9,13 +9,7 @@ import {
 import { ArrowUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type AnimationType =
-  | "fade-up"
-  | "fade-down"
-  | "fade-left"
-  | "fade-right"
-  | "scale-in"
-  | "fade";
+type AnimationType = "fade-up" | "fade-down" | "fade-left" | "fade-right" | "scale-in" | "fade";
 
 interface ScrollRevealProps<T extends ElementType = "div"> {
   as?: T;
@@ -28,10 +22,7 @@ interface ScrollRevealProps<T extends ElementType = "div"> {
   className?: string;
 }
 
-const animationStyles: Record<
-  AnimationType,
-  { hidden: string; visible: string }
-> = {
+const animationStyles: Record<AnimationType, { hidden: string; visible: string }> = {
   "fade-up": {
     hidden: "opacity-0 translate-y-7",
     visible: "opacity-100 translate-y-0",
@@ -100,7 +91,7 @@ export function ScrollReveal<T extends ElementType = "div">({
       {
         threshold,
         rootMargin: "0px 0px -40px 0px",
-      }
+      },
     );
 
     observer.observe(node);
@@ -209,11 +200,10 @@ export function ScrollToTopButton() {
         "fixed bottom-6 right-6 z-40 flex size-10 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/25 border border-primary/20 transition-all duration-300 ease-out hover:scale-110 hover:shadow-xl active:scale-95 focus:outline-none focus:ring-2 focus:ring-ring cursor-pointer",
         show
           ? "opacity-100 translate-y-0 pointer-events-auto"
-          : "opacity-0 translate-y-6 pointer-events-none"
+          : "opacity-0 translate-y-6 pointer-events-none",
       )}
     >
       <ArrowUp className="size-4 stroke-[2.5]" />
     </button>
   );
 }
-

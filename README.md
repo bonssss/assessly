@@ -16,10 +16,12 @@ assessly/
 ├── .github/
 │   └── workflows/
 │       └── ci.yml               # GitHub Actions CI/CD pipeline
+├── docker-compose.yml           # Production Docker multi-container orchestration
 ├── backend/                     # Express 5 + TypeScript + Prisma Backend API
+│   ├── Dockerfile               # Production multi-stage Alpine container
 │   ├── prisma/
 │   │   ├── schema.prisma        # Complete relational schema (16 models/enums)
-│   │   └── seed.ts              # Seeding departments, payment methods, packages, admin
+│   │   └── seed.ts              # Seeding departments, payment methods, packages, admin, exit exam question bank
 │   ├── scripts/
 │   │   └── create-admin.ts      # CLI script for creating custom Admin accounts
 │   ├── src/
@@ -28,9 +30,11 @@ assessly/
 │   │   ├── common/              # Middlewares, storage adapters, utils, errors
 │   │   └── modules/             # Auth, Depts, Questions, Exams, Payments, Resources, Admin
 │   ├── tests/
-│   │   └── unit/                # 14 test suites (48/48 unit tests passing)
+│   │   └── unit/                # 16 test suites (53/53 unit tests passing)
 │   └── uploads/                 # Local disk storage for receipts and study materials
-├── frontend/                    # Next.js 16 Web Application UI
+├── frontend/                    # TanStack Start / React 19 Client UI
+│   ├── Dockerfile               # Containerized web interface
+│   └── src/                     # Student exam portal, admin dashboard & payment routes
 ├── docs/                        # Comprehensive documentation
 │   ├── TECHNICAL_DOCUMENTATION.md # Architecture, database schema, security & data flows
 │   └── API_TESTING_GUIDE.md       # End-to-end lifecycle testing & cURL/Postman guide
@@ -42,7 +46,32 @@ assessly/
 
 ---
 
-## ⚡ Quick Start (Backend)
+## 🐳 Docker Deployment (Full Stack)
+
+Assessly includes production-ready container configurations for both backend and frontend orchestrated with Docker Compose:
+
+```bash
+# 1. Provide your environment variables in backend/.env
+# (DATABASE_URL, JWT_SECRET, EMAIL_USER, EMAIL_PASS)
+
+# 2. Build and launch all services in detached mode
+docker compose up --build -d
+
+# 3. View live container logs
+docker compose logs -f
+
+# 4. Tear down containers and volumes
+docker compose down
+```
+
+The services will be available at:
+- **Frontend Web UI**: `http://localhost:8080`
+- **Backend API**: `http://localhost:3000/api/v1`
+- **API Health Check**: `http://localhost:3000/api/v1/health`
+
+---
+
+## ⚡ Quick Start (Local Backend)
 
 ### 1. Prerequisites
 - **Node.js**: v20 or higher (v24 recommended)
@@ -96,10 +125,17 @@ npm run admin:create custom.admin@assessly.com MyPass@123 "Custom Admin" ADMIN
 
 ## 🧪 Testing & Verification
 
-Run the automated test suite (14 suites, 48 tests):
+Run the automated test suite (16 suites, 53 tests):
 ```bash
 npm test
 ```
+All 53 unit tests pass with 0 failures, covering:
+- Admin schema validation, self-protection guards, and department analytics computation
+- Password hashing, password reset tokens, and JWT authentication lifecycle
+- Timed exam deadline computation, graceful grace period, and duplicate submission locks
+- Dynamic payment verification, state transition rules, and package entitlements
+- Question bank sanitization (stripping answer keys for students) and trial quota enforcement
+- Study resource access rules by entitlement scope (universal vs department-level)
 
 Verify TypeScript compilation:
 ```bash

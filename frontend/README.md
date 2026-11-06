@@ -13,75 +13,78 @@ The modern, responsive web application client for **Assessly** — a higher educ
 ## 🚀 Key Features & Modules
 
 ### 🎓 1. Student Portal
-* **Landing Page & Curriculum Showcase**:
-  * Animated hero section with interactive callouts.
-  * Curriculum & department overview with smooth scroll-reveal effects.
-  * Direct access to registration, login, and sample practice questions.
-* **Timed Exit Examination Engine (`/exams`, `/exam`)**:
-  * Real-time countdown timer with server-side synchronization and grace periods.
-  * Auto-recovery via `localStorage` (protects against browser refreshes and accidental tab closures).
-  * Dynamic question palette with answered/unanswered indicators and direct question jumping.
-  * Post-exam instant scoring, performance badges, and review answer key breakdown (subject to feedback policy).
-* **Practice Question Arena (`/practice`)**:
-  * Filter questions by academic department, topic, and difficulty (Easy, Medium, Hard).
-  * Instant feedback with comprehensive question explanations.
-  * Automatic tracking of the 5-question free trial quota before unlocking full access.
-* **Learning Resources Library (`/resources`)**:
-  * Access study guides, reference books, past papers, and lecture slides.
-  * Filter by department and access tier (Free, Trial, Paid).
-  * In-browser preview and authenticated file downloads.
-* **Monetization & Payment Verification (`/payments`)**:
-  * Tiered package selection (Department Semester Pass, All-Access Annual Pass).
-  * Dynamic payment channels (Telebirr and Commercial Bank of Ethiopia - CBE).
-  * 1-click clipboard account/phone copying with toast feedback.
-  * Receipt image (JPG, PNG) and PDF upload form with real-time status tracking (Pending, Approved, Rejected).
-* **Candidate Profile & Security (`/profile`)**:
-  * Personal information and active department enrollments.
-  * Secure authenticated **Change Password** interface with password confirmation and live validation.
+
+- **Landing Page & Curriculum Showcase**:
+  - Animated hero section with interactive callouts.
+  - Curriculum & department overview with smooth scroll-reveal effects.
+  - Direct access to registration, login, and sample practice questions.
+- **Timed Exit Examination Engine (`/exams`, `/exam`)**:
+  - Real-time countdown timer with server-side synchronization and grace periods.
+  - Auto-recovery via `localStorage` (protects against browser refreshes and accidental tab closures).
+  - Dynamic question palette with answered/unanswered indicators and direct question jumping.
+  - Post-exam instant scoring, performance badges, and review answer key breakdown (subject to feedback policy).
+- **Practice Question Arena (`/practice`)**:
+  - Filter questions by academic department, topic, and difficulty (Easy, Medium, Hard).
+  - Instant feedback with comprehensive question explanations.
+  - Automatic tracking of the 5-question free trial quota before unlocking full access.
+- **Learning Resources Library (`/resources`)**:
+  - Access study guides, reference books, past papers, and lecture slides.
+  - Filter by department and access tier (Free, Trial, Paid).
+  - In-browser preview and authenticated file downloads.
+- **Monetization & Payment Verification (`/payments`)**:
+  - Tiered package selection (Department Semester Pass, All-Access Annual Pass).
+  - Dynamic payment channels (Telebirr and Commercial Bank of Ethiopia - CBE).
+  - 1-click clipboard account/phone copying with toast feedback.
+  - Receipt image (JPG, PNG) and PDF upload form with real-time status tracking (Pending, Approved, Rejected).
+- **Candidate Profile & Security (`/profile`)**:
+  - Personal information and active department enrollments.
+  - Secure authenticated **Change Password** interface with password confirmation and live validation.
 
 ---
 
 ### 🛡️ 2. Authentication & Credential Management
-* **Registration & Sign In (`/register`, `/login`)**:
-  * Clean, accessible card layouts with custom vector illustrations.
-  * Multi-department selection during candidate enrollment.
-  * Role-based post-login redirection (Admins → `/admin`, Candidates → `/dashboard`).
-* **Self-Service Password Recovery (`/forgot-password`, `/reset-password`)**:
-  * Branded email dispatch via Gmail SMTP (`nodemailer`).
-  * Cryptographically secure 1-hour expiration reset tokens.
-  * One-click password reset interface with show/hide password toggles and validation.
+
+- **Registration & Sign In (`/register`, `/login`)**:
+  - Clean, accessible card layouts with custom vector illustrations.
+  - Multi-department selection during candidate enrollment.
+  - Role-based post-login redirection (Admins → `/admin`, Candidates → `/dashboard`).
+- **Self-Service Password Recovery (`/forgot-password`, `/reset-password`)**:
+  - Branded email dispatch via Gmail SMTP (`nodemailer`).
+  - Cryptographically secure 1-hour expiration reset tokens.
+  - One-click password reset interface with show/hide password toggles and validation.
 
 ---
 
 ### 🛠️ 3. Administrator Console (`/admin`, `/admin/$section`)
-* **Interactive Telemetry Dashboard (`/admin`)**:
-  * Real-time KPI summaries: Total Candidates, Pending Verifications, Total ETB Revenue, Question Counts.
-  * **Department Exit Exam Readiness & Benchmark Chart**: Visualizes average score vs. 50% pass benchmark without confusing hover pillars.
-  * **Platform Activity Trend**: 7-day visual area chart comparing exam starts and completions.
-  * **Payment Breakdown**: Donut chart of Approved, Pending, and Rejected payments.
-* **Question Bank Management (`/admin/questions`)**:
-  * Create, edit, and publish single-choice MCQs with explanation keys and mark weightings.
-  * **Bulk Import Modal**: Upload CSV or JSON files with sample template download.
-* **Curriculum & Department Management (`/admin/departments`)**:
-  * Create and archive academic faculties and departments.
-  * Live metrics: enrolled student count, question pool, and exam inventory.
-* **Examination Management (`/admin/exams`)**:
-  * Configure exam duration, attempt policies, and feedback release rules.
-  * View true department question bank pool and linked questions.
-  * "Select All" toggle in the exam creator for 1-click question linking.
-* **Payment Review Queue (`/admin/payments`)**:
-  * Pending payments verification queue.
-  * Receipt preview link generation.
-  * One-click Approve (activates entitlement immediately) or Reject (with required reason).
-* **Learning Materials Upload (`/admin/resources`)**:
-  * Upload PDF, DOCX, PPTX files up to 50 MB with access tier controls (Free, Trial, Paid).
-* **Candidate Governance (`/admin/students`)**:
-  * Filter candidates by role and account status.
-  * Suspend, activate, or promote candidate roles.
-* **Platform Configurations (`/admin/settings`)**:
-  * Update Telebirr phone number, CBE bank account, and transfer instructions (auto-propagates dynamically).
-  * Configure free trial quota and exam pass marks.
-  * Update administrator account password securely.
+
+- **Interactive Telemetry Dashboard (`/admin`)**:
+  - Real-time KPI summaries: Total Candidates, Pending Verifications, Total ETB Revenue, Question Counts.
+  - **Department Exit Exam Readiness & Benchmark Chart**: Visualizes average score vs. 50% pass benchmark without confusing hover pillars.
+  - **Platform Activity Trend**: 7-day visual area chart comparing exam starts and completions.
+  - **Payment Breakdown**: Donut chart of Approved, Pending, and Rejected payments.
+- **Question Bank Management (`/admin/questions`)**:
+  - Create, edit, and publish single-choice MCQs with explanation keys and mark weightings.
+  - **Bulk Import Modal**: Upload CSV or JSON files with sample template download.
+- **Curriculum & Department Management (`/admin/departments`)**:
+  - Create and archive academic faculties and departments.
+  - Live metrics: enrolled student count, question pool, and exam inventory.
+- **Examination Management (`/admin/exams`)**:
+  - Configure exam duration, attempt policies, and feedback release rules.
+  - View true department question bank pool and linked questions.
+  - "Select All" toggle in the exam creator for 1-click question linking.
+- **Payment Review Queue (`/admin/payments`)**:
+  - Pending payments verification queue.
+  - Receipt preview link generation.
+  - One-click Approve (activates entitlement immediately) or Reject (with required reason).
+- **Learning Materials Upload (`/admin/resources`)**:
+  - Upload PDF, DOCX, PPTX files up to 50 MB with access tier controls (Free, Trial, Paid).
+- **Candidate Governance (`/admin/students`)**:
+  - Filter candidates by role and account status.
+  - Suspend, activate, or promote candidate roles.
+- **Platform Configurations (`/admin/settings`)**:
+  - Update Telebirr phone number, CBE bank account, and transfer instructions (auto-propagates dynamically).
+  - Configure free trial quota and exam pass marks.
+  - Update administrator account password securely.
 
 ---
 
@@ -133,10 +136,12 @@ frontend/
 ## ⚙️ Development & Setup
 
 ### 1. Prerequisites
+
 - **Node.js**: v20 or higher (v22/v24 recommended)
 - **Backend API**: The Assessly backend server running on `http://localhost:3000`
 
 ### 2. Installation
+
 From the repository root or `frontend` directory:
 
 ```bash
@@ -145,6 +150,7 @@ npm install
 ```
 
 ### 3. Environment Configuration
+
 Create a `.env` file in the `frontend` root (optional for defaults):
 
 ```env
@@ -152,27 +158,30 @@ VITE_API_URL=http://localhost:3000/api/v1
 ```
 
 ### 4. Running the Development Server
+
 ```bash
 npm run dev
 ```
+
 The application will launch on **`http://localhost:8080/`**.
 
 ---
 
 ## 🧪 Available Scripts
 
-| Script | Description |
-|---|---|
-| `npm run dev` | Starts Vite dev server with hot module replacement (HMR) on port `8080` |
-| `npm run build` | Compiles TypeScript and creates optimized production assets |
-| `npm run preview` | Previews the production build locally |
-| `npm run lint` | Runs ESLint across all TypeScript and React files |
-| `npm test` | Runs frontend unit and component tests with Vitest |
+| Script            | Description                                                             |
+| ----------------- | ----------------------------------------------------------------------- |
+| `npm run dev`     | Starts Vite dev server with hot module replacement (HMR) on port `8080` |
+| `npm run build`   | Compiles TypeScript and creates optimized production assets             |
+| `npm run preview` | Previews the production build locally                                   |
+| `npm run lint`    | Runs ESLint across all TypeScript and React files                       |
+| `npm test`        | Runs frontend unit and component tests with Vitest                      |
 
 ---
 
 ## 🎨 Design System & UI Principles
-* **Color Palette**: Emerald & Forest Brand Greens (`#10b981`, `#059669`), Slate Neutrals (`#f8fafc` to `#0f172a`), Amber Accents (`#f59e0b`).
-* **Typography**: Clean, readable sans-serif system stack with mono font for references and account details.
-* **Responsiveness**: Fluid layout designed from mobile screens up to 4K displays.
-* **Accessibility**: Screen-reader friendly buttons, high-contrast labels, and clear error alerts.
+
+- **Color Palette**: Emerald & Forest Brand Greens (`#10b981`, `#059669`), Slate Neutrals (`#f8fafc` to `#0f172a`), Amber Accents (`#f59e0b`).
+- **Typography**: Clean, readable sans-serif system stack with mono font for references and account details.
+- **Responsiveness**: Fluid layout designed from mobile screens up to 4K displays.
+- **Accessibility**: Screen-reader friendly buttons, high-contrast labels, and clear error alerts.

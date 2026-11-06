@@ -18,7 +18,12 @@ import { ScrollReveal, ScrollToTopButton } from "@/components/ScrollReveal";
 import { Logo } from "@/components/ui-kit";
 import { departments, plans } from "@/lib/data";
 import { useAuth } from "@/lib/auth-context";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -26,12 +31,14 @@ export const Route = createFileRoute("/")({
       { title: "Assessly — Start Learning At Home" },
       {
         name: "description",
-        content: "Department-specific practice questions, timed mock exams, and past exit papers. Start with 5 free questions at home.",
+        content:
+          "Department-specific practice questions, timed mock exams, and past exit papers. Start with 5 free questions at home.",
       },
       { property: "og:title", content: "Assessly — Start Learning At Home" },
       {
         property: "og:description",
-        content: "Practice real exit exam questions for your department at home. 5 free questions to start.",
+        content:
+          "Practice real exit exam questions for your department at home. 5 free questions to start.",
       },
     ],
   }),
@@ -62,11 +69,26 @@ const steps = [
 ];
 
 const faqs: [string, string][] = [
-  ["How many free questions do I get?", "Every new candidate receives five free practice questions upon registration. No payment or bank receipt is required to test the platform."],
-  ["How do I pay?", "We accept Telebirr transfers and direct Commercial Bank of Ethiopia (CBE) deposits. After paying, upload a photo or screenshot of your receipt in the Payments portal."],
-  ["How long does payment approval take?", "Our team reviews submitted payment receipts regularly, usually approving requests within 1 to 3 hours (maximum 24h). Access is instantly unlocked upon approval."],
-  ["Can I practice multiple departments?", "Yes! You can enroll in multiple departments or upgrade to an Annual plan that includes multi-department access."],
-  ["What if my receipt is rejected?", "You will receive an explanation note from the reviewer and can re-submit a legible receipt image anytime from your payments dashboard."],
+  [
+    "How many free questions do I get?",
+    "Every new candidate receives five free practice questions upon registration. No payment or bank receipt is required to test the platform.",
+  ],
+  [
+    "How do I pay?",
+    "We accept Telebirr transfers and direct Commercial Bank of Ethiopia (CBE) deposits. After paying, upload a photo or screenshot of your receipt in the Payments portal.",
+  ],
+  [
+    "How long does payment approval take?",
+    "Our team reviews submitted payment receipts regularly, usually approving requests within 1 to 3 hours (maximum 24h). Access is instantly unlocked upon approval.",
+  ],
+  [
+    "Can I practice multiple departments?",
+    "Yes! You can enroll in multiple departments or upgrade to an Annual plan that includes multi-department access.",
+  ],
+  [
+    "What if my receipt is rejected?",
+    "You will receive an explanation note from the reviewer and can re-submit a legible receipt image anytime from your payments dashboard.",
+  ],
 ];
 
 function Index() {
@@ -79,7 +101,7 @@ function Index() {
       ? true
       : d.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         d.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        d.desc.toLowerCase().includes(searchQuery.toLowerCase())
+        d.desc.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const handleSearchScroll = (e: React.FormEvent) => {
@@ -92,12 +114,10 @@ function Index() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#cffafe] via-[#a7f3d0]/35 to-[#bae6fd]/50 selection:bg-brand/10 selection:text-brand p-3 sm:p-6 lg:p-8 flex flex-col justify-between">
-      
       {/* ========================================================= */}
       {/* 1. MAIN FLOATING HERO CARD (MATCHING FREEPIK REFERENCE)   */}
       {/* ========================================================= */}
       <section className="w-full max-w-7xl mx-auto bg-white rounded-[32px] sm:rounded-[40px] shadow-2xl shadow-cyan-950/10 border border-white/80 overflow-hidden flex flex-col justify-between min-h-[calc(100vh-2rem)] sm:min-h-[calc(100vh-4rem)] animate-in fade-in zoom-in-95 duration-200">
-        
         {/* Card Header (Hamburger + Brand + Navigation + Green Pill Button) */}
         <header className="w-full px-6 sm:px-10 lg:px-12 pt-6 sm:pt-8 flex items-center justify-between border-b border-slate-100/60 pb-5">
           <div className="flex items-center gap-4">
@@ -115,7 +135,10 @@ function Index() {
 
           {/* Desktop Navigation Links */}
           <nav className="hidden lg:flex items-center gap-8 text-xs font-bold tracking-widest text-slate-500 uppercase">
-            <Link to="/" className="text-slate-900 border-b-2 border-slate-900 pb-1 transition-colors">
+            <Link
+              to="/"
+              className="text-slate-900 border-b-2 border-slate-900 pb-1 transition-colors"
+            >
               HOME
             </Link>
             <a href="#departments" className="hover:text-slate-900 transition-colors pb-1">
@@ -164,27 +187,53 @@ function Index() {
         {mobileMenuOpen && (
           <div className="lg:hidden border-b border-slate-100 bg-white px-6 py-4 animate-in fade-in slide-in-from-top-2">
             <nav className="flex flex-col gap-3 text-xs font-semibold uppercase tracking-wider text-slate-600">
-              <Link to="/" onClick={() => setMobileMenuOpen(false)} className="py-1 text-slate-900 font-bold">
+              <Link
+                to="/"
+                onClick={() => setMobileMenuOpen(false)}
+                className="py-1 text-slate-900 font-bold"
+              >
                 Home
               </Link>
-              <a href="#departments" onClick={() => setMobileMenuOpen(false)} className="py-1 hover:text-slate-900">
+              <a
+                href="#departments"
+                onClick={() => setMobileMenuOpen(false)}
+                className="py-1 hover:text-slate-900"
+              >
                 Departments
               </a>
-              <a href="#about" onClick={() => setMobileMenuOpen(false)} className="py-1 hover:text-slate-900">
+              <a
+                href="#about"
+                onClick={() => setMobileMenuOpen(false)}
+                className="py-1 hover:text-slate-900"
+              >
                 About
               </a>
-              <a href="#pricing" onClick={() => setMobileMenuOpen(false)} className="py-1 hover:text-slate-900">
+              <a
+                href="#pricing"
+                onClick={() => setMobileMenuOpen(false)}
+                className="py-1 hover:text-slate-900"
+              >
                 Pricing
               </a>
-              <a href="#faq" onClick={() => setMobileMenuOpen(false)} className="py-1 hover:text-slate-900">
+              <a
+                href="#faq"
+                onClick={() => setMobileMenuOpen(false)}
+                className="py-1 hover:text-slate-900"
+              >
                 Contact & FAQ
               </a>
               {!user && (
                 <div className="pt-3 border-t flex gap-2">
-                  <Link to="/login" className="py-2 text-center text-xs font-semibold text-slate-700 flex-1 rounded-full border">
+                  <Link
+                    to="/login"
+                    className="py-2 text-center text-xs font-semibold text-slate-700 flex-1 rounded-full border"
+                  >
                     Log in
                   </Link>
-                  <Link to="/register" className="py-2 text-center text-xs font-bold bg-[#4ade80] text-white rounded-full flex-1">
+                  <Link
+                    to="/register"
+                    className="py-2 text-center text-xs font-bold bg-[#4ade80] text-white rounded-full flex-1"
+                  >
                     Sign up
                   </Link>
                 </div>
@@ -196,10 +245,8 @@ function Index() {
         {/* Card Main Body (2 Columns matching Freepik vector composition) */}
         <div className="flex-1 px-6 sm:px-10 lg:px-16 py-8 sm:py-12 lg:py-16 flex items-center">
           <div className="grid lg:grid-cols-12 gap-8 lg:gap-14 items-center w-full">
-            
             {/* Left Column: Heading, Subtitle, Search Pill, Pagination Dots */}
             <div className="lg:col-span-6 flex flex-col justify-center">
-              
               {/* Category Subtitle */}
               <ScrollReveal animation="fade-down" delay={100}>
                 <div className="text-xs sm:text-sm font-medium text-slate-400 mb-3 tracking-wide flex items-center gap-2">
@@ -219,7 +266,9 @@ function Index() {
               {/* Subtitle */}
               <ScrollReveal animation="fade-up" delay={300}>
                 <p className="mt-4 text-xs sm:text-sm text-slate-500 max-w-md leading-relaxed font-normal">
-                  Prepare for your university exit exam with authentic department practice questions, realistic timed mock exams, and instant solutions. Start with 5 free questions.
+                  Prepare for your university exit exam with authentic department practice
+                  questions, realistic timed mock exams, and instant solutions. Start with 5 free
+                  questions.
                 </p>
               </ScrollReveal>
 
@@ -314,7 +363,9 @@ function Index() {
                 <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors duration-200">
                   {d.code}
                 </span>
-                <span className="text-xs text-slate-400 font-medium">{d.questions.toLocaleString()} Qs</span>
+                <span className="text-xs text-slate-400 font-medium">
+                  {d.questions.toLocaleString()} Qs
+                </span>
               </div>
               <h3 className="mt-4 font-bold text-lg text-slate-900 group-hover:text-emerald-600 transition-colors">
                 {d.name}
@@ -328,7 +379,8 @@ function Index() {
                   to="/register"
                   className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 hover:text-emerald-700 transition-colors"
                 >
-                  Practice now <ArrowRight className="size-3 group-hover:translate-x-1 transition-transform duration-200" />
+                  Practice now{" "}
+                  <ArrowRight className="size-3 group-hover:translate-x-1 transition-transform duration-200" />
                 </Link>
               </div>
             </ScrollReveal>
@@ -378,7 +430,9 @@ function Index() {
                 <div className="grid size-11 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 group-hover:bg-[#4ade80] group-hover:text-white group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-xs">
                   <s.icon className="size-5 transition-transform duration-300" />
                 </div>
-                <span className="text-xs font-bold text-slate-400 group-hover:text-emerald-600 transition-colors">0{i + 1}</span>
+                <span className="text-xs font-bold text-slate-400 group-hover:text-emerald-600 transition-colors">
+                  0{i + 1}
+                </span>
               </div>
               <h3 className="mt-5 font-bold text-base text-slate-900 group-hover:text-emerald-600 transition-colors duration-200">
                 {s.title}

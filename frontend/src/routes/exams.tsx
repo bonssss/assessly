@@ -10,7 +10,10 @@ export const Route = createFileRoute("/exams")({
   head: () => ({
     meta: [
       { title: "My Exams — Assessly" },
-      { name: "description", content: "Timed mock exams and quizzes for your enrolled departments." },
+      {
+        name: "description",
+        content: "Timed mock exams and quizzes for your enrolled departments.",
+      },
       { property: "og:title", content: "My Exams — Assessly" },
     ],
   }),
@@ -46,16 +49,20 @@ function ExamsComponent() {
           {loading ? (
             <p className="p-4 text-sm text-muted-foreground">Loading exams...</p>
           ) : exams.length === 0 ? (
-            <p className="p-4 text-sm text-muted-foreground">No exams currently published for your department.</p>
+            <p className="p-4 text-sm text-muted-foreground">
+              No exams currently published for your department.
+            </p>
           ) : (
             <table className="w-full">
               <thead className="border-b">
                 <tr>
-                  {["Exam Title", "Department", "Questions", "Duration", "Feedback Policy", ""].map((h) => (
-                    <th key={h} className={th}>
-                      {h}
-                    </th>
-                  ))}
+                  {["Exam Title", "Department", "Questions", "Duration", "Feedback Policy", ""].map(
+                    (h) => (
+                      <th key={h} className={th}>
+                        {h}
+                      </th>
+                    ),
+                  )}
                 </tr>
               </thead>
               <tbody className="divide-y">
@@ -64,7 +71,9 @@ function ExamsComponent() {
                     <td className={`${td} font-medium`}>
                       <div>{e.title}</div>
                       {e.instructions && (
-                        <div className="text-xs text-muted-foreground truncate max-w-xs">{e.instructions}</div>
+                        <div className="text-xs text-muted-foreground truncate max-w-xs">
+                          {e.instructions}
+                        </div>
                       )}
                     </td>
                     <td className={td}>{e.department?.name || e.department?.code}</td>

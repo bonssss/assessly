@@ -15,7 +15,16 @@ import {
   Legend,
   ReferenceLine,
 } from "recharts";
-import { TrendingUp, Users, CreditCard, BookOpen, CheckCircle, Clock, XCircle, Award } from "lucide-react";
+import {
+  TrendingUp,
+  Users,
+  CreditCard,
+  BookOpen,
+  CheckCircle,
+  Clock,
+  XCircle,
+  Award,
+} from "lucide-react";
 import { Section } from "@/components/ui-kit";
 
 interface DepartmentReport {
@@ -70,13 +79,14 @@ export function AdminAnalyticsChart({
     );
   }
 
-  const defaultPayments: PaymentStatusItem[] = paymentBreakdown.length > 0
-    ? paymentBreakdown
-    : [
-        { status: "Approved", count: 0, fill: "#10b981" },
-        { status: "Pending", count: 0, fill: "#f59e0b" },
-        { status: "Rejected", count: 0, fill: "#ef4444" },
-      ];
+  const defaultPayments: PaymentStatusItem[] =
+    paymentBreakdown.length > 0
+      ? paymentBreakdown
+      : [
+          { status: "Approved", count: 0, fill: "#10b981" },
+          { status: "Pending", count: 0, fill: "#f59e0b" },
+          { status: "Rejected", count: 0, fill: "#ef4444" },
+        ];
 
   const totalPaymentsCount = defaultPayments.reduce((acc, curr) => acc + curr.count, 0);
 
@@ -149,13 +159,20 @@ export function AdminAnalyticsChart({
                           const data = payload[0].payload as DepartmentReport;
                           return (
                             <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-lg text-xs space-y-1.5">
-                              <div className="font-bold text-slate-800">{data.name} ({data.code})</div>
+                              <div className="font-bold text-slate-800">
+                                {data.name} ({data.code})
+                              </div>
                               <div className="text-slate-500">
-                                {data.examsTaken} completed attempts &bull; {data.students} students enrolled
+                                {data.examsTaken} completed attempts &bull; {data.students} students
+                                enrolled
                               </div>
                               <div className="mt-1 flex items-center justify-between gap-4 border-t border-slate-100 pt-1.5 text-xs">
-                                <span className="text-blue-600 font-semibold">Average: {data.avgScore}%</span>
-                                <span className="text-emerald-600 font-bold">Pass Rate: {data.passRate}%</span>
+                                <span className="text-blue-600 font-semibold">
+                                  Average: {data.avgScore}%
+                                </span>
+                                <span className="text-emerald-600 font-bold">
+                                  Pass Rate: {data.passRate}%
+                                </span>
                               </div>
                             </div>
                           );
@@ -366,7 +383,10 @@ export function AdminAnalyticsChart({
         </Section>
 
         {/* Monetization & Payment Verification Breakdown (4 cols) */}
-        <Section title="Payment Verification Status" className="lg:col-span-4 shadow-xs flex flex-col justify-between">
+        <Section
+          title="Payment Verification Status"
+          className="lg:col-span-4 shadow-xs flex flex-col justify-between"
+        >
           <div className="p-4 flex flex-col items-center justify-center flex-1">
             <div className="h-[180px] w-full relative flex items-center justify-center">
               <ResponsiveContainer width="100%" height="100%">
@@ -402,13 +422,18 @@ export function AdminAnalyticsChart({
               </ResponsiveContainer>
               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                 <span className="text-2xl font-extrabold text-slate-800">{totalPaymentsCount}</span>
-                <span className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">Submissions</span>
+                <span className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">
+                  Submissions
+                </span>
               </div>
             </div>
 
             <div className="w-full mt-2 space-y-1.5 text-xs">
               {defaultPayments.map((p) => (
-                <div key={p.status} className="flex items-center justify-between text-slate-600 border-t border-slate-100/80 pt-1.5">
+                <div
+                  key={p.status}
+                  className="flex items-center justify-between text-slate-600 border-t border-slate-100/80 pt-1.5"
+                >
                   <span className="flex items-center gap-1.5">
                     <span className="size-2.5 rounded-full" style={{ backgroundColor: p.fill }} />
                     {p.status}

@@ -52,7 +52,10 @@ function LoginComponent() {
       footer={
         <>
           Don&apos;t have an account?{" "}
-          <Link to="/register" className="font-semibold text-emerald-600 hover:text-emerald-700 underline-offset-2 hover:underline">
+          <Link
+            to="/register"
+            className="font-semibold text-emerald-600 hover:text-emerald-700 underline-offset-2 hover:underline"
+          >
             Register now
           </Link>
         </>

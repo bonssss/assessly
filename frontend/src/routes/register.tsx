@@ -20,7 +20,9 @@ function RegisterComponent() {
   const { register } = useAuth();
   const navigate = useNavigate();
 
-  const [departments, setDepartments] = useState<Array<{ id: string; name: string; code: string }>>([]);
+  const [departments, setDepartments] = useState<Array<{ id: string; name: string; code: string }>>(
+    [],
+  );
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [departmentId, setDepartmentId] = useState("");
@@ -71,7 +73,10 @@ function RegisterComponent() {
       footer={
         <>
           Already registered?{" "}
-          <Link to="/login" className="font-semibold text-emerald-600 hover:text-emerald-700 underline-offset-2 hover:underline">
+          <Link
+            to="/login"
+            className="font-semibold text-emerald-600 hover:text-emerald-700 underline-offset-2 hover:underline"
+          >
             Log in here
           </Link>
         </>

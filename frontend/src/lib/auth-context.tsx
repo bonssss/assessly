@@ -8,7 +8,12 @@ interface AuthContextType {
   isAdmin: boolean;
   isStudent: boolean;
   login: (email: string, password: string) => Promise<ApiUser>;
-  register: (fullName: string, email: string, password: string, departmentIds: string[]) => Promise<ApiUser>;
+  register: (
+    fullName: string,
+    email: string,
+    password: string,
+    departmentIds: string[],
+  ) => Promise<ApiUser>;
   logout: () => void;
   refreshMe: () => Promise<void>;
 }
@@ -59,7 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     fullName: string,
     email: string,
     password: string,
-    departmentIds: string[]
+    departmentIds: string[],
   ): Promise<ApiUser> => {
     const res = await api.auth.register({ fullName, email, password, departmentIds });
     setUser(res.user);
@@ -102,4 +107,3 @@ export function useAuth() {
   }
   return context;
 }
-

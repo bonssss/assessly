@@ -114,8 +114,13 @@ function PracticeComponent() {
       {isQuotaExhausted && (
         <div className="mb-6 flex items-center justify-between gap-4 rounded-lg border border-warning/40 bg-warning/10 p-4 text-sm text-foreground">
           <div>
-            <strong className="block font-semibold">Free Trial Quota Exhausted ({trialQuota.used}/{trialQuota.limit})</strong>
-            <span>You have completed all 5 free practice questions. Purchase an access package to unlock the full question bank.</span>
+            <strong className="block font-semibold">
+              Free Trial Quota Exhausted ({trialQuota.used}/{trialQuota.limit})
+            </strong>
+            <span>
+              You have completed all 5 free practice questions. Purchase an access package to unlock
+              the full question bank.
+            </span>
           </div>
           <Link to="/payments" className={btn.primary}>
             Purchase Access Pass
@@ -127,7 +132,9 @@ function PracticeComponent() {
         {loading ? (
           <p className="p-4 text-sm text-muted-foreground">Loading questions...</p>
         ) : questions.length === 0 ? (
-          <p className="p-4 text-sm text-muted-foreground">No questions found for your enrolled departments.</p>
+          <p className="p-4 text-sm text-muted-foreground">
+            No questions found for your enrolled departments.
+          </p>
         ) : (
           <div className="divide-y">
             {questions.map((q, i) => {
@@ -137,7 +144,9 @@ function PracticeComponent() {
               return (
                 <div key={q.id} className="p-5">
                   <div className="flex items-start justify-between gap-4">
-                    <span className="font-semibold text-sm text-muted-foreground">Question {i + 1}</span>
+                    <span className="font-semibold text-sm text-muted-foreground">
+                      Question {i + 1}
+                    </span>
                     <span className="text-xs rounded bg-muted px-2 py-0.5 text-muted-foreground font-medium">
                       {q.topic || "General"} · {q.difficulty}
                     </span>
@@ -152,10 +161,13 @@ function PracticeComponent() {
                       const isCorrectOption = res?.correctOptionId === opt.id;
 
                       let optionStyle = "border bg-card hover:bg-muted/50";
-                      if (isSelected) optionStyle = "border-primary bg-primary/5 ring-1 ring-primary";
+                      if (isSelected)
+                        optionStyle = "border-primary bg-primary/5 ring-1 ring-primary";
                       if (isSubmitted) {
-                        if (isCorrectOption) optionStyle = "border-success bg-success/10 text-success font-medium";
-                        else if (isSelected && !res.isCorrect) optionStyle = "border-destructive bg-destructive/10 text-destructive";
+                        if (isCorrectOption)
+                          optionStyle = "border-success bg-success/10 text-success font-medium";
+                        else if (isSelected && !res.isCorrect)
+                          optionStyle = "border-destructive bg-destructive/10 text-destructive";
                       }
 
                       return (
@@ -166,8 +178,12 @@ function PracticeComponent() {
                           className={`w-full text-left rounded-lg p-3 text-sm transition-colors flex items-center justify-between ${optionStyle}`}
                         >
                           <span>{opt.optionText}</span>
-                          {isSubmitted && isCorrectOption && <CheckCircle className="size-4 text-success" />}
-                          {isSubmitted && isSelected && !res.isCorrect && <XCircle className="size-4 text-destructive" />}
+                          {isSubmitted && isCorrectOption && (
+                            <CheckCircle className="size-4 text-success" />
+                          )}
+                          {isSubmitted && isSelected && !res.isCorrect && (
+                            <XCircle className="size-4 text-destructive" />
+                          )}
                         </button>
                       );
                     })}

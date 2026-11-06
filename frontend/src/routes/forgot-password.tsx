@@ -69,7 +69,9 @@ function ForgotPasswordComponent() {
           <div>
             <h3 className="text-base font-bold text-slate-800">Check Your Email</h3>
             <p className="mt-1 text-xs text-slate-500 leading-relaxed">
-              If an account is associated with <span className="font-semibold text-slate-700">{email}</span>, we have sent instructions to reset your password.
+              If an account is associated with{" "}
+              <span className="font-semibold text-slate-700">{email}</span>, we have sent
+              instructions to reset your password.
             </p>
           </div>
 
