@@ -1,7 +1,5 @@
 import multer from "multer";
 import path from "path";
-import os from "os";
-import fs from "fs";
 import { config } from "../../config/env.js";
 import { LocalStorageProvider } from "./local-storage.service.js";
 import { S3StorageProvider } from "./s3-storage.service.js";
@@ -14,23 +12,9 @@ export const storageProvider: IStorageProvider =
     ? new S3StorageProvider()
     : new LocalStorageProvider();
 
-// Multer upload middleware with temporary disk buffering
-const tempDir = path.join(process.cwd(), "uploads", ".tmp");
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => {
-    cb(null, tempDir);
-  },
-  filename: (_req, file, cb) => {
-    // Generate clean sanitized temporary name
-    const ext = path.extname(file.originalname).toLowerCase();
-    cb(null, `tmp-${Date.now()}-${Math.random().toString(36).substring(2)}${ext}`);
-  },
-});
-
-// Create temp directory on startup
-if (!fs.existsSync(tempDir)) {
-  fs.mkdirSync(tempDir, { recursive: true });
-}
+// In-memory buffer storage: eliminates temporary disk writes, cross-device EXDEV errors,
+// and path-traversal vulnerabilities completely
+const storage = multer.memoryStorage();
 
 // Receipt Allowed Types & Extensions
 const allowedReceiptMimeTypes = ["image/jpeg", "image/png", "image/jpg", "application/pdf"];
@@ -119,3 +103,4 @@ export const uploadResourceFile = multer({
 });
 
 export * from "./storage.interface.js";
+
