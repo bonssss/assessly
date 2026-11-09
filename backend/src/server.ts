@@ -9,11 +9,12 @@ const server = app.listen(config.port, () => {
 });
 
 // Periodic background worker: sweep expired exam attempts every 60 seconds (FR-EXAM-08)
+const AUTO_TIMEOUT_SWEEP_INTERVAL_MS = 60 * 1000;
 const sweepInterval = setInterval(() => {
   examService.closeExpiredAttempts().catch((err) => {
     console.error("Auto-timeout worker error:", err);
   });
-}, 60 * 1000);
+}, AUTO_TIMEOUT_SWEEP_INTERVAL_MS);
 
 const handleShutdown = async (signal: string) => {
   console.log(`\nReceived ${signal}. Shutting down gracefully...`);

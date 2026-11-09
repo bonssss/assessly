@@ -559,36 +559,7 @@ export class AdminService {
       orderBy: { name: "asc" },
     });
 
-    return departments.map((dept) => {
-      const allAttempts = dept.exams.flatMap((e) =>
-        e.attempts.map((a) => ({ ...a, defaultExamQuestions: e.questions }))
-      );
-      const completed = allAttempts.filter(
-        (a) => a.status === "COMPLETED" || a.status === "TIMED_OUT"
-      );
-
-      const percentages: number[] = completed.map(computeAttemptPercentage);
-      const totalPercentage = percentages.reduce((sum: number, p: number) => sum + p, 0);
-      const avgScore =
-        percentages.length > 0
-          ? Math.round((totalPercentage / percentages.length) * 10) / 10
-          : 0;
-      const passedCount = percentages.filter((p) => p >= 50).length;
-      const passRate =
-        percentages.length > 0 ? Math.round((passedCount / percentages.length) * 100) : 0;
-
-      return {
-        id: dept.id,
-        code: dept.code,
-        name: dept.name,
-        students: dept._count.students,
-        questions: dept._count.questions,
-        exams: dept._count.exams,
-        examsTaken: completed.length,
-        avgScore,
-        passRate,
-      };
-    });
+    return departments.map(computeDepartmentStats);
   }
 }
 
@@ -610,6 +581,40 @@ function computeAttemptPercentage(attempt: any): number {
 
   const raw = Number(attempt.score || 0);
   return maxMarks > 0 ? Math.round((raw / maxMarks) * 100 * 10) / 10 : 0;
+}
+
+function computeDepartmentStats(dept: any) {
+  const completedAttempts: any[] = [];
+  for (const exam of dept.exams) {
+    for (const attempt of exam.attempts) {
+      if (attempt.status === "COMPLETED" || attempt.status === "TIMED_OUT") {
+        completedAttempts.push({ ...attempt, defaultExamQuestions: exam.questions });
+      }
+    }
+  }
+
+  const percentages: number[] = [];
+  for (const att of completedAttempts) {
+    percentages.push(computeAttemptPercentage(att));
+  }
+
+  const totalPercentage = percentages.reduce((sum: number, p: number) => sum + p, 0);
+  const count = percentages.length;
+  const avgScore = count > 0 ? Math.round((totalPercentage / count) * 10) / 10 : 0;
+  const passedCount = percentages.filter((p) => p >= 50).length;
+  const passRate = count > 0 ? Math.round((passedCount / count) * 100) : 0;
+
+  return {
+    id: dept.id,
+    code: dept.code,
+    name: dept.name,
+    students: dept._count.students,
+    questions: dept._count.questions,
+    exams: dept._count.exams,
+    examsTaken: count,
+    avgScore,
+    passRate,
+  };
 }
 
 export const adminService = new AdminService();

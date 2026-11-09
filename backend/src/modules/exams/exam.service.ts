@@ -59,11 +59,11 @@ export class ExamService {
 
       await tx.examQuestion.createMany({
         data: questionIds.map((qId, index) => {
-          const q = questions.find((item) => item.id === qId);
+          const matchedQuestion = questions.find((item) => item.id === qId);
           return {
             examId: exam.id,
             questionId: qId,
-            marks: q?.marks ?? 1.0,
+            marks: matchedQuestion?.marks ?? 1.0,
             sequence: index + 1,
           };
         }),
@@ -112,11 +112,11 @@ export class ExamService {
 
         await tx.examQuestion.createMany({
           data: questionIds.map((qId, index) => {
-            const q = questions.find((item) => item.id === qId);
+            const matchedQuestion = questions.find((item) => item.id === qId);
             return {
               examId: id,
               questionId: qId,
-              marks: q?.marks ?? 1.0,
+              marks: matchedQuestion?.marks ?? 1.0,
               sequence: index + 1,
             };
           }),
@@ -451,9 +451,9 @@ export class ExamService {
       const pool = Array.from(poolMap.values());
 
       // Randomize selection using Fisher-Yates shuffle
-      for (let i = pool.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [pool[i], pool[j]] = [pool[j], pool[i]];
+      for (let poolIdx = pool.length - 1; poolIdx > 0; poolIdx--) {
+        const swapIdx = Math.floor(Math.random() * (poolIdx + 1));
+        [pool[poolIdx], pool[swapIdx]] = [pool[swapIdx], pool[poolIdx]];
       }
 
       // Randomly select up to 60 questions from bank (or all if <= 60)
@@ -803,20 +803,20 @@ export class ExamService {
     }
 
     for (const item of questionsToReview) {
-      const q = item.question;
+      const currentQuestion = item.question;
       maxPossibleScore += item.maxMarks;
-      const correctOption = q.options.find((opt: any) => opt.isCorrect);
+      const correctOption = currentQuestion.options.find((opt: any) => opt.isCorrect);
 
       review.push({
-        questionId: q.id,
-        body: q.body,
+        questionId: currentQuestion.id,
+        body: currentQuestion.body,
         selectedOptionId: item.selectedOptionId,
         correctOptionId: correctOption?.id ?? null,
         isCorrect: item.isCorrect,
         awardedMarks: item.awardedMarks,
         maxMarks: item.maxMarks,
-        explanation: q.explanation,
-        options: q.options.map((opt: any) => ({
+        explanation: currentQuestion.explanation,
+        options: currentQuestion.options.map((opt: any) => ({
           id: opt.id,
           optionText: opt.optionText,
           isCorrect: opt.isCorrect,

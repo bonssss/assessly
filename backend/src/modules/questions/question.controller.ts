@@ -4,31 +4,29 @@ import { sendSuccess } from "../../common/utils/response.js";
 import { UnauthorizedError, BadRequestError } from "../../common/errors/app-error.js";
 import { bulkImportSchema, type ListQuestionsQuery } from "./question.schema.js";
 
+const VALID_DIFFICULTIES: Record<string, "EASY" | "MEDIUM" | "HARD"> = {
+  EASY: "EASY",
+  HARD: "HARD",
+  MEDIUM: "MEDIUM",
+};
+
+const OPTION_INDEX_MAP: Record<string, number> = {
+  A: 0,
+  "1": 0,
+  B: 1,
+  "2": 1,
+  C: 2,
+  "3": 2,
+  D: 3,
+  "4": 3,
+};
+
 function parseCsvLine(text: string): string[] {
-  const result: string[] = [];
-  let cur = "";
-  let inQuotes = false;
-  for (let i = 0; i < text.length; i++) {
-    const char = text[i];
-    if (char === '"' || char === "'") {
-      inQuotes = !inQuotes;
-    } else if (char === "," && !inQuotes) {
-      result.push(cur.trim());
-      cur = "";
-    } else {
-      cur += char;
-    }
-  }
-  result.push(cur.trim());
-  return result;
+  return text.split(",").map((col) => col.replace(/^["']|["']$/g, "").trim());
 }
 
 function parseDifficulty(val?: string): "EASY" | "MEDIUM" | "HARD" {
-  const upper = val?.toUpperCase();
-  if (upper === "EASY" || upper === "HARD") {
-    return upper;
-  }
-  return "MEDIUM";
+  return VALID_DIFFICULTIES[String(val).toUpperCase()] ?? "MEDIUM";
 }
 
 interface QuestionOptionItem {
@@ -37,51 +35,30 @@ interface QuestionOptionItem {
   sortOrder: number;
 }
 
-function buildQuestionOptions(
-  optA: string,
-  optB: string,
-  optC: string,
-  optD: string,
-  indicator: string
-): QuestionOptionItem[] {
-  const options: QuestionOptionItem[] = [
-    { optionText: optA, isCorrect: indicator === "A" || indicator === "1", sortOrder: 0 },
-    { optionText: optB, isCorrect: indicator === "B" || indicator === "2", sortOrder: 1 },
-  ];
+function buildQuestionOptions(rawOptions: string[], indicator: string): QuestionOptionItem[] {
+  const correctIdx = OPTION_INDEX_MAP[indicator.toUpperCase()] ?? 0;
+  const activeOptions = rawOptions.filter((opt) => opt.length > 0);
 
-  if (optC) {
-    options.push({
-      optionText: optC,
-      isCorrect: indicator === "C" || indicator === "3",
-      sortOrder: 2,
-    });
-  }
-  if (optD) {
-    options.push({
-      optionText: optD,
-      isCorrect: indicator === "D" || indicator === "4",
-      sortOrder: 3,
-    });
-  }
-
-  if (!options.some((o) => o.isCorrect)) {
-    options[0].isCorrect = true;
-  }
-
-  return options;
+  return activeOptions.map((text, idx) => ({
+    optionText: text,
+    isCorrect: idx === correctIdx,
+    sortOrder: idx,
+  }));
 }
 
 function parseCsvRow(cols: string[], idx: number) {
-  const body = cols[0];
-  const topic = cols[1] || "General";
-  const difficulty = parseDifficulty(cols[2]);
-  const marks = Number(cols[3]) > 0 ? Number(cols[3]) : 1.0;
-  const explanation = cols[4] || "";
-  const optA = cols[5] || "";
-  const optB = cols[6] || "";
-  const optC = cols[7] || "";
-  const optD = cols[8] || "";
-  const correctIndicator = (cols[9] || "A").trim().toUpperCase();
+  const [
+    body = "",
+    topic = "General",
+    diff = "MEDIUM",
+    marksStr = "1",
+    explanation = "",
+    optA = "",
+    optB = "",
+    optC = "",
+    optD = "",
+    indicator = "A",
+  ] = cols;
 
   if (!body || !optA || !optB) {
     throw new BadRequestError(
@@ -89,12 +66,13 @@ function parseCsvRow(cols: string[], idx: number) {
     );
   }
 
-  const options = buildQuestionOptions(optA, optB, optC, optD, correctIndicator);
+  const marks = parseFloat(marksStr) || 1.0;
+  const options = buildQuestionOptions([optA, optB, optC, optD], indicator);
 
   return {
     body,
     topic,
-    difficulty,
+    difficulty: parseDifficulty(diff),
     marks,
     explanation,
     status: "PUBLISHED" as const,

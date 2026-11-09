@@ -284,9 +284,9 @@ export class QuestionService {
     let finalQuestions = questions;
     if (query.random) {
       // Dynamic random shuffle
-      for (let i = finalQuestions.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [finalQuestions[i], finalQuestions[j]] = [finalQuestions[j], finalQuestions[i]];
+      for (let itemIdx = finalQuestions.length - 1; itemIdx > 0; itemIdx--) {
+        const swapIdx = Math.floor(Math.random() * (itemIdx + 1));
+        [finalQuestions[itemIdx], finalQuestions[swapIdx]] = [finalQuestions[swapIdx], finalQuestions[itemIdx]];
       }
       finalQuestions = finalQuestions.slice(0, limit);
     }
