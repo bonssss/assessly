@@ -16,7 +16,7 @@ app.use(
   })
 );
 
-// Whitelisted origins for Cross-Origin Resource Sharing (mitigates Permissive CORS)
+// Whitelisted origins for Cross-Origin Resource Sharing
 const defaultAllowedOrigins = [
   "http://localhost:8080",
   "http://localhost:3000",
@@ -34,18 +34,38 @@ const allowedOrigins = Array.from(new Set([...defaultAllowedOrigins, ...configur
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (e.g., mobile apps, curl, server-to-server)
+      // Allow requests with no origin (e.g. mobile apps, curl, server-to-server, health probes)
       if (!origin) {
         return callback(null, true);
       }
+
+      // If configured to wildcard '*', permit the request
+      if (config.corsOrigin === "*") {
+        return callback(null, true);
+      }
+
+      // Check explicit allowed origins list
       if (allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
+
+      // Automatically allow Vercel deployments (*.vercel.app)
+      if (/^https:\/\/.*\.vercel\.app$/.test(origin)) {
+        return callback(null, true);
+      }
+
+      // Automatically allow Render deployments (*.onrender.com)
+      if (/^https:\/\/.*\.onrender\.com$/.test(origin)) {
+        return callback(null, true);
+      }
+
       // Allow localhost with any development port
       if (config.nodeEnv === "development" && /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
         return callback(null, true);
       }
-      return callback(new Error("CORS policy violation: access denied from this origin"));
+
+      // Gracefully reject without throwing unhandled server errors
+      return callback(null, false);
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
