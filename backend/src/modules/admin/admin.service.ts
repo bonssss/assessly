@@ -567,26 +567,7 @@ export class AdminService {
         (a) => a.status === "COMPLETED" || a.status === "TIMED_OUT"
       );
 
-      const percentages: number[] = completed.map((a: any) => {
-        let maxMarks = 0;
-        if (a.answers && a.answers.length > 0) {
-          maxMarks = a.answers.reduce(
-            (sum: number, ans: any) => sum + Number(ans.question?.marks || 1),
-            0
-          );
-        } else if (a.defaultExamQuestions && a.defaultExamQuestions.length > 0) {
-          maxMarks = a.defaultExamQuestions.reduce(
-            (sum: number, q: any) => sum + Number(q.marks || 1),
-            0
-          );
-        } else {
-          maxMarks = 100;
-        }
-
-        const raw = Number(a.score || 0);
-        return maxMarks > 0 ? Math.round((raw / maxMarks) * 100 * 10) / 10 : 0;
-      });
-
+      const percentages: number[] = completed.map(computeAttemptPercentage);
       const totalPercentage = percentages.reduce((sum: number, p: number) => sum + p, 0);
       const avgScore =
         percentages.length > 0
@@ -609,6 +590,26 @@ export class AdminService {
       };
     });
   }
+}
+
+function computeAttemptPercentage(attempt: any): number {
+  let maxMarks = 0;
+  if (attempt.answers && attempt.answers.length > 0) {
+    maxMarks = attempt.answers.reduce(
+      (sum: number, ans: any) => sum + Number(ans.question?.marks || 1),
+      0
+    );
+  } else if (attempt.defaultExamQuestions && attempt.defaultExamQuestions.length > 0) {
+    maxMarks = attempt.defaultExamQuestions.reduce(
+      (sum: number, q: any) => sum + Number(q.marks || 1),
+      0
+    );
+  } else {
+    maxMarks = 100;
+  }
+
+  const raw = Number(attempt.score || 0);
+  return maxMarks > 0 ? Math.round((raw / maxMarks) * 100 * 10) / 10 : 0;
 }
 
 export const adminService = new AdminService();

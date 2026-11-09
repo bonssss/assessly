@@ -138,7 +138,9 @@ export const serveLocalResourceFileHandler = async (
     const filename = path.basename(req.params.filename as string);
     const filePath = path.resolve(process.cwd(), "uploads", "resources", filename);
 
-    if (!fs.existsSync(filePath)) {
+    try {
+      await fs.promises.access(filePath);
+    } catch {
       throw new NotFoundError("File not found on local storage");
     }
 

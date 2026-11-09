@@ -598,13 +598,26 @@ async function main() {
     },
   ];
 
+  const deptIds = mockExams
+    .map((e) => deptMap.get(e.deptCode))
+    .filter((id): id is string => Boolean(id));
+
+  const allPublishedQuestions = await prisma.question.findMany({
+    where: { departmentId: { in: deptIds }, status: "PUBLISHED" },
+  });
+
+  const questionsByDept = new Map<string, typeof allPublishedQuestions>();
+  for (const q of allPublishedQuestions) {
+    const list = questionsByDept.get(q.departmentId) || [];
+    list.push(q);
+    questionsByDept.set(q.departmentId, list);
+  }
+
   for (const examData of mockExams) {
     const departmentId = deptMap.get(examData.deptCode);
     if (!departmentId) continue;
 
-    const deptQuestions = await prisma.question.findMany({
-      where: { departmentId, status: "PUBLISHED" },
-    });
+    const deptQuestions = questionsByDept.get(departmentId) || [];
 
     let exam = await prisma.exam.findFirst({
       where: { departmentId, title: examData.title },

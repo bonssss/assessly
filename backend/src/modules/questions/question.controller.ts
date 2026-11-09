@@ -4,86 +4,112 @@ import { sendSuccess } from "../../common/utils/response.js";
 import { UnauthorizedError, BadRequestError } from "../../common/errors/app-error.js";
 import { bulkImportSchema, type ListQuestionsQuery } from "./question.schema.js";
 
+function parseCsvLine(text: string): string[] {
+  const result: string[] = [];
+  let cur = "";
+  let inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i];
+    if (char === '"' || char === "'") {
+      inQuotes = !inQuotes;
+    } else if (char === "," && !inQuotes) {
+      result.push(cur.trim());
+      cur = "";
+    } else {
+      cur += char;
+    }
+  }
+  result.push(cur.trim());
+  return result;
+}
+
+function parseDifficulty(val?: string): "EASY" | "MEDIUM" | "HARD" {
+  const upper = val?.toUpperCase();
+  if (upper === "EASY" || upper === "HARD") {
+    return upper;
+  }
+  return "MEDIUM";
+}
+
+interface QuestionOptionItem {
+  optionText: string;
+  isCorrect: boolean;
+  sortOrder: number;
+}
+
+function buildQuestionOptions(
+  optA: string,
+  optB: string,
+  optC: string,
+  optD: string,
+  indicator: string
+): QuestionOptionItem[] {
+  const options: QuestionOptionItem[] = [
+    { optionText: optA, isCorrect: indicator === "A" || indicator === "1", sortOrder: 0 },
+    { optionText: optB, isCorrect: indicator === "B" || indicator === "2", sortOrder: 1 },
+  ];
+
+  if (optC) {
+    options.push({
+      optionText: optC,
+      isCorrect: indicator === "C" || indicator === "3",
+      sortOrder: 2,
+    });
+  }
+  if (optD) {
+    options.push({
+      optionText: optD,
+      isCorrect: indicator === "D" || indicator === "4",
+      sortOrder: 3,
+    });
+  }
+
+  if (!options.some((o) => o.isCorrect)) {
+    options[0].isCorrect = true;
+  }
+
+  return options;
+}
+
+function parseCsvRow(cols: string[], idx: number) {
+  const body = cols[0];
+  const topic = cols[1] || "General";
+  const difficulty = parseDifficulty(cols[2]);
+  const marks = Number(cols[3]) > 0 ? Number(cols[3]) : 1.0;
+  const explanation = cols[4] || "";
+  const optA = cols[5] || "";
+  const optB = cols[6] || "";
+  const optC = cols[7] || "";
+  const optD = cols[8] || "";
+  const correctIndicator = (cols[9] || "A").trim().toUpperCase();
+
+  if (!body || !optA || !optB) {
+    throw new BadRequestError(
+      `Row ${idx + 2}: Question body and at least Option A and Option B are required`
+    );
+  }
+
+  const options = buildQuestionOptions(optA, optB, optC, optD, correctIndicator);
+
+  return {
+    body,
+    topic,
+    difficulty,
+    marks,
+    explanation,
+    status: "PUBLISHED" as const,
+    options,
+  };
+}
+
 function parseCsvQuestions(csvText: string) {
   const lines = csvText.split(/\r?\n/).filter((l) => l.trim().length > 0);
   if (lines.length < 2) {
     throw new BadRequestError("CSV must contain a header row and at least one data row");
   }
 
-  const parseLine = (text: string): string[] => {
-    const result: string[] = [];
-    let cur = "";
-    let inQuotes = false;
-    for (let i = 0; i < text.length; i++) {
-      const char = text[i];
-      if (char === '"' || char === "'") {
-        inQuotes = !inQuotes;
-      } else if (char === "," && !inQuotes) {
-        result.push(cur.trim());
-        cur = "";
-      } else {
-        cur += char;
-      }
-    }
-    result.push(cur.trim());
-    return result;
-  };
-
-  const rows = lines.slice(1).map(parseLine);
-  return rows.map((cols, idx) => {
-    const body = cols[0];
-    const topic = cols[1] || "General";
-    const difficulty = (["EASY", "MEDIUM", "HARD"].includes(cols[2]?.toUpperCase())
-      ? cols[2].toUpperCase()
-      : "MEDIUM") as "EASY" | "MEDIUM" | "HARD";
-    const marks = Number(cols[3]) > 0 ? Number(cols[3]) : 1.0;
-    const explanation = cols[4] || "";
-    const optA = cols[5] || "";
-    const optB = cols[6] || "";
-    const optC = cols[7] || "";
-    const optD = cols[8] || "";
-    const correctIndicator = (cols[9] || "A").trim().toUpperCase();
-
-    if (!body || !optA || !optB) {
-      throw new BadRequestError(
-        `Row ${idx + 2}: Question body and at least Option A and Option B are required`
-      );
-    }
-
-    const options = [
-      { optionText: optA, isCorrect: correctIndicator === "A" || correctIndicator === "1", sortOrder: 0 },
-      { optionText: optB, isCorrect: correctIndicator === "B" || correctIndicator === "2", sortOrder: 1 },
-    ];
-    if (optC) {
-      options.push({
-        optionText: optC,
-        isCorrect: correctIndicator === "C" || correctIndicator === "3",
-        sortOrder: 2,
-      });
-    }
-    if (optD) {
-      options.push({
-        optionText: optD,
-        isCorrect: correctIndicator === "D" || correctIndicator === "4",
-        sortOrder: 3,
-      });
-    }
-
-    const hasCorrect = options.some((o) => o.isCorrect);
-    if (!hasCorrect) {
-      options[0].isCorrect = true;
-    }
-
-    return {
-      body,
-      topic,
-      difficulty,
-      marks,
-      explanation,
-      status: "PUBLISHED" as const,
-      options,
-    };
-  });
+  const rows = lines.slice(1).map(parseCsvLine);
+  return rows.map((cols, idx) => parseCsvRow(cols, idx));
 }
 
 export const bulkImportQuestionsHandler = async (
