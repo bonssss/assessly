@@ -8,8 +8,8 @@
   "main": "dist/server.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsc",
-    "vercel-build": "prisma generate && tsc",
+    "build": "npx prisma generate && npx tsc",
+    "vercel-build": "npx prisma generate && npx tsc",
     "start": "node dist/server.js",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
@@ -23,6 +23,12 @@
     "@aws-sdk/client-s3": "^3.1161.0",
     "@aws-sdk/s3-request-presigner": "^3.1161.0",
     "@prisma/client": "^6.19.3",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/multer": "^2.3.0",
+    "@types/node": "^26.6.6",
+    "@types/nodemailer": "^8.0.2",
     "bcryptjs": "^3.0.3",
     "clear": "^0.1.0",
     "cors": "^2.8.6",
@@ -33,17 +39,11 @@
     "multer": "^2.5.0",
     "nodemailer": "^10.3.1",
     "nodemon": "^3.1.14",
+    "prisma": "^6.19.3",
+    "typescript": "^7.0.2",
     "zod": "^4.6.7"
   },
   "devDependencies": {
-    "@types/bcryptjs": "^2.4.6",
-    "@types/cors": "^2.8.19",
-    "@types/express": "^5.0.6",
-    "@types/multer": "^2.3.0",
-    "@types/node": "^26.6.6",
-    "@types/nodemailer": "^8.0.2",
-    "prisma": "^6.19.3",
-    "tsx": "^4.23.15",
-    "typescript": "^7.0.2"
+    "tsx": "^4.23.15"
   }
 }
