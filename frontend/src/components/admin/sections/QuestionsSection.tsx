@@ -458,3 +458,4 @@ export function QuestionsSection({ departments, getDeptName }: QuestionsSectionP
     </>
   );
 }
+

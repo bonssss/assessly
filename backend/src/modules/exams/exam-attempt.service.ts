@@ -299,3 +299,4 @@ export class ExamAttemptService {
     return expiredAttempts.length;
   }
 }
+

@@ -280,3 +280,4 @@ export class AdminAnalyticsService {
 }
 
 export const adminAnalyticsService = new AdminAnalyticsService();
+
