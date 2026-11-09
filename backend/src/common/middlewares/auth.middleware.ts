@@ -58,15 +58,17 @@ export const requireAuth = async (
 export const requireRoles = (...roles: UserRole[]) => {
   return (req: Request, _res: Response, next: NextFunction): void => {
     if (!req.user) {
-      return next(new UnauthorizedError("Authentication required"));
+      next(new UnauthorizedError("Authentication required"));
+      return;
     }
 
     if (!roles.includes(req.user.role)) {
-      return next(
+      next(
         new ForbiddenError(
           `Access denied. Requires one of the following roles: ${roles.join(", ")}`
         )
       );
+      return;
     }
 
     next();

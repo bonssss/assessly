@@ -128,9 +128,9 @@ export class AdminService {
     });
 
     const daysMap: Record<string, { date: string; attempts: number; completed: number }> = {};
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
-      const dateStr = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    for (let dayOffset = 6; dayOffset >= 0; dayOffset--) {
+      const dayDate = new Date(now.getTime() - dayOffset * 24 * 60 * 60 * 1000);
+      const dateStr = dayDate.toLocaleDateString("en-US", { month: "short", day: "numeric" });
       daysMap[dateStr] = { date: dateStr, attempts: 0, completed: 0 };
     }
     for (const att of recentAttempts) {

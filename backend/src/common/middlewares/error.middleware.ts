@@ -10,11 +10,12 @@ export const errorHandler = (
   _next: NextFunction
 ): Response => {
   if (err instanceof AppError) {
-    return res.status(err.statusCode).json({
+    const payload = {
       success: false,
       message: err.message,
       ...(err.code ? { code: err.code } : {}),
-    });
+    };
+    return res.status(err.statusCode).json(payload);
   }
 
   if (err instanceof ZodError) {
@@ -22,37 +23,40 @@ export const errorHandler = (
       path: issue.path.join("."),
       message: issue.message,
     }));
-
-    return res.status(400).json({
+    const payload = {
       success: false,
       message: "Validation failed",
       errors: formattedErrors,
-    });
+    };
+    return res.status(400).json(payload);
   }
 
   // Handle Prisma Database Errors (P2002 Unique Constraint, P2025 Not Found)
   const prismaErr = err as any;
   if (prismaErr.code === "P2002") {
     const fields = prismaErr.meta?.target ? ` (${Array.isArray(prismaErr.meta.target) ? prismaErr.meta.target.join(", ") : prismaErr.meta.target})` : "";
-    return res.status(409).json({
+    const payload = {
       success: false,
       message: `A record with this unique identifier already exists${fields}.`,
-    });
+    };
+    return res.status(409).json(payload);
   }
 
   if (prismaErr.code === "P2025") {
-    return res.status(404).json({
+    const payload = {
       success: false,
       message: "The requested record was not found or has been deleted.",
-    });
+    };
+    return res.status(404).json(payload);
   }
 
   // Unhandled / Internal Server Error
   console.error("Unhandled Error:", err);
 
-  return res.status(500).json({
+  const payload = {
     success: false,
     message: "Internal server error",
     ...(config.nodeEnv === "development" ? { stack: err.stack } : {}),
-  });
+  };
+  return res.status(500).json(payload);
 };

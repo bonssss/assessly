@@ -639,12 +639,12 @@ async function main() {
 
     // Link any missing questions to the examination
     for (let idx = 0; idx < deptQuestions.length; idx++) {
-      const q = deptQuestions[idx];
+      const deptQuestion = deptQuestions[idx];
       await prisma.examQuestion.upsert({
         where: {
           examId_questionId: {
             examId: exam.id,
-            questionId: q.id,
+            questionId: deptQuestion.id,
           },
         },
         update: {
@@ -652,7 +652,7 @@ async function main() {
         },
         create: {
           examId: exam.id,
-          questionId: q.id,
+          questionId: deptQuestion.id,
           marks: 1.0,
           sequence: idx + 1,
         },

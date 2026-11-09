@@ -45,12 +45,13 @@ export class LocalStorageProvider implements IStorageProvider {
     const endpointPrefix =
       safeFolder === "resources" ? "/api/v1/resources/files" : "/api/v1/payments/receipts";
 
-    return {
+    const result = {
       key,
       url: `${endpointPrefix}/${encodeURIComponent(safeTargetFilename)}`,
       mimeType: file.mimetype,
       size: fileBuffer.length,
     };
+    return result;
   }
 
   async getSignedUrl(key: string, _expiresInSeconds: number = 900): Promise<string> {

@@ -2,7 +2,7 @@ import type { Request, Response, NextFunction } from "express";
 import type { ZodTypeAny } from "zod";
 
 export const validateBody = (schema: ZodTypeAny) => {
-  return async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
+  const middleware = async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
     try {
       req.body = await schema.parseAsync(req.body);
       next();
@@ -10,10 +10,11 @@ export const validateBody = (schema: ZodTypeAny) => {
       next(error);
     }
   };
+  return middleware;
 };
 
 export const validateQuery = (schema: ZodTypeAny) => {
-  return async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
+  const middleware = async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
     try {
       const parsed = await schema.parseAsync(req.query);
       Object.defineProperty(req, "query", {
@@ -27,10 +28,11 @@ export const validateQuery = (schema: ZodTypeAny) => {
       next(error);
     }
   };
+  return middleware;
 };
 
 export const validateParams = (schema: ZodTypeAny) => {
-  return async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
+  const middleware = async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
     try {
       const parsed = await schema.parseAsync(req.params);
       Object.defineProperty(req, "params", {
@@ -44,4 +46,5 @@ export const validateParams = (schema: ZodTypeAny) => {
       next(error);
     }
   };
+  return middleware;
 };

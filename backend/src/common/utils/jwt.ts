@@ -6,9 +6,10 @@ export const signToken = (
   payload: TokenPayload,
   expiresIn: string = "7d"
 ): string => {
-  return jwt.sign(payload, config.jwtSecret, {
+  const token = jwt.sign(payload, config.jwtSecret, {
     expiresIn: expiresIn as jwt.SignOptions["expiresIn"],
   });
+  return token;
 };
 
 export const verifyToken = (token: string): TokenPayload => {
