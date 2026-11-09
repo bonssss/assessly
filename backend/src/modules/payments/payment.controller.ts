@@ -118,7 +118,9 @@ export const serveLocalReceiptFileHandler = async (
     const safeFilename = path.basename(filename as string);
     const filePath = path.resolve(process.cwd(), "uploads", "receipts", safeFilename);
 
-    if (!fs.existsSync(filePath)) {
+    try {
+      await fs.promises.access(filePath);
+    } catch {
       throw new NotFoundError("Receipt file not found");
     }
 
