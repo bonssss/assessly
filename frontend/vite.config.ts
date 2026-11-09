@@ -6,6 +6,11 @@
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
+// Auto-detect Vercel deployment environment and set nitro target
+if (process.env.VERCEL || process.env.NITRO_PRESET === "vercel") {
+  process.env.NITRO_PRESET = "vercel";
+}
+
 export default defineConfig({
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).

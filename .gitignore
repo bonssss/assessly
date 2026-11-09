@@ -5,6 +5,10 @@ node_modules/
 # Production build artifacts
 dist/
 */dist/
+.output/
+*/.output/
+.vercel/
+*/.vercel/
 .next/
 */.next/
 out/
