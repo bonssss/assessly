@@ -1,5 +1,18 @@
 import rateLimit from "express-rate-limit";
 
+// Named constants for rate limiting intervals and thresholds
+const FIFTEEN_MINUTES_MS = 15 * 60 * 1000;
+const ONE_MINUTE_MS = 60 * 1000;
+
+const GLOBAL_MAX_REQUESTS = 300;
+const AUTH_MAX_REQUESTS = 25;
+const EXAM_MAX_REQUESTS = 120;
+const PAYMENT_MAX_REQUESTS = 30;
+const QUESTION_MAX_REQUESTS = 150;
+const RESOURCE_MAX_REQUESTS = 60;
+const ADMIN_MAX_REQUESTS = 100;
+const DEFAULT_CUSTOM_MAX_REQUESTS = 20;
+
 /**
  * Standard response payload on 429 Too Many Requests
  */
@@ -14,8 +27,8 @@ const rateLimitResponse = (message: string) => ({
  * 300 requests per 15 minutes per IP
  */
 export const globalRateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  limit: 300,
+  windowMs: FIFTEEN_MINUTES_MS,
+  limit: GLOBAL_MAX_REQUESTS,
   standardHeaders: "draft-7",
   legacyHeaders: false,
   message: rateLimitResponse("Too many requests from this client. Please retry after 15 minutes."),
@@ -26,8 +39,8 @@ export const globalRateLimiter = rateLimit({
  * 25 requests per 15 minutes per IP to mitigate credential brute-force attacks
  */
 export const authRateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  limit: 25,
+  windowMs: FIFTEEN_MINUTES_MS,
+  limit: AUTH_MAX_REQUESTS,
   standardHeaders: "draft-7",
   legacyHeaders: false,
   message: rateLimitResponse("Too many authentication attempts. Please retry after 15 minutes."),
@@ -38,8 +51,8 @@ export const authRateLimiter = rateLimit({
  * 120 requests per 15 minutes per IP
  */
 export const examRateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  limit: 120,
+  windowMs: FIFTEEN_MINUTES_MS,
+  limit: EXAM_MAX_REQUESTS,
   standardHeaders: "draft-7",
   legacyHeaders: false,
   message: rateLimitResponse("Too many exam requests. Please slow down and try again shortly."),
@@ -50,8 +63,8 @@ export const examRateLimiter = rateLimit({
  * 30 requests per 15 minutes per IP
  */
 export const paymentRateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  limit: 30,
+  windowMs: FIFTEEN_MINUTES_MS,
+  limit: PAYMENT_MAX_REQUESTS,
   standardHeaders: "draft-7",
   legacyHeaders: false,
   message: rateLimitResponse("Too many payment submission attempts. Please try again later."),
@@ -62,8 +75,8 @@ export const paymentRateLimiter = rateLimit({
  * 150 requests per 15 minutes per IP
  */
 export const questionRateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  limit: 150,
+  windowMs: FIFTEEN_MINUTES_MS,
+  limit: QUESTION_MAX_REQUESTS,
   standardHeaders: "draft-7",
   legacyHeaders: false,
   message: rateLimitResponse("Too many practice question requests. Please try again shortly."),
@@ -74,8 +87,8 @@ export const questionRateLimiter = rateLimit({
  * 60 requests per 15 minutes per IP
  */
 export const resourceRateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  limit: 60,
+  windowMs: FIFTEEN_MINUTES_MS,
+  limit: RESOURCE_MAX_REQUESTS,
   standardHeaders: "draft-7",
   legacyHeaders: false,
   message: rateLimitResponse("Too many resource requests. Please try again later."),
@@ -86,8 +99,8 @@ export const resourceRateLimiter = rateLimit({
  * 100 requests per 15 minutes per IP
  */
 export const adminRateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  limit: 100,
+  windowMs: FIFTEEN_MINUTES_MS,
+  limit: ADMIN_MAX_REQUESTS,
   standardHeaders: "draft-7",
   legacyHeaders: false,
   message: rateLimitResponse("Too many administrative requests. Please try again later."),
@@ -97,15 +110,16 @@ export const adminRateLimiter = rateLimit({
  * Factory helper for custom rate limiters
  */
 export const createRateLimiter = (
-  windowMs: number = 60 * 1000,
-  max: number = 20,
+  windowMs: number = ONE_MINUTE_MS,
+  max: number = DEFAULT_CUSTOM_MAX_REQUESTS,
   message: string = "Too many requests. Please try again later."
 ) => {
-  return rateLimit({
+  const limiter = rateLimit({
     windowMs,
     limit: max,
     standardHeaders: "draft-7",
     legacyHeaders: false,
     message: rateLimitResponse(message),
   });
+  return limiter;
 };

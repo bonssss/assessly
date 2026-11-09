@@ -61,12 +61,13 @@ export class S3StorageProvider implements IStorageProvider {
     // Generate initial signed URL valid for 15 minutes
     const url = await this.getSignedUrl(key, 900);
 
-    return {
+    const result = {
       key,
       url,
       mimeType: file.mimetype,
       size: bodyBuffer.length,
     };
+    return result;
   }
 
   /**
@@ -82,9 +83,10 @@ export class S3StorageProvider implements IStorageProvider {
       Key: safeKey,
     });
 
-    return getSignedUrl(this.client, command, {
+    const signedUrl = await getSignedUrl(this.client, command, {
       expiresIn: expiresInSeconds,
     });
+    return signedUrl;
   }
 
   async deleteFile(key: string): Promise<void> {

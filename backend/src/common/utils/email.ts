@@ -130,10 +130,12 @@ export async function sendPasswordResetEmail(
 </html>
   `.trim();
 
-  return sendEmail({
+  const emailPayload = {
     to: toEmail,
     subject: "Reset Your Assessly Password",
     text: `Hello ${recipientName || "Candidate"},\n\nWe received a request to reset your Assessly account password. Use this link to set a new password: ${resetLink}\n\nThis link expires in 60 minutes. If you did not make this request, please ignore this email.`,
     html,
-  });
+  };
+
+  return sendEmail(emailPayload);
 }

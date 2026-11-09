@@ -12,6 +12,8 @@ COPY . .
 # Validate production build integrity
 RUN npm run build
 
+USER node
+
 EXPOSE 8080
 
 ENV HOST=0.0.0.0
