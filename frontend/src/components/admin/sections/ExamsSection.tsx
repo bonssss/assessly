@@ -326,3 +326,4 @@ export function ExamsSection({ departments, getDeptName }: ExamsSectionProps) {
     </>
   );
 }
+

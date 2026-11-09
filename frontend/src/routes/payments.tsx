@@ -8,6 +8,8 @@ import { PageHeader, Section, StatusBadge, btn, input, td, th } from "@/componen
 import { cn } from "@/lib/utils";
 import { api } from "@/lib/api";
 
+const COPY_FEEDBACK_DELAY_MS = 2500;
+
 export const Route = createFileRoute("/payments")({
   head: () => ({
     meta: [
@@ -74,7 +76,7 @@ function Payments() {
     navigator.clipboard.writeText(cleanNumber);
     setCopiedId(id);
     toast.success(`${label} copied to clipboard!`);
-    setTimeout(() => setCopiedId(null), 2500);
+    setTimeout(() => setCopiedId(null), COPY_FEEDBACK_DELAY_MS);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

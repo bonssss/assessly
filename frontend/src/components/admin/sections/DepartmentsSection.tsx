@@ -138,3 +138,4 @@ export function DepartmentsSection({ departments, loading, onRefresh }: Departme
     </>
   );
 }
+

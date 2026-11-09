@@ -252,3 +252,4 @@ export function ResourcesSection({ departments, getDeptName }: ResourcesSectionP
     </>
   );
 }
+

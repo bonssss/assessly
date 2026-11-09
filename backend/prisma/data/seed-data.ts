@@ -440,3 +440,4 @@ export const mockExams: SeedExam[] = [
     durationMinutes: 60,
   },
 ];
+
