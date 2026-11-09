@@ -12,6 +12,8 @@ import type {
   PaymentSettingInput,
 } from "./payment.schema.js";
 
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
 export class PaymentService {
   /**
    * Get active payment settings / instructions (Telebirr, bank details)
@@ -215,7 +217,7 @@ export class PaymentService {
     // Calculate entitlement expiration date
     let expiresAt: Date | null = null;
     if (pkg.durationDays) {
-      expiresAt = new Date(now.getTime() + pkg.durationDays * 24 * 60 * 60 * 1000);
+      expiresAt = new Date(now.getTime() + pkg.durationDays * MS_PER_DAY);
     }
 
     return prisma.$transaction(async (tx) => {

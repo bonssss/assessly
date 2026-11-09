@@ -75,8 +75,8 @@ export function StudentAnalyticsChart({ examHistory }: StudentAnalyticsChartProp
   });
 
   const passedCount = completedExams.filter((e) => {
-    const s = typeof e.percentage === "number" ? e.percentage : Number(e.score || 0);
-    return s >= 50;
+    const scoreValue = typeof e.percentage === "number" ? e.percentage : Number(e.score || 0);
+    return scoreValue >= 50;
   }).length;
 
   const failedCount = completedExams.length - passedCount;

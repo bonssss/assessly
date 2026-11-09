@@ -59,12 +59,12 @@ export const Route = createFileRoute("/admin/$section")({
     if (!titles[params.section]) throw notFound();
   },
   head: ({ params }) => {
-    const t = `${titles[params.section]?.[0] ?? "Admin"} — Assessly Portal`;
+    const pageTitle = `${titles[params.section]?.[0] ?? "Admin"} — Assessly Portal`;
     return {
       meta: [
-        { title: t },
+        { title: pageTitle },
         { name: "description", content: titles[params.section]?.[1] ?? "" },
-        { property: "og:title", content: t },
+        { property: "og:title", content: pageTitle },
         { property: "og:description", content: titles[params.section]?.[1] ?? "" },
       ],
     };
@@ -395,61 +395,58 @@ function AdminSectionComponent() {
         setNewExam((e) => ({ ...e, departmentId: depts[0].id }));
       }
 
-      switch (section) {
-        case "questions": {
+      const sectionLoaders: Record<string, () => Promise<void>> = {
+        questions: async () => {
           const res = await api.questions.list({ limit: 100 });
           setQuestions(Array.isArray(res) ? res : res?.questions || res?.data || []);
-          break;
-        }
-        case "departments": {
+        },
+        departments: async () => {
           setDepartments(Array.isArray(depts) ? depts : depts?.data || []);
-          break;
-        }
-        case "resources": {
+        },
+        resources: async () => {
           const res = await api.resources.list();
           setResources(Array.isArray(res) ? res : res?.data || res?.resources || []);
-          break;
-        }
-        case "students": {
+        },
+        students: async () => {
           const res = await api.admin.listUsers({ limit: 100 });
           setStudents(Array.isArray(res) ? res : res?.data || res?.users || []);
-          break;
-        }
-        case "payments": {
+        },
+        payments: async () => {
           const res = await api.payments.listAdminPayments();
           setPayments(Array.isArray(res) ? res : res?.data || res?.payments || []);
-          break;
-        }
-        case "exams": {
+        },
+        exams: async () => {
           const [examsRes, qsRes] = await Promise.all([
             api.exams.list({ limit: 100 }),
             api.questions.list({ limit: 100 }),
           ]);
           setExams(Array.isArray(examsRes) ? examsRes : examsRes?.exams || examsRes?.data || []);
           setQuestions(Array.isArray(qsRes) ? qsRes : qsRes?.questions || qsRes?.data || []);
-          break;
-        }
-        case "reports": {
+        },
+        reports: async () => {
           const res = await api.admin.getDepartmentReports();
           setReports(Array.isArray(res) ? res : res?.data || []);
-          break;
-        }
-        case "settings": {
+        },
+        settings: async () => {
           const res = await api.admin.getSettings();
-          const s = res?.data ?? res;
-          if (s) {
-            setSettings(s);
+          const adminSettings = res?.data ?? res;
+          if (adminSettings) {
+            setSettings(adminSettings);
             setSettingsForm({
-              freeTrialQuestions: s.freeTrialQuestions ?? 5,
-              telebirrNumber: s.telebirr?.accountNumber ?? "0911 234 567",
-              telebirrInstructions: s.telebirr?.instructions ?? "",
-              cbeAccount: s.cbe?.accountNumber ?? "1000 2345 6789 0",
-              cbeInstructions: s.cbe?.instructions ?? "",
-              passMarkPercentage: s.passMarkPercentage ?? 50,
+              freeTrialQuestions: adminSettings.freeTrialQuestions ?? 5,
+              telebirrNumber: adminSettings.telebirr?.accountNumber ?? "0911 234 567",
+              telebirrInstructions: adminSettings.telebirr?.instructions ?? "",
+              cbeAccount: adminSettings.cbe?.accountNumber ?? "1000 2345 6789 0",
+              cbeInstructions: adminSettings.cbe?.instructions ?? "",
+              passMarkPercentage: adminSettings.passMarkPercentage ?? 50,
             });
           }
-          break;
-        }
+        },
+      };
+
+      const handler = sectionLoaders[section];
+      if (handler) {
+        await handler();
       }
     } catch (err: any) {
       toast.error(err.message || `Failed to load ${section} data`);
@@ -561,10 +558,10 @@ function AdminSectionComponent() {
 "Which layer of the OSI model is responsible for end-to-end packet routing?","Networking","MEDIUM",1,"The Network layer handles logical addressing and routing.","Data Link","Transport","Network","Physical","C"`;
     const blob = new Blob([template], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "assessly_questions_template.csv";
-    a.click();
+    const downloadAnchor = document.createElement("a");
+    downloadAnchor.href = url;
+    downloadAnchor.download = "assessly_questions_template.csv";
+    downloadAnchor.click();
     URL.revokeObjectURL(url);
   };
 
