@@ -9,3 +9,4 @@ export const entitlementsApi = {
     return request("/entitlements/status");
   },
 };
+

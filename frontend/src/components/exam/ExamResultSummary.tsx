@@ -257,3 +257,4 @@ export function ExamResultSummary({ examTitle, result, onRetake }: ExamResultSum
     </div>
   );
 }
+

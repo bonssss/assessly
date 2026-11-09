@@ -26,3 +26,4 @@ export const resourcesApi = {
     return request(`/resources/${resourceId}/download`);
   },
 };
+
