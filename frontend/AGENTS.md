@@ -1,12 +1,11 @@
-<!-- LOVABLE:BEGIN -->
+# Assessly Frontend Guidelines
 
-> [!IMPORTANT]
-> This project is connected to [Lovable](https://lovable.dev). Avoid rewriting
-> published git history — force pushing, or rebasing/amending/squashing commits
-> that are already pushed — as it rewrites history on Lovable's side and the
-> user will likely lose their project history.
->
-> Commits you push to the connected branch sync back to Lovable and show up in
-> the editor, so keep the branch in a working state.
+## Overview
+Assessly is a production-grade online examination and self-assessment portal for university students and administrators.
 
-<!-- LOVABLE:END -->
+## Tech Stack
+- **Framework**: TanStack Start (React 19, TypeScript 5.8+)
+- **Routing**: TanStack Router (file-based routing in `src/routes/`)
+- **Styling**: Tailwind CSS v4 + Radix UI primitives
+- **Icons**: Lucide React
+- **Branding**: Assessly custom brand design system
