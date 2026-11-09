@@ -65,7 +65,7 @@ The repository includes pre-configured `backend/vercel.json` and `backend/api/in
 - **Project Name**: `assessly-api`
 - **Framework Preset**: Select **Other**.
 - **Root Directory**: Click **Edit** and select **`backend`**.
-- **Build Command**: `npm run vercel-build` *(runs `prisma generate && tsc`)*
+- **Build Command**: `npm run vercel-build` *(or leave blank; automatically runs `npx prisma generate && npx tsc`)*
 
 ### Step 3: Add Backend Environment Variables
 Under **Environment Variables**, add:
@@ -109,3 +109,4 @@ Test your live deployment:
 2. **Frontend UI**: Visit `https://assessly.vercel.app` — check that the landing page renders with animations and curriculum exploration.
 3. **Practice Arena**: Log in as a student and test the **Practice Arena (5 dynamic questions)**.
 4. **Admin Console**: Log in as admin and verify dashboards and question bank.
+
