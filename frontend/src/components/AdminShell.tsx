@@ -24,7 +24,7 @@ const nav: NavItem[] = [
   createNavItem("questions", "Questions", FileQuestion),
   createNavItem("departments", "Departments", Building2),
   createNavItem("resources", "Resources", BookOpen),
-  s("students", "Students", Users),
+  createNavItem("students", "Students", Users),
   createNavItem("payments", "Payments", CreditCard),
   createNavItem("exams", "Exams", ClipboardList),
   createNavItem("reports", "Reports", BarChart3),
