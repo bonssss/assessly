@@ -79,3 +79,4 @@ export const examsApi = {
     return request("/exams/history/my-attempts");
   },
 };
+
